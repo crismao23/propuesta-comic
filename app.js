@@ -30,7 +30,7 @@ const RETOS_DATA = [
     badge: "RECUERDO #1",
     title: "El rechazo de 5 min, la pizza y la cara de ñoño 🍕",
     storyTitle: "Capítulo 1: El Primer Encuentro",
-    storyText: "Todo empezó con ese mensaje de Facebook por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y la mirada puesta en ese Twingo blanco por la ventana.",
+    storyText: "Todo empezó con ese mensaje de Facebook por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y una mirada cómplice.",
     sfx: "¡PIZZA! 🍕",
     question: "Todo empezó porque te agregué al Facebook al ver que compartíamos el grupo de Maestría en Ciencias Químicas. El plan original era ir solo por un café; ese día primero me rechazaste, pero a los pocos minutos aceptaste y en ese mismo sitio terminamos comiendo pizza. Mientras jugábamos mini-hockey con cauchitos, yo te dije que me parecían muy lindos tus ojos, ¿qué me dejaste muy claro que te gustaba de mí?",
     options: [
@@ -58,7 +58,7 @@ const RETOS_DATA = [
     badge: "RECUERDO #3",
     title: "La radio agropecuaria y el primer beso 📻",
     storyTitle: "Capítulo 3: Nuestro Primer Beso",
-    storyText: "En el carro de noche, con la música agropecuaria de fondo. Te quedaste profunda de sueño, pero al abrir los ojos, el universo conspiró para sellar nuestro primer beso.",
+    storyText: "En el carro de noche, con la música romántica y agropecuaria de fondo... Te quedaste profunda de sueño, pero al abrir los ojos, el universo conspiró para sellar nuestro primer beso.",
     sfx: "¡BESO! 💋",
     question: "Al finalizar esa misma primera cita, paramos en el carro con la intención de hablar un rato (seguro de fondo sonaba música agropecuaria, que es lo único que coge ese radio). Pero el cansancio te ganó y te quedaste profunda. ¿Qué fue lo primero que pasó justo en el instante en que abriste los ojos?",
     options: [
