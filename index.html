@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestra Historia en Cómic ❤️</title>
+  <meta name="description" content="Una historia interactiva en cómic con sorpresas, retos y un momento muy especial.">
+
+  <!-- Google Fonts: Bangers y Comic Neue -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Corazones y destellos flotantes en el fondo -->
+  <div class="bg-sparkles" aria-hidden="true">
+    <div class="floating-heart" style="left: 10%; animation-delay: 0s; font-size: 1.8rem;">💖</div>
+    <div class="floating-heart" style="left: 25%; animation-delay: 2.5s; font-size: 1.2rem;">✨</div>
+    <div class="floating-heart" style="left: 45%; animation-delay: 4s; font-size: 1.6rem;">💕</div>
+    <div class="floating-heart" style="left: 70%; animation-delay: 1.2s; font-size: 2rem;">❤️</div>
+    <div class="floating-heart" style="left: 88%; animation-delay: 3s; font-size: 1.4rem;">💫</div>
+  </div>
+
+  <main class="app-container">
+
+    <!-- Encabezado Estilo Portada de Cómic -->
+    <header class="comic-header">
+      <div class="comic-badge">EDICIÓN ESPECIAL LIMITADA 🌟</div>
+      <h1 class="comic-title">Nuestra Historia de Amor</h1>
+      <p class="comic-subtitle">Supera los 3 retos de cada regalo para desbloquear el cómic completo</p>
+    </header>
+
+    <!-- Barra de Progreso y Navegación de Capítulos -->
+    <section class="progress-panel" aria-label="Progreso de la historia">
+      <div class="progress-header">
+        <span>📖 Progreso de la Lectura</span>
+        <span id="progressCountText">0 de 3 Capítulos Desbloqueados</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div id="progressBarInner" class="progress-bar-inner"></div>
+      </div>
+      <div class="progress-steps">
+        <button id="stepIndicator1" class="step-indicator" onclick="openRetoModal(1)">
+          <span>Viñeta #1</span>
+          <span>🔒 Bloqueada</span>
+        </button>
+        <button id="stepIndicator2" class="step-indicator" onclick="openRetoModal(2)">
+          <span>Viñeta #2</span>
+          <span>🔒 Bloqueada</span>
+        </button>
+        <button id="stepIndicator3" class="step-indicator" onclick="openRetoModal(3)">
+          <span>Viñeta #3</span>
+          <span>🔒 Bloqueada</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Tira de Cómic: Las 3 Viñetas -->
+    <div class="comic-strip-container">
+
+      <!-- VIÑETA 1 -->
+      <article class="comic-panel-card" id="panelCard1">
+        <div class="comic-panel-header">
+          <span class="comic-panel-tag">CAPÍTULO 1</span>
+          <span class="comic-panel-status" id="panelStatus1">🔒 Bloqueada</span>
+        </div>
+        <div class="comic-panel-body">
+          <div class="comic-art-frame">
+            <img src="images/comic1.jpg" alt="Viñeta 1: El Primer Encuentro" loading="lazy">
+            <div class="locked-overlay" id="panelOverlay1">
+              <div class="locked-icon">🔒</div>
+              <h3>Viñeta Bloqueada</h3>
+              <p>Escanea el QR del <strong>Regalo #1</strong> o presiona el botón para resolver el reto.</p>
+              <button class="comic-btn secondary" onclick="openRetoModal(1)">⚡ Desbloquear Capítulo 1</button>
+            </div>
+          </div>
+          <div class="comic-story-side">
+            <div class="comic-sfx-badge">¡BOOM! ❤️</div>
+            <div class="speech-bubble">
+              <strong>El Primer Encuentro:</strong> Dicen que las mejores historias comienzan sin planearse. En un día cualquiera, tu sonrisa apareció y de pronto todo a mi alrededor cobró más vida y color.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- VIÑETA 2 -->
+      <article class="comic-panel-card" id="panelCard2">
+        <div class="comic-panel-header">
+          <span class="comic-panel-tag">CAPÍTULO 2</span>
+          <span class="comic-panel-status" id="panelStatus2">🔒 Bloqueada</span>
+        </div>
+        <div class="comic-panel-body">
+          <div class="comic-art-frame">
+            <img src="images/comic2.jpg" alt="Viñeta 2: Risas y Complicidad" loading="lazy">
+            <div class="locked-overlay" id="panelOverlay2">
+              <div class="locked-icon">🔒</div>
+              <h3>Viñeta Bloqueada</h3>
+              <p>Escanea el QR del <strong>Regalo #2</strong> o presiona el botón para jugar el reto.</p>
+              <button class="comic-btn secondary" onclick="openRetoModal(2)">⚡ Desbloquear Capítulo 2</button>
+            </div>
+          </div>
+          <div class="comic-story-side">
+            <div class="comic-sfx-badge">¡ZAP! ✨</div>
+            <div class="speech-bubble">
+              <strong>Risas y Complicidad:</strong> Paso a paso fuimos sumando recuerdos inolvidables, risas tontas, pláticas eternas y miradas cómplices que no necesitan palabras.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- VIÑETA 3 -->
+      <article class="comic-panel-card" id="panelCard3">
+        <div class="comic-panel-header">
+          <span class="comic-panel-tag">CAPÍTULO 3</span>
+          <span class="comic-panel-status" id="panelStatus3">🔒 Bloqueada</span>
+        </div>
+        <div class="comic-panel-body">
+          <div class="comic-art-frame">
+            <img src="images/comic3.jpg" alt="Viñeta 3: Nuestro Presente" loading="lazy">
+            <div class="locked-overlay" id="panelOverlay3">
+              <div class="locked-icon">🔒</div>
+              <h3>Viñeta Bloqueada</h3>
+              <p>Escanea el QR del <strong>Regalo #3</strong> o presiona el botón para el reto final.</p>
+              <button class="comic-btn secondary" onclick="openRetoModal(3)">⚡ Desbloquear Capítulo 3</button>
+            </div>
+          </div>
+          <div class="comic-story-side">
+            <div class="comic-sfx-badge">¡AMOR! 💥</div>
+            <div class="speech-bubble">
+              <strong>Bajo las Estrellas:</strong> Llegar hasta aquí me confirmó lo que siempre supe: que cada instante contigo vale oro y que quiero seguir construyendo momentos a tu lado.
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- SECCIÓN CLÍMAX: LA GRAN PROPUESTA FINAL (Aparece al desbloquear las 3 viñetas) -->
+    <section class="final-proposal-section" id="finalProposalSection">
+      <div class="proposal-banner">💥 EL MOMENTO DECISIVO 💥</div>
+      <p class="proposal-text">
+        Has completado todos los capítulos y descubierto cada momento especial... pero las mejores historias no terminan aquí: apenas están por comenzar.
+      </p>
+      
+      <h2 class="proposal-question">¿Quieres ser mi novia? ❤️</h2>
+
+      <div class="proposal-buttons">
+        <button class="comic-btn btn-yes" onclick="acceptProposal()">¡SÍ, ACEPTO! 💖</button>
+        <button class="comic-btn btn-no" id="btnNoProposal">No...</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA DE ÉXITO Y VICTORIA (Al presionar SÍ) -->
+    <section class="success-screen" id="successScreen">
+      <div class="comic-badge" style="background:#4ade80; color:#14532d; font-size:1.3rem;">¡CAPÍTULO DESBLOQUEADO! 🥂</div>
+      <h2 style="font-family: var(--comic-font); font-size: 3rem; color: var(--primary); margin: 0.5rem 0;">¡OFICIALMENTE JUNTOS! 🎉</h2>
+      <p style="font-size: 1.25rem; max-width: 650px; margin: 1rem auto; line-height: 1.6; font-weight: 600;">
+        ¡Dijiste que sí! 🥰 Eres la persona más maravillosa y especial del mundo. Prometo hacerte reír todos los días, cuidarte, apoyarte y seguir escribiendo juntos las páginas más hermosas de nuestra historia.
+      </p>
+      <div style="font-size: 3.5rem; margin: 1.5rem 0;">👩‍❤️‍👨 💍 ✨</div>
+      <div class="comic-badge" style="transform: rotate(1deg); font-size: 1.1rem;">NUESTRO AMOR CONTINUARÁ... ❤️</div>
+    </section>
+
+    <!-- Pie de página con acceso a Herramientas para el Creador -->
+    <footer class="app-footer">
+      <p style="font-size: 0.9rem; color: #775c65;">Hecho con todo el corazón especialmente para ti ❤️</p>
+      <button class="creator-pill-btn" onclick="openCreatorModal()">
+        ⚙️ Modo Creador / Generar Códigos QR para Regalos
+      </button>
+    </footer>
+
+  </main>
+
+  <!-- MODAL DE RETOS / PREGUNTAS -->
+  <div class="comic-modal-backdrop" id="quizModalBackdrop" role="dialog" aria-modal="true">
+    <div class="comic-modal">
+      <button class="modal-close-btn" onclick="closeQuizModal()" aria-label="Cerrar ventana">✕</button>
+      <div class="modal-header">
+        <div class="comic-badge" id="modalRetoBadge">CAPÍTULO 1</div>
+        <h2 class="modal-title" id="modalRetoTitle">El Reto del Regalo</h2>
+        <p style="font-size: 0.95rem; color: #666; margin-top: 0.35rem;" id="modalRetoDesc"></p>
+      </div>
+
+      <div class="quiz-question-box" id="modalRetoQuestion">
+        ¿Recuerdas cómo comenzó todo?
+      </div>
+
+      <div class="quiz-options" id="modalRetoOptions">
+        <!-- Opciones generadas dinámicamente -->
+      </div>
+
+      <div class="feedback-msg" id="modalRetoFeedback"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DEL CREADOR: GENERADOR DE QRS PARA LOS 3 REGALOS -->
+  <div class="comic-modal-backdrop" id="creatorModalBackdrop" role="dialog" aria-modal="true">
+    <div class="comic-modal" style="max-width: 700px;">
+      <button class="modal-close-btn" onclick="closeCreatorModal()" aria-label="Cerrar modal">✕</button>
+
+      <div class="modal-header">
+        <div class="comic-badge" style="background: var(--accent-cyan);">HERRAMIENTA DEL CREADOR</div>
+        <h2 class="modal-title">Códigos QR para tus 3 Regalos 🎁</h2>
+        <p style="font-size: 0.95rem; color: #555;">
+          Coloca cada código QR dentro o pegado a cada uno de tus 3 regalos físicos. Al escanearlos con la cámara de su celular, se abrirá directamente el reto correspondiente.
+        </p>
+      </div>
+
+      <div class="creator-config-fields" style="background:#fff3f6; border:2px dashed #ff8fa3; padding:1rem; border-radius:12px; margin-bottom:1.5rem;">
+        <label for="creatorBaseUrlInput" style="display:block; font-weight:700; font-size:0.95rem; margin-bottom:0.4rem;">
+          🌐 Enlace público de tu página web (ejemplo: en GitHub Pages o Netlify):
+        </label>
+        <input type="url" id="creatorBaseUrlInput" placeholder="https://tu-usuario.github.io/propuesta/" style="width:100%; padding:0.65rem 0.85rem; font-size:1rem; border:2px solid var(--dark); border-radius:10px; font-family:inherit;">
+        <p style="font-size:0.8rem; color:#666; margin-top:0.4rem;">
+          💡 Los códigos QR se actualizan al instante conforme cambies la URL pública.
+        </p>
+      </div>
+
+      <div class="print-header-notice" style="display:none;">
+        ✂️ Tarjetas recortables para los 3 Regalos - ¡Escanea cada regalo con la cámara de tu celular!
+      </div>
+
+      <!-- Tarjetas con QR para imprimir -->
+      <div class="qr-cards-grid">
+        <!-- Tarjeta QR 1 -->
+        <div class="qr-card-item">
+          <div class="comic-badge" style="font-size:0.85rem; padding:0.2rem 0.6rem;">REGALO #1 🎁</div>
+          <div class="qr-card-title">Capítulo 1</div>
+          <div class="qr-canvas-holder" id="qrHolder1"></div>
+          <div class="qr-card-subtitle">Escanea para abrir el Primer Reto</div>
+          <div style="font-size:0.65rem; color:#888; word-break:break-all; margin-top:4px;" id="qrLinkText1"></div>
+        </div>
+
+        <!-- Tarjeta QR 2 -->
+        <div class="qr-card-item">
+          <div class="comic-badge" style="font-size:0.85rem; padding:0.2rem 0.6rem;">REGALO #2 🎁</div>
+          <div class="qr-card-title">Capítulo 2</div>
+          <div class="qr-canvas-holder" id="qrHolder2"></div>
+          <div class="qr-card-subtitle">Escanea para abrir el Segundo Reto</div>
+          <div style="font-size:0.65rem; color:#888; word-break:break-all; margin-top:4px;" id="qrLinkText2"></div>
+        </div>
+
+        <!-- Tarjeta QR 3 -->
+        <div class="qr-card-item">
+          <div class="comic-badge" style="font-size:0.85rem; padding:0.2rem 0.6rem;">REGALO #3 🎁</div>
+          <div class="qr-card-title">Capítulo 3</div>
+          <div class="qr-canvas-holder" id="qrHolder3"></div>
+          <div class="qr-card-subtitle">Escanea para el Reto y la Gran Sorpresa</div>
+          <div style="font-size:0.65rem; color:#888; word-break:break-all; margin-top:4px;" id="qrLinkText3"></div>
+        </div>
+      </div>
+
+      <div class="print-btn-action" style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap; margin-top:1.5rem;">
+        <button class="comic-btn" onclick="window.print()" style="background:#2ec4b6;">
+          🖨️ Imprimir Tarjetas de Regalo
+        </button>
+        <button class="comic-btn secondary" onclick="unlockAllPreview()">
+          👀 Previsualizar Todo Desbloqueado
+        </button>
+        <button class="comic-btn" onclick="resetProgress()" style="background:#6c757d; font-size:1rem;">
+          🔄 Reiniciar Progreso a Cero
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Librerías locales descargadas -->
+  <script src="confetti.min.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
