@@ -851,9 +851,69 @@ function saveProgressState() {
 }
 
 // ============================================================
-// PANEL DEL CREADOR / MODO PRUEBAS
+// PANEL DEL CREADOR / MODO PRUEBAS (ACCESO SECRETO Y PROTEGIDO)
 // ============================================================
-function openCreatorModal() {
+let secretBadgeTaps = 0;
+let secretBadgeTimer = null;
+
+function checkCreatorAccess() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Activar con ?admin=1 o ?cristian=1
+  if (urlParams.get('admin') === '1' || urlParams.get('cristian') === '1') {
+    localStorage.setItem('propuesta_modo_cristian', 'true');
+  }
+
+  // Desactivar y ocultar con ?logout=1 o ?limpiar=1
+  if (urlParams.get('logout') === '1' || urlParams.get('limpiar') === '1') {
+    localStorage.removeItem('propuesta_modo_cristian');
+  }
+
+  const btn = document.getElementById('creatorBtn');
+  if (localStorage.getItem('propuesta_modo_cristian') === 'true') {
+    if (btn) btn.classList.add('is-active');
+  } else {
+    if (btn) btn.classList.remove('is-active');
+  }
+}
+
+function handleSecretBadgeTap() {
+  secretBadgeTaps++;
+  if (secretBadgeTimer) clearTimeout(secretBadgeTimer);
+
+  // Si da 5 toques rápidos en menos de 2.5 segundos
+  if (secretBadgeTaps >= 5) {
+    secretBadgeTaps = 0;
+    const pwd = prompt("🔐 Acceso Creador (Cristian)\nIngresa tu clave secreta:");
+    if (pwd === "2026" || pwd === "1409") {
+      localStorage.setItem('propuesta_modo_cristian', 'true');
+      const btn = document.getElementById('creatorBtn');
+      if (btn) btn.classList.add('is-active');
+      openCreatorModal(true);
+    } else if (pwd !== null) {
+      alert("❌ Clave incorrecta.");
+    }
+    return;
+  }
+
+  secretBadgeTimer = setTimeout(() => {
+    secretBadgeTaps = 0;
+  }, 2500);
+}
+
+function openCreatorModal(bypass = false) {
+  // Verificación de seguridad si no está autorizado
+  if (!bypass && localStorage.getItem('propuesta_modo_cristian') !== 'true') {
+    const pwd = prompt("🔐 Acceso Protegido\nIngresa tu clave de creador:");
+    if (pwd !== "2026" && pwd !== "1409") {
+      if (pwd !== null) alert("❌ Clave incorrecta.");
+      return;
+    }
+    localStorage.setItem('propuesta_modo_cristian', 'true');
+    const btn = document.getElementById('creatorBtn');
+    if (btn) btn.classList.add('is-active');
+  }
+
   audio.playBeep();
   const modal = document.getElementById('creatorModalBackdrop');
   
@@ -870,6 +930,14 @@ function closeCreatorModal() {
   audio.playBeep();
   const modal = document.getElementById('creatorModalBackdrop');
   modal.classList.remove('open');
+}
+
+function hideCreatorModeForGirlfriend() {
+  localStorage.removeItem('propuesta_modo_cristian');
+  const btn = document.getElementById('creatorBtn');
+  if (btn) btn.classList.remove('is-active');
+  closeCreatorModal();
+  alert("🔒 Modo Creador oculto con éxito.\nNadie podrá verlo a menos que use tu enlace secreto o tu clave.");
 }
 
 function saveCreatorSettings() {
@@ -920,7 +988,14 @@ function unlockAllDirectPreview() {
 document.addEventListener('DOMContentLoaded', () => {
   loadProgressState();
   checkActiveLockout();
+  checkCreatorAccess();
   updatePanelsUI();
+
+  // Listener para el gesto secreto de 5 toques en el badge
+  const secretBadge = document.getElementById('secretTriggerBadge');
+  if (secretBadge) {
+    secretBadge.addEventListener('click', handleSecretBadgeTap);
+  }
 
   // Actualizar los contadores en tiempo real cada 1 segundo
   countdownTickerInterval = setInterval(updateCountdowns, 1000);

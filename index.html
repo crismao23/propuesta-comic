@@ -28,7 +28,7 @@
 
     <!-- Encabezado Misterioso -->
     <header class="comic-header">
-      <div class="pixel-badge">EDICIÓN ESPECIAL 🌟</div>
+      <div class="pixel-badge" id="secretTriggerBadge" style="cursor: pointer; user-select: none;">EDICIÓN ESPECIAL 🌟</div>
       <h1 class="comic-title">Nuestra Historia de Amor</h1>
       <p class="comic-subtitle">
         Un viaje secreto a través de nuestros recuerdos más especiales ❤️
@@ -191,7 +191,7 @@
     <!-- Pie de página con Herramientas para Cristian -->
     <footer class="app-footer">
       <p style="font-size: 0.85rem; color: #5a748c;">Hecho con todo el amor especialmente para ti ❤️</p>
-      <button class="creator-pill-btn" onclick="openCreatorModal()">
+      <button class="creator-pill-btn" id="creatorBtn" onclick="openCreatorModal()">
         ⚙️ Modo Creador: Códigos, Pruebas y Tiempos
       </button>
     </footer>
@@ -367,6 +367,9 @@
           </button>
           <button class="comic-btn secondary" onclick="unlockAllDirectPreview()" style="font-size: 0.7rem;">
             👀 Ver Todo Desbloqueado
+          </button>
+          <button class="comic-btn" onclick="hideCreatorModeForGirlfriend()" style="background: #334155; font-size: 0.7rem; color: #fff;">
+            🔒 Ocultar Modo Creador (Para ella)
           </button>
         </div>
       </div>

@@ -888,6 +888,7 @@ body {
 }
 
 .creator-pill-btn {
+  display: none !important; /* Oculto 100% por defecto para ella y cualquier visitante */
   background: #ffffff;
   border: 2px solid var(--dark);
   border-radius: 20px;
@@ -897,6 +898,11 @@ body {
   color: #444;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--dark);
+  animation: fadeIn 0.3s ease;
+}
+
+.creator-pill-btn.is-active {
+  display: inline-block !important; /* Solo visible para Cristian con enlace secreto o gesto */
 }
 
 .creator-pill-btn:hover {
