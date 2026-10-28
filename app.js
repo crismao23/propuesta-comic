@@ -1,112 +1,108 @@
 /* ============================================================
-   LÓGICA INTERACTIVA - PROPUESTA EN CÓMIC ❤️
+   LÓGICA INTERACTIVA - NUESTRA HISTORIA EN PIXEL ART ❤️
+   Personalizada con códigos de 6 dígitos, días y penalización
    ============================================================ */
 
-// Datos de los 3 Retos / Capítulos
-const DEFAULT_RETOS = [
+// CÓDIGOS DE 6 DÍGITOS PARA CADA REGALO (Configurables)
+const DEFAULT_CODES = {
+  1: "140921", // Regalo 1 (Miércoles)
+  2: "280419", // Regalo 2 (Viernes)
+  3: "739105"  // Regalo 3 (Sábado)
+};
+
+// DÍAS REQUERIDOS (0 = Domingo, 1 = Lunes, ..., 3 = Miércoles, 5 = Viernes, 6 = Sábado)
+const DAY_REQUIREMENTS = {
+  1: { dayIndex: 3, name: "Miércoles" },
+  2: { dayIndex: 5, name: "Viernes" },
+  3: { dayIndex: 6, name: "Sábado" }
+};
+
+// PREGUNTAS Y OPCIONES EXACTAS DE SU HISTORIA
+const RETOS_DATA = [
   {
     id: 1,
     badge: "CAPÍTULO 1",
-    title: "El Primer Encuentro ✨",
-    description: "Para desbloquear la primera viñeta, responde con el corazón:",
-    question: "¿Recuerdas cómo comenzó todo entre nosotros?",
+    dayLabel: "Miércoles",
+    title: "El rechazo de 5 min, la pizza y la cara de ñoño 🍕",
+    storyTitle: "Capítulo 1: El Primer Encuentro",
+    storyText: "Todo empezó con ese mensaje de Facebook por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y la mirada puesta en ese Twingo blanco por la ventana.",
+    sfx: "¡PIZZA! 🍕",
+    question: "Todo empezó porque te agregué al Facebook al ver que compartíamos el grupo de Maestría en Ciencias Químicas. El plan original era ir solo por un café; ese día primero me rechazaste, pero a los pocos minutos aceptaste y en ese mismo sitio terminamos comiendo pizza. Mientras jugábamos mini-hockey con cauchitos, yo te dije que me parecían muy lindos tus ojos, ¿qué me dejaste muy claro que te gustaba de mí?",
     options: [
-      { text: "Fue algo totalmente inesperado que cambió mi vida", correct: true },
-      { text: "Desde el primer día sentí una conexión única", correct: true },
-      { text: "Estaba escrito en el destino que nos cruzáramos", correct: true },
-      { text: "Todas las anteriores y mucho más ❤️", correct: true }
-    ],
-    panelTitle: "Capítulo 1: El Primer Encuentro",
-    storyText: "Dicen que las mejores historias comienzan sin que uno se dé cuenta. En un día cualquiera, tu sonrisa apareció y de pronto todo tuvo más luz, más color y más sentido.",
-    sfx: "¡BOOM! ❤️"
+      { text: "Que te daba mucha ternura mi Twingo blanco.", correct: false },
+      { text: "Hiciste mucho énfasis en que te encantaba mi cara de ñoño y mi sonrisa.", correct: true },
+      { text: "Que te encantaba mi estilo competitivo para jugar.", correct: false }
+    ]
   },
   {
     id: 2,
     badge: "CAPÍTULO 2",
-    title: "Nuestras Aventuras y Risas 🍕",
-    description: "Para desbloquear la segunda viñeta, supera este recuerdo:",
-    question: "¿Qué es lo que hace que cada momento contigo sea inolvidable?",
+    dayLabel: "Viernes",
+    title: "Jenga, lágrimas y el afogato ☕",
+    storyTitle: "Capítulo 2: Conexión Real y Lágrimas",
+    storyText: "En esa segunda salida la conexión fue mágica e inevitable. Entre tanta charla profunda sobre la vida y la tensión de no tumbar el Jenga, supimos quién era la llorona oficial de la relación.",
+    sfx: "¡JENGA! ✨",
+    question: "En esa segunda salida a tomar alguito la conexión se volvió real. Hablamos de la vida, de nuestras familias y terminaste llorando un montón (ya sabemos quién es la llorona de la relación). Entre tanta charla profunda y la tensión de no tumbar el Jenga, ¿qué te pediste para acompañar el momento?",
     options: [
-      { text: "Nuestras risas y las pláticas que no tienen fin", correct: true },
-      { text: "Tu compañía que me hace sentir en casa", correct: true },
-      { text: "La manera tan bonita en la que nos entendemos", correct: true },
-      { text: "¡Absolutamente todo a tu lado! 🥰", correct: true }
-    ],
-    panelTitle: "Capítulo 2: Risas y Complicidad",
-    storyText: "Paso a paso, compartimos días inolvidables, anécdotas, risas tontas y miradas que lo dicen todo. Cada recuerdo contigo es mi página favorita de este cómic.",
-    sfx: "¡ZAP! ✨"
+      { text: "Un afogato.", correct: true },
+      { text: "Un capuchino de arequipe.", correct: false },
+      { text: "Otra porción de pizza, porque ya había confianza.", correct: false }
+    ]
   },
   {
     id: 3,
     badge: "CAPÍTULO 3",
-    title: "La Pregunta Más Importante 💍",
-    description: "Has llegado al último regalo... Responde antes de la revelación final:",
-    question: "Si nuestra historia fuera un cómic... ¿qué capítulo deberíamos escribir ahora?",
+    dayLabel: "Sábado",
+    title: "La radio agropecuaria y el primer beso 📻",
+    storyTitle: "Capítulo 3: Nuestro Primer Beso",
+    storyText: "En el carro de noche, con la música agropecuaria de fondo. Te quedaste profunda de sueño, pero al abrir los ojos, el universo conspiró para sellar nuestro primer beso.",
+    sfx: "¡BESO! 💋",
+    question: "Al finalizar esa misma primera cita, paramos en el carro con la intención de hablar un rato (seguro de fondo sonaba música agropecuaria, que es lo único que coge ese radio). Pero el cansancio te ganó y te quedaste profunda. ¿Qué fue lo primero que pasó justo en el instante en que abriste los ojos?",
     options: [
-      { text: "Uno lleno de amor, apoyo mutuo y complicidad", correct: true },
-      { text: "Nuestra mejor aventura: ser novios oficiales", correct: true },
-      { text: "Un 'para siempre' que empiece hoy mismo", correct: true },
-      { text: "¡El más feliz de todos juntos! 💖", correct: true }
-    ],
-    panelTitle: "Capítulo 3: Nuestro Presente y Futuro",
-    storyText: "Ya no es solo un recuerdo bonito; es saber que quiero compartir mis días contigo, celebrar tus logros y caminar de la mano en cada nuevo capítulo.",
-    sfx: "¡AMOR! 💥"
+      { text: "Te dediqué a todo pulmón una canción de Bruno Mars.", correct: false },
+      { text: "Nos dimos nuestro primer beso.", correct: true },
+      { text: "Te asustaste porque puse una canción de despecho a todo volumen.", correct: false }
+    ]
   }
 ];
 
-// Estado de desbloqueo
-let unlockedPanels = {
-  1: false,
-  2: false,
-  3: false
-};
+// ESTADO GLOBAL
+let unlockedPanels = { 1: false, 2: false, 3: false };
+let giftCodes = { ...DEFAULT_CODES };
+let simulationMode = "ALL"; // "ALL" = Pruebas (Todo libre), "REAL" = Días reales, o "3","5","6"
+let currentPinInput = "";
+let currentActiveRetoId = null;
+let noButtonDodgeCount = 0;
+let lockoutIntervalId = null;
 
-// Cargar estado desde localStorage
-function loadSavedState() {
-  try {
-    const saved = localStorage.getItem('propuesta_comic_unlocked');
-    if (saved) {
-      unlockedPanels = JSON.parse(saved);
-    }
-  } catch (e) {
-    console.warn("No se pudo leer localStorage:", e);
-  }
-}
-
-function saveState() {
-  try {
-    localStorage.setItem('propuesta_comic_unlocked', JSON.stringify(unlockedPanels));
-  } catch (e) {
-    console.warn("No se pudo guardar en localStorage:", e);
-  }
-}
-
-// Sonidos mediante Web Audio API (Sin depender de archivos externos)
-class ComicSoundFX {
+// ============================================================
+// SISTEMA DE AUDIO CHIPTUNE (8-BIT "YOU & ME") & SFX RETRO
+// ============================================================
+class ChiptuneAudio {
   constructor() {
     this.ctx = null;
   }
 
   init() {
     if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioContext();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
     }
     if (this.ctx.state === 'suspended') {
       this.ctx.resume();
     }
   }
 
-  playPop() {
+  playBeep() {
     try {
       this.init();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
@@ -117,153 +113,322 @@ class ComicSoundFX {
   playSuccess() {
     try {
       this.init();
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-      notes.forEach((freq, index) => {
+      // Fanfarria pixel retro estilo subida de nivel
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'triangle';
+        osc.type = 'square';
         osc.frequency.value = freq;
-        const startTime = this.ctx.currentTime + (index * 0.1);
-        gain.gain.setValueAtTime(0.25, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
+        const start = this.ctx.currentTime + (i * 0.09);
+        gain.gain.setValueAtTime(0.18, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + 0.3);
+        osc.start(start);
+        osc.stop(start + 0.2);
       });
     } catch(e){}
   }
 
-  playWhoosh() {
+  playErrorBuzz() {
     try {
       this.init();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(110, this.ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.16);
+      osc.stop(this.ctx.currentTime + 0.46);
     } catch(e){}
   }
 
-  playLoveFanfare() {
+  playDodgeWhoosh() {
     try {
       this.init();
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.13);
+    } catch(e){}
+  }
+
+  // Fragmento Chiptune 8-bit / 2-bit de "You and Me"
+  playYouAndMeChiptune() {
+    try {
+      this.init();
+      // Melodía romántica retro 8-bit
       const melody = [
-        { f: 523.25, d: 0.18 }, // C5
-        { f: 587.33, d: 0.18 }, // D5
-        { f: 659.25, d: 0.18 }, // E5
-        { f: 783.99, d: 0.22 }, // G5
-        { f: 880.00, d: 0.22 }, // A5
-        { f: 1046.50, d: 0.6 }  // C6
+        { f: 659.25, d: 0.28 }, // E5 (You...)
+        { f: 587.33, d: 0.28 }, // D5
+        { f: 523.25, d: 0.5 },  // C5 (...and me)
+        { f: 0,      d: 0.15 }, // pausa
+        { f: 523.25, d: 0.25 }, // C5
+        { f: 659.25, d: 0.25 }, // E5
+        { f: 783.99, d: 0.55 }, // G5 (always...)
+        { f: 659.25, d: 0.3 },  // E5
+        { f: 880.00, d: 0.4 },  // A5 (together)
+        { f: 783.99, d: 0.6 },  // G5
+        { f: 1046.50, d: 0.8 }  // C6 (final feliz)
       ];
-      let t = this.ctx.currentTime;
+
+      let now = this.ctx.currentTime;
       melody.forEach(item => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = item.f;
-        gain.gain.setValueAtTime(0.3, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t);
-        osc.stop(t + item.d);
-        t += item.d * 0.85;
+        if (item.f > 0) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = item.f;
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + item.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + item.d);
+        }
+        now += item.d;
       });
     } catch(e){}
   }
 }
 
-const sfx = new ComicSoundFX();
+const audio = new ChiptuneAudio();
 
-// Actualizar la interfaz gráfica según el progreso
-function updateUI() {
-  let countUnlocked = 0;
+// ============================================================
+// BLOQUEO REAL DE 30 MINUTOS POR RESPUESTA INCORRECTA
+// ============================================================
+function activateLockoutPenalty() {
+  audio.playErrorBuzz();
+  // 30 minutos a partir de ahora
+  const lockoutUntil = Date.now() + (30 * 60 * 1000);
+  localStorage.setItem('propuesta_lockout_until', lockoutUntil.toString());
+  showLockoutScreen(lockoutUntil);
+}
 
-  for (let i = 1; i <= 3; i++) {
-    const isUnlocked = unlockedPanels[i];
-    const cardEl = document.getElementById(`panelCard${i}`);
-    const overlayEl = document.getElementById(`panelOverlay${i}`);
-    const stepEl = document.getElementById(`stepIndicator${i}`);
-    const statusTextEl = document.getElementById(`panelStatus${i}`);
+function checkActiveLockout() {
+  const saved = localStorage.getItem('propuesta_lockout_until');
+  if (!saved) return false;
 
-    if (isUnlocked) {
-      countUnlocked++;
-      if (overlayEl) overlayEl.style.display = 'none';
-      if (stepEl) {
-        stepEl.classList.add('unlocked');
-        stepEl.classList.remove('active');
-        stepEl.innerHTML = `<span>Viñeta #${i}</span><span style="color:#2e7d32">✅ Desbloqueada</span>`;
-      }
-      if (statusTextEl) {
-        statusTextEl.innerHTML = `<span style="color:#4ade80">● Desbloqueada</span>`;
-      }
-    } else {
-      if (overlayEl) overlayEl.style.display = 'flex';
-      if (stepEl) {
-        stepEl.classList.remove('unlocked');
-        if (i === countUnlocked + 1) {
-          stepEl.classList.add('active');
-          stepEl.innerHTML = `<span>Viñeta #${i}</span><span style="color:#ff4d6d">✨ ¡Siguiente!</span>`;
-        } else {
-          stepEl.classList.remove('active');
-          stepEl.innerHTML = `<span>Viñeta #${i}</span><span>🔒 Bloqueada</span>`;
-        }
-      }
-      if (statusTextEl) {
-        statusTextEl.innerHTML = `<span>🔒 Bloqueada</span>`;
-      }
+  const lockoutUntil = parseInt(saved, 10);
+  if (Date.now() < lockoutUntil) {
+    showLockoutScreen(lockoutUntil);
+    return true;
+  } else {
+    // Ya expiró
+    localStorage.removeItem('propuesta_lockout_until');
+    hideLockoutScreen();
+    return false;
+  }
+}
+
+function showLockoutScreen(lockoutUntil) {
+  const overlay = document.getElementById('lockoutOverlay');
+  const timerDisplay = document.getElementById('lockoutCountdownDisplay');
+  if (!overlay || !timerDisplay) return;
+
+  overlay.classList.add('active');
+
+  if (lockoutIntervalId) clearInterval(lockoutIntervalId);
+
+  const updateTimer = () => {
+    const diff = lockoutUntil - Date.now();
+    if (diff <= 0) {
+      clearInterval(lockoutIntervalId);
+      localStorage.removeItem('propuesta_lockout_until');
+      hideLockoutScreen();
+      return;
     }
+    const mins = Math.floor(diff / (60 * 1000));
+    const secs = Math.floor((diff % (60 * 1000)) / 1000);
+    timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  updateTimer();
+  lockoutIntervalId = setInterval(updateTimer, 1000);
+}
+
+function hideLockoutScreen() {
+  const overlay = document.getElementById('lockoutOverlay');
+  if (overlay) overlay.classList.remove('active');
+  if (lockoutIntervalId) {
+    clearInterval(lockoutIntervalId);
+    lockoutIntervalId = null;
+  }
+}
+
+function forceClearLockout() {
+  localStorage.removeItem('propuesta_lockout_until');
+  hideLockoutScreen();
+  alert("🔓 Bloqueo de 30 minutos desactivado para pruebas.");
+}
+
+// ============================================================
+// COMPROBACIÓN DE DÍAS Y MODO SIMULACIÓN
+// ============================================================
+function isStageDayAvailable(stageId) {
+  // En modo simulación "ALL", todo está habilitado
+  if (simulationMode === "ALL") return true;
+
+  // Si se está simulando un día específico
+  let currentDay = new Date().getDay();
+  if (simulationMode === "3") currentDay = 3; // Miércoles
+  else if (simulationMode === "5") currentDay = 5; // Viernes
+  else if (simulationMode === "6") currentDay = 6; // Sábado
+
+  // Días de requisitos:
+  // Etapa 1: Miércoles (3), Jueves (4), Viernes (5), Sábado (6)
+  // Etapa 2: Viernes (5), Sábado (6)
+  // Etapa 3: Sábado (6)
+  if (stageId === 1) {
+    return currentDay >= 3;
+  } else if (stageId === 2) {
+    return currentDay >= 5;
+  } else if (stageId === 3) {
+    return currentDay >= 6;
+  }
+  return false;
+}
+
+// ============================================================
+// TECLADO PIN DE 6 DÍGITOS PARA CADA REGALO
+// ============================================================
+function openPinModal(stageId) {
+  audio.playBeep();
+  if (checkActiveLockout()) return;
+
+  currentActiveRetoId = stageId;
+  currentPinInput = "";
+  updatePinDisplay();
+
+  const req = DAY_REQUIREMENTS[stageId];
+  const isAvailable = isStageDayAvailable(stageId);
+
+  const titleEl = document.getElementById('pinModalTitle');
+  const noticeEl = document.getElementById('pinModalDayNotice');
+  const errorEl = document.getElementById('pinModalError');
+
+  titleEl.textContent = `Código del Regalo #${stageId} 🎁`;
+  errorEl.textContent = "";
+
+  if (isAvailable) {
+    noticeEl.innerHTML = `<span style="color:#06d6a0;">✅ ¡Disponible hoy (${req.name})!</span>`;
+  } else {
+    noticeEl.innerHTML = `<span style="color:#ffd166;">⏳ Se habilita el día <strong>${req.name}</strong></span>`;
   }
 
-  // Barra de progreso
-  const percent = Math.round((countUnlocked / 3) * 100);
-  const barInner = document.getElementById('progressBarInner');
-  const countText = document.getElementById('progressCountText');
-  if (barInner) barInner.style.width = `${percent}%`;
-  if (countText) countText.textContent = `${countUnlocked} de 3 Capítulos Desbloqueados`;
+  const modal = document.getElementById('pinModalBackdrop');
+  modal.classList.add('open');
+}
 
-  // Revelar sección final si los 3 están desbloqueados
-  const proposalSection = document.getElementById('finalProposalSection');
-  if (countUnlocked === 3) {
-    if (proposalSection) {
-      proposalSection.classList.add('revealed');
-    }
+function closePinModal() {
+  audio.playBeep();
+  const modal = document.getElementById('pinModalBackdrop');
+  modal.classList.remove('open');
+}
+
+function handlePinKey(key) {
+  audio.playBeep();
+  const errorEl = document.getElementById('pinModalError');
+  errorEl.textContent = "";
+
+  if (key === 'DEL') {
+    currentPinInput = currentPinInput.slice(0, -1);
+  } else if (key === 'CLEAR') {
+    currentPinInput = "";
   } else {
-    if (proposalSection) {
-      proposalSection.classList.remove('revealed');
+    if (currentPinInput.length < 6) {
+      currentPinInput += key;
+    }
+  }
+  updatePinDisplay();
+
+  // Si se completaron los 6 dígitos, verificar automáticamente
+  if (currentPinInput.length === 6) {
+    setTimeout(verifyEnteredPin, 250);
+  }
+}
+
+function updatePinDisplay() {
+  for (let i = 0; i < 6; i++) {
+    const box = document.getElementById(`pinBox${i}`);
+    if (box) {
+      if (i < currentPinInput.length) {
+        box.textContent = currentPinInput[i];
+        box.classList.add('filled');
+      } else {
+        box.textContent = "";
+        box.classList.remove('filled');
+      }
     }
   }
 }
 
-// Abrir modal con el Reto correspondiente
-function openRetoModal(retoId) {
-  sfx.playPop();
-  const reto = DEFAULT_RETOS.find(r => r.id === retoId);
+function verifyEnteredPin() {
+  const expectedCode = giftCodes[currentActiveRetoId] || DEFAULT_CODES[currentActiveRetoId];
+  const errorEl = document.getElementById('pinModalError');
+
+  if (currentPinInput !== expectedCode) {
+    audio.playErrorBuzz();
+    errorEl.innerHTML = `<span style="color:#ff4d6d">❌ Código incorrecto. Revisa la tarjetita de tu regalo.</span>`;
+    // Sacudir cajas
+    const boxes = document.querySelector('.pin-display-container');
+    if (boxes) {
+      boxes.style.transform = 'translateX(-8px)';
+      setTimeout(() => boxes.style.transform = 'translateX(8px)', 80);
+      setTimeout(() => boxes.style.transform = 'translateX(0)', 160);
+    }
+    currentPinInput = "";
+    setTimeout(updatePinDisplay, 600);
+    return;
+  }
+
+  // Código correcto: verificar si ya es el día
+  const isAvailable = isStageDayAvailable(currentActiveRetoId);
+  const req = DAY_REQUIREMENTS[currentActiveRetoId];
+
+  if (!isAvailable) {
+    audio.playBeep();
+    errorEl.innerHTML = `<span style="color:#ffd166">¡Código correcto! Pero este reto se activa el día <strong>${req.name}</strong>. ¡Paciencia, pequeña impaciente! ❤️</span>`;
+    return;
+  }
+
+  // Todo correcto y día habilitado -> Abrir reto
+  audio.playSuccess();
+  closePinModal();
+  setTimeout(() => {
+    openRetoQuizModal(currentActiveRetoId);
+  }, 350);
+}
+
+// ============================================================
+// MODAL DE PREGUNTAS Y PENALIZACIÓN
+// ============================================================
+function openRetoQuizModal(retoId) {
+  const reto = RETOS_DATA.find(r => r.id === retoId);
   if (!reto) return;
 
-  const modalBackdrop = document.getElementById('quizModalBackdrop');
-  const modalBadge = document.getElementById('modalRetoBadge');
-  const modalTitle = document.getElementById('modalRetoTitle');
-  const modalDesc = document.getElementById('modalRetoDesc');
-  const modalQuestion = document.getElementById('modalRetoQuestion');
-  const modalOptions = document.getElementById('modalRetoOptions');
-  const modalFeedback = document.getElementById('modalRetoFeedback');
+  const modal = document.getElementById('quizModalBackdrop');
+  document.getElementById('modalRetoBadge').textContent = reto.badge;
+  document.getElementById('modalRetoTitle').textContent = reto.title;
+  document.getElementById('modalRetoQuestion').textContent = reto.question;
+  document.getElementById('modalRetoFeedback').textContent = '';
 
-  modalBadge.textContent = reto.badge;
-  modalTitle.textContent = reto.title;
-  modalDesc.textContent = reto.description;
-  modalQuestion.textContent = reto.question;
-  modalFeedback.textContent = '';
-  modalOptions.innerHTML = '';
+  const optionsContainer = document.getElementById('modalRetoOptions');
+  optionsContainer.innerHTML = '';
 
-  const letters = ['A', 'B', 'C', 'D'];
+  const letters = ['A', 'B', 'C'];
   reto.options.forEach((opt, idx) => {
     const btn = document.createElement('button');
     btn.className = 'quiz-option-btn';
@@ -271,46 +436,41 @@ function openRetoModal(retoId) {
       <span class="quiz-option-letter">${letters[idx]}</span>
       <span>${opt.text}</span>
     `;
-    btn.onclick = () => handleAnswer(retoId, opt, btn);
-    modalOptions.appendChild(btn);
+    btn.onclick = () => handleQuizAnswer(retoId, opt, btn);
+    optionsContainer.appendChild(btn);
   });
 
-  modalBackdrop.classList.add('open');
+  modal.classList.add('open');
 }
 
 function closeQuizModal() {
-  sfx.playPop();
-  const modalBackdrop = document.getElementById('quizModalBackdrop');
-  modalBackdrop.classList.remove('open');
+  audio.playBeep();
+  const modal = document.getElementById('quizModalBackdrop');
+  modal.classList.remove('open');
 }
 
-// Manejar selección de respuesta
-function handleAnswer(retoId, option, buttonEl) {
-  const modalFeedback = document.getElementById('modalRetoFeedback');
+function handleQuizAnswer(retoId, option, btnElement) {
+  const feedback = document.getElementById('modalRetoFeedback');
 
   if (option.correct) {
-    sfx.playSuccess();
-    buttonEl.classList.add('correct');
-    modalFeedback.innerHTML = `<span style="color:#2e7d32">🎉 ¡Respuesta correcta! Desbloqueando viñeta...</span>`;
+    audio.playSuccess();
+    btnElement.classList.add('correct');
+    feedback.innerHTML = `<span style="color:#2e7d32; font-weight:700;">🎉 ¡ACERTASTE! Desbloqueando viñeta...</span>`;
     
-    // Confeti de felicitación
-    triggerConfetti();
-
-    // Desbloquear etapa
+    triggerHeartsConfetti();
     unlockedPanels[retoId] = true;
-    saveState();
+    saveProgressState();
 
     setTimeout(() => {
       closeQuizModal();
-      updateUI();
+      updatePanelsUI();
       
-      // Auto-scroll a la viñeta recién desbloqueada
-      const panelEl = document.getElementById(`panelCard${retoId}`);
-      if (panelEl) {
-        panelEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const panel = document.getElementById(`panelCard${retoId}`);
+      if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
-      // Si se completaron las 3, scrollear suavemente a la propuesta final
+      // Si se desbloquearon las 3, mostrar propuesta
       if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
         setTimeout(() => {
           const propSec = document.getElementById('finalProposalSection');
@@ -320,83 +480,61 @@ function handleAnswer(retoId, option, buttonEl) {
           }
         }, 1200);
       }
-    }, 1400);
+    }, 1500);
 
   } else {
-    buttonEl.classList.add('wrong');
-    modalFeedback.innerHTML = `<span style="color:#c62828">¡Casi! Intenta con otra respuesta 💭</span>`;
+    // RESPUESTA INCORRECTA: BLOQUEO DE 30 MINUTOS
+    btnElement.classList.add('wrong');
+    feedback.innerHTML = `<span style="color:#c62828; font-weight:700;">❌ ¡Esa no era! Bloqueando sistema por 30 minutos...</span>`;
+
+    setTimeout(() => {
+      closeQuizModal();
+      activateLockoutPenalty();
+    }, 1200);
   }
 }
 
-// Efectos de Confeti
-function triggerConfetti() {
-  if (typeof confetti === 'function') {
-    confetti({
-      particleCount: 70,
-      spread: 60,
-      origin: { y: 0.6 }
-    });
-  }
-}
-
-function triggerRomanticConfetti() {
-  if (typeof confetti === 'function') {
-    const duration = 4 * 1000;
-    const end = Date.now() + duration;
-
-    (function frame() {
-      confetti({
-        particleCount: 4,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffd166', '#ffffff']
-      });
-      confetti({
-        particleCount: 4,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffd166', '#ffffff']
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    }());
-  }
-}
-
-// Botón "No" juguetón que huye al pasar el cursor o intentar tocarlo
-const funnyTexts = [
-  "¿Segura? 🥺",
-  "¡Uy, ese botón se desvió! 😂",
-  "¡Por aquí no es! ✨",
-  "¡Piénsalo bien! 🥰",
-  "¡Ese botón no cuenta! 😜",
-  "¡El destino dice que Sí! ❤️"
+// ============================================================
+// BOTÓN "NO" QUE HUYE EXACTAMENTE 3 VECES
+// ============================================================
+const dodgePhrases = [
+  "¡Uy, casi! ¿Segura? 🥺",
+  "¡Ese botón se volvió a mover! Piénsalo bien 😂",
+  "¡Último intento fallido! Ese botón no quiere que digas no 😜"
 ];
-let funnyIdx = 0;
 
-function dodgeNoButton() {
-  sfx.playWhoosh();
+function handleNoButtonDodge() {
+  audio.playDodgeWhoosh();
   const btnNo = document.getElementById('btnNoProposal');
-  const container = document.querySelector('.proposal-buttons');
-  if (!btnNo || !container) return;
+  if (!btnNo) return;
 
-  const rect = container.getBoundingClientRect();
-  const maxX = Math.max(100, rect.width - btnNo.offsetWidth - 20);
-  const randomX = (Math.random() - 0.5) * (maxX * 0.8);
-  const randomY = (Math.random() - 0.5) * 80;
+  noButtonDodgeCount++;
 
-  btnNo.style.transform = `translate(${randomX}px, ${randomY}px)`;
-  btnNo.textContent = funnyTexts[funnyIdx % funnyTexts.length];
-  funnyIdx++;
+  if (noButtonDodgeCount <= 3) {
+    // Moverse a una posición aleatoria táctil
+    const randomX = (Math.random() - 0.5) * 160;
+    const randomY = (Math.random() - 0.5) * 80;
+    btnNo.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    btnNo.textContent = dodgePhrases[noButtonDodgeCount - 1];
+
+    if (noButtonDodgeCount === 3) {
+      // Tras el 3er intento, transformarlo en otro botón SÍ
+      setTimeout(() => {
+        btnNo.style.transform = 'translate(0, 0)';
+        btnNo.className = 'comic-btn btn-yes';
+        btnNo.style.background = '#ffd166';
+        btnNo.textContent = '¡Bueno, SÍ! 💖';
+        btnNo.onclick = acceptProposalFinal;
+      }, 900);
+    }
+  }
 }
 
-// Aceptación de la Propuesta ("¡SÍ!")
-function acceptProposal() {
-  sfx.playLoveFanfare();
+// ============================================================
+// CLÍMAX FINAL: SÍ ACEPTO + 8-BIT "YOU & ME" + CONFETI
+// ============================================================
+function acceptProposalFinal() {
+  audio.playYouAndMeChiptune();
   triggerRomanticConfetti();
 
   const proposalSec = document.getElementById('finalProposalSection');
@@ -408,139 +546,213 @@ function acceptProposal() {
     victorySec.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // Lluvia prolongada de corazones
-  setInterval(() => {
-    if (typeof confetti === 'function') {
-      confetti({
-        particleCount: 15,
-        spread: 80,
-        origin: { y: 0.3 },
-        colors: ['#ff4d6d', '#ff8fa3', '#ffe5ec']
-      });
-    }
+  // Lluvia de corazones continua
+  let heartInterval = setInterval(() => {
+    triggerHeartsConfetti();
   }, 1200);
+
+  setTimeout(() => clearInterval(heartInterval), 20000);
 }
 
-// Manejar parámetros de la URL (?etapa=1, ?etapa=2, ?etapa=3 o ?regalo=X)
-function checkURLParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const etapa = urlParams.get('etapa') || urlParams.get('reto') || urlParams.get('regalo');
-  
-  if (etapa) {
-    const num = parseInt(etapa, 10);
-    if ([1, 2, 3].includes(num)) {
-      setTimeout(() => {
-        openRetoModal(num);
-      }, 500);
+// Confeti de corazones
+function triggerHeartsConfetti() {
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 50,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff3366', '#ff758f', '#ffd166', '#06d6a0']
+    });
+  }
+}
+
+function triggerRomanticConfetti() {
+  if (typeof confetti === 'function') {
+    const end = Date.now() + 4500;
+    (function frame() {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 60,
+        origin: { x: 0 },
+        colors: ['#ff3366', '#ff758f', '#ffd166', '#ffffff']
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 60,
+        origin: { x: 1 },
+        colors: ['#ff3366', '#ff758f', '#ffd166', '#ffffff']
+      });
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }
+}
+
+// ============================================================
+// ACTUALIZACIÓN DE INTERFAZ Y PANELES
+// ============================================================
+function updatePanelsUI() {
+  let unlockedCount = 0;
+
+  for (let i = 1; i <= 3; i++) {
+    const isUnlocked = unlockedPanels[i];
+    const overlay = document.getElementById(`panelOverlay${i}`);
+    const step = document.getElementById(`stepIndicator${i}`);
+    const dayNotice = document.getElementById(`dayNoticeText${i}`);
+    const isDayAvail = isStageDayAvailable(i);
+    const req = DAY_REQUIREMENTS[i];
+
+    if (dayNotice) {
+      if (isDayAvail) {
+        dayNotice.textContent = `📅 Habilitado hoy (${req.name})`;
+        dayNotice.style.color = '#06d6a0';
+      } else {
+        dayNotice.textContent = `📅 Se habilita el ${req.name}`;
+        dayNotice.style.color = '#ffd166';
+      }
+    }
+
+    if (isUnlocked) {
+      unlockedCount++;
+      if (overlay) overlay.style.display = 'none';
+      if (step) {
+        step.classList.add('unlocked');
+        step.classList.remove('active');
+        step.innerHTML = `<span>Viñeta #${i}</span><span style="color:#2e7d32">✅ Lista</span>`;
+      }
+    } else {
+      if (overlay) overlay.style.display = 'flex';
+      if (step) {
+        step.classList.remove('unlocked');
+        if (i === unlockedCount + 1) {
+          step.classList.add('active');
+          step.innerHTML = `<span>Viñeta #${i}</span><span style="color:#ff3366">✨ Siguiente</span>`;
+        } else {
+          step.classList.remove('active');
+          step.innerHTML = `<span>Viñeta #${i}</span><span>🔒 Bloqueada</span>`;
+        }
+      }
     }
   }
+
+  // Barra de progreso
+  const percent = Math.round((unlockedCount / 3) * 100);
+  const bar = document.getElementById('progressBarInner');
+  const countText = document.getElementById('progressCountText');
+  if (bar) bar.style.width = `${percent}%`;
+  if (countText) countText.textContent = `${unlockedCount} de 3 Capítulos`;
+
+  // Revelar sección final si los 3 están desbloqueados
+  const proposalSection = document.getElementById('finalProposalSection');
+  if (unlockedCount === 3) {
+    if (proposalSection) proposalSection.classList.add('revealed');
+  }
 }
 
-// GENERADOR DE CÓDIGOS QR Y PANEL CREADOR
+// Guardar y Cargar Estado
+function loadProgressState() {
+  try {
+    const saved = localStorage.getItem('propuesta_pixel_unlocked');
+    if (saved) unlockedPanels = JSON.parse(saved);
+
+    const savedCodes = localStorage.getItem('propuesta_gift_codes');
+    if (savedCodes) giftCodes = JSON.parse(savedCodes);
+
+    const savedSim = localStorage.getItem('propuesta_simulation_mode');
+    if (savedSim) simulationMode = savedSim;
+  } catch(e){}
+}
+
+function saveProgressState() {
+  try {
+    localStorage.setItem('propuesta_pixel_unlocked', JSON.stringify(unlockedPanels));
+  } catch(e){}
+}
+
+// ============================================================
+// PANEL DEL CREADOR / MODO PRUEBAS
+// ============================================================
 function openCreatorModal() {
-  sfx.playPop();
+  audio.playBeep();
   const modal = document.getElementById('creatorModalBackdrop');
-  const baseInput = document.getElementById('creatorBaseUrlInput');
   
-  // Asignar automáticamente la URL actual sin parámetros
-  const cleanUrl = window.location.origin + window.location.pathname;
-  if (!baseInput.value) {
-    baseInput.value = cleanUrl;
-  }
-  
-  generateQRCodes();
+  // Rellenar valores en el panel
+  document.getElementById('simModeSelect').value = simulationMode;
+  document.getElementById('inputCode1').value = giftCodes[1];
+  document.getElementById('inputCode2').value = giftCodes[2];
+  document.getElementById('inputCode3').value = giftCodes[3];
+
+  updateCodeCardsDisplay();
   modal.classList.add('open');
 }
 
 function closeCreatorModal() {
-  sfx.playPop();
+  audio.playBeep();
   const modal = document.getElementById('creatorModalBackdrop');
   modal.classList.remove('open');
 }
 
-function generateQRCodes() {
-  const baseInput = document.getElementById('creatorBaseUrlInput');
-  let baseUrl = baseInput.value.trim();
-  if (!baseUrl) {
-    baseUrl = window.location.origin + window.location.pathname;
-  }
-  // Quitar trailing slash o query params
-  baseUrl = baseUrl.split('?')[0];
+function saveCreatorSettings() {
+  simulationMode = document.getElementById('simModeSelect').value;
+  giftCodes[1] = document.getElementById('inputCode1').value.trim() || DEFAULT_CODES[1];
+  giftCodes[2] = document.getElementById('inputCode2').value.trim() || DEFAULT_CODES[2];
+  giftCodes[3] = document.getElementById('inputCode3').value.trim() || DEFAULT_CODES[3];
 
+  localStorage.setItem('propuesta_simulation_mode', simulationMode);
+  localStorage.setItem('propuesta_gift_codes', JSON.stringify(giftCodes));
+
+  updateCodeCardsDisplay();
+  updatePanelsUI();
+  alert("✅ Configuración guardada correctamente.");
+  closeCreatorModal();
+}
+
+function updateCodeCardsDisplay() {
   for (let i = 1; i <= 3; i++) {
-    const holder = document.getElementById(`qrHolder${i}`);
-    const linkText = document.getElementById(`qrLinkText${i}`);
-    const stageUrl = `${baseUrl}?etapa=${i}`;
-
-    if (linkText) {
-      linkText.textContent = stageUrl;
-    }
-
-    if (holder) {
-      holder.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(holder, {
-          text: stageUrl,
-          width: 128,
-          height: 128,
-          colorDark: "#231b26",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      } else {
-        // Fallback usando imagen directa si la librería fallara
-        const img = document.createElement('img');
-        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(stageUrl)}`;
-        img.alt = `QR Reto ${i}`;
-        holder.appendChild(img);
-      }
+    const codeDisplay = document.getElementById(`displayCardCode${i}`);
+    if (codeDisplay) {
+      codeDisplay.textContent = giftCodes[i];
     }
   }
 }
 
-// Resetear progreso para que el creador pruebe desde cero
-function resetProgress() {
-  if (confirm("¿Deseas reiniciar el progreso a 0 para probar la experiencia como si fuera la primera vez?")) {
+function resetAllProgress() {
+  if (confirm("¿Deseas reiniciar todo el progreso a cero para volver a probar desde el inicio?")) {
     unlockedPanels = { 1: false, 2: false, 3: false };
-    saveState();
+    localStorage.removeItem('propuesta_pixel_unlocked');
+    localStorage.removeItem('propuesta_lockout_until');
     location.reload();
   }
 }
 
-// Desbloquear todo para previsualizar
-function unlockAllPreview() {
+function unlockAllDirectPreview() {
   unlockedPanels = { 1: true, 2: true, 3: true };
-  saveState();
-  updateUI();
+  saveProgressState();
+  updatePanelsUI();
   closeCreatorModal();
   setTimeout(() => {
-    const propSec = document.getElementById('finalProposalSection');
-    if (propSec) {
-      propSec.scrollIntoView({ behavior: 'smooth' });
-    }
+    const prop = document.getElementById('finalProposalSection');
+    if (prop) prop.scrollIntoView({ behavior: 'smooth' });
   }, 300);
 }
 
-// Inicialización general
+// INICIALIZACIÓN
 document.addEventListener('DOMContentLoaded', () => {
-  loadSavedState();
-  updateUI();
-  checkURLParams();
+  loadProgressState();
+  checkActiveLockout();
+  updatePanelsUI();
 
-  // Configurar eventos del botón No
+  // Configurar evasión del botón No para celular táctil y mouse
   const btnNo = document.getElementById('btnNoProposal');
   if (btnNo) {
-    btnNo.addEventListener('mouseenter', dodgeNoButton);
     btnNo.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      dodgeNoButton();
+      handleNoButtonDodge();
     });
-    btnNo.addEventListener('click', dodgeNoButton);
-  }
-
-  // Configurar evento de Enter en input URL del creador
-  const baseInput = document.getElementById('creatorBaseUrlInput');
-  if (baseInput) {
-    baseInput.addEventListener('input', generateQRCodes);
+    btnNo.addEventListener('mouseenter', handleNoButtonDodge);
+    btnNo.addEventListener('click', handleNoButtonDodge);
   }
 });
