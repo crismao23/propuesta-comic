@@ -42,8 +42,8 @@ const RETOS_DATA = [
   {
     id: 2,
     badge: "RECUERDO #2",
-    title: "La psicorígida del Jenga ☕",
-    storyTitle: "Capítulo 2: La psicorígida del Jenga",
+    title: "La Milimétrica del Jenga ☕",
+    storyTitle: "Capítulo 2: La Milimétrica del Jenga",
     storyText: "En la siguiente salida, la conexión se hizo aún más evidente. Entre conversaciones profundas sobre nuestras vidas, la tensión de no derribar la torre de Jenga y lo mucho que disfrutaste aquel affogato, empezamos a descubrir nuestras pequeñas peculiaridades... y quedó claro quién era el más sensible con esas lágrimas. 🥹❤️",
     sfx: "¡JENGA! ✨",
     question: "En esa segunda salida a tomar alguito la conexión se volvió real. Hablamos de la vida, de nuestras familias y terminaste llorando un montón (ya sabemos quién es la llorona de la relación). Entre tanta charla profunda y la tensión de no tumbar el Jenga, ¿qué te pediste para acompañar el momento?",
@@ -763,7 +763,7 @@ function updatePanelsUI() {
     if (unlockedPanels[2]) {
       card2.classList.remove('is-locked');
       if (mysteryBox2) mysteryBox2.style.display = 'none';
-      if (tag2) tag2.textContent = '✨ RECUERDO #2: LA PSICORÍGIDA DEL JENGA';
+      if (tag2) tag2.textContent = '✨ RECUERDO #2: LA MILIMÉTRICA DEL JENGA';
     } else {
       card2.classList.add('is-locked');
       if (mysteryBox2) mysteryBox2.style.display = 'flex';
@@ -806,7 +806,7 @@ function updatePanelsUI() {
   }
   if (unlockedPanels[2]) {
     countUnlocked++;
-    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">☕ 2. La psicorígida del Jenga</span>`;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">☕ 2. La Milimétrica del Jenga</span>`;
   }
   if (unlockedPanels[3]) {
     countUnlocked++;
