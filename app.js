@@ -28,10 +28,10 @@ const RETOS_DATA = [
   {
     id: 1,
     badge: "RECUERDO #1",
-    title: "El rechazo de 5 min, la pizza y la cara de ñoño 🍕",
-    storyTitle: "Capítulo 1: El Primer Encuentro",
-    storyText: "Todo empezó con ese mensaje de Facebook por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y una mirada cómplice.",
-    sfx: "¡PIZZA! 🍕",
+    title: "Mini-hockey o se atreve 🍕",
+    storyTitle: "Capítulo 1: Mini-hockey o se atreve",
+    storyText: "Todo comenzó cuando te encontré en Facebook gracias a aquel grupo que teníamos en común: Maestría en Ciencias Químicas. Me animé a agregarte y, sin imaginarlo, ese pequeño gesto sería el inicio de algo muy bonito. Lo que empezó con mensajes terminó convirtiéndose en café, pizza, risas, partidas de mini-hockey con cauchitos y penitencias que, entre preguntas y confesiones, nos fueron dejando al descubierto algo que ambos empezábamos a sentir: que nos gustábamos más de lo que decíamos. ❤️✨",
+    sfx: "¡MINI-HOCKEY! 🍕",
     question: "Todo empezó porque te agregué al Facebook al ver que compartíamos el grupo de Maestría en Ciencias Químicas. El plan original era ir solo por un café; ese día primero me rechazaste, pero a los pocos minutos aceptaste y en ese mismo sitio terminamos comiendo pizza. Mientras jugábamos mini-hockey con cauchitos, yo te dije que me parecían muy lindos tus ojos, ¿qué me dejaste muy claro que te gustaba de mí?",
     options: [
       { text: "Que te daba mucha ternura mi Twingo blanco.", correct: false },
@@ -42,9 +42,9 @@ const RETOS_DATA = [
   {
     id: 2,
     badge: "RECUERDO #2",
-    title: "Jenga, lágrimas y el afogato ☕",
-    storyTitle: "Capítulo 2: Conexión Real y Lágrimas",
-    storyText: "En esa segunda salida la conexión fue mágica e inevitable. Entre tanta charla profunda sobre la vida y la tensión de no tumbar el Jenga, supimos quién era la llorona de la relación mientras disfrutabas tu afogato.",
+    title: "La psicorígida del Jenga ☕",
+    storyTitle: "Capítulo 2: La psicorígida del Jenga",
+    storyText: "En la siguiente salida, la conexión se hizo aún más evidente. Entre conversaciones profundas sobre nuestras vidas, la tensión de no derribar la torre de Jenga y lo mucho que disfrutaste aquel affogato, empezamos a descubrir nuestras pequeñas peculiaridades... y quedó claro quién era el más sensible con esas lágrimas. 🥹❤️",
     sfx: "¡JENGA! ✨",
     question: "En esa segunda salida a tomar alguito la conexión se volvió real. Hablamos de la vida, de nuestras familias y terminaste llorando un montón (ya sabemos quién es la llorona de la relación). Entre tanta charla profunda y la tensión de no tumbar el Jenga, ¿qué te pediste para acompañar el momento?",
     options: [
@@ -56,9 +56,9 @@ const RETOS_DATA = [
   {
     id: 3,
     badge: "RECUERDO #3",
-    title: "La radio agropecuaria y el primer beso 📻",
-    storyTitle: "Capítulo 3: Nuestro Primer Beso",
-    storyText: "En el carro de noche, con la música romántica y agropecuaria de fondo... Te quedaste profunda de sueño, pero al abrir los ojos, el universo conspiró para sellar nuestro primer beso.",
+    title: "Pichi, nuestro violinista en esta historia 🎻",
+    storyTitle: "Capítulo 3: Pichi, nuestro violinista",
+    storyText: "El final de la primera cita y el primer beso: Parados en el carro con música romántica, plancha y agropecuaria de fondo. Te quedaste dormida de cansancio, pero justo cuando abriste los ojos... sucedió nuestro primer beso.",
     sfx: "¡BESO! 💋",
     question: "Al finalizar esa misma primera cita, paramos en el carro con la intención de hablar un rato (seguro de fondo sonaba música agropecuaria, que es lo único que coge ese radio). Pero el cansancio te ganó y te quedaste profunda. ¿Qué fue lo primero que pasó justo en el instante en que abriste los ojos?",
     options: [
@@ -746,7 +746,7 @@ function updatePanelsUI() {
   if (unlockedPanels[1]) {
     card1.classList.remove('is-locked');
     if (mysteryBox1) mysteryBox1.style.display = 'none';
-    if (tag1) tag1.textContent = '✨ RECUERDO #1: EL COMIENZO';
+    if (tag1) tag1.textContent = '✨ RECUERDO #1: MINI-HOCKEY O SE ATREVE';
   } else {
     card1.classList.add('is-locked');
     if (mysteryBox1) mysteryBox1.style.display = 'flex';
@@ -763,7 +763,7 @@ function updatePanelsUI() {
     if (unlockedPanels[2]) {
       card2.classList.remove('is-locked');
       if (mysteryBox2) mysteryBox2.style.display = 'none';
-      if (tag2) tag2.textContent = '✨ RECUERDO #2: CONEXIÓN REAL';
+      if (tag2) tag2.textContent = '✨ RECUERDO #2: LA PSICORÍGIDA DEL JENGA';
     } else {
       card2.classList.add('is-locked');
       if (mysteryBox2) mysteryBox2.style.display = 'flex';
@@ -783,7 +783,7 @@ function updatePanelsUI() {
     if (unlockedPanels[3]) {
       card3.classList.remove('is-locked');
       if (mysteryBox3) mysteryBox3.style.display = 'none';
-      if (tag3) tag3.textContent = '✨ RECUERDO #3: EL PRIMER BESO';
+      if (tag3) tag3.textContent = '✨ RECUERDO #3: PICHI, NUESTRO VIOLINISTA';
     } else {
       card3.classList.add('is-locked');
       if (mysteryBox3) mysteryBox3.style.display = 'flex';
@@ -802,15 +802,15 @@ function updatePanelsUI() {
 
   if (unlockedPanels[1]) {
     countUnlocked++;
-    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">🍕 1. Pizza y Twingo</span>`;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">🍕 1. Mini-hockey o se atreve</span>`;
   }
   if (unlockedPanels[2]) {
     countUnlocked++;
-    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">☕ 2. Risas y Jenga</span>`;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">☕ 2. La psicorígida del Jenga</span>`;
   }
   if (unlockedPanels[3]) {
     countUnlocked++;
-    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">💋 3. Primer Beso</span>`;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">🎻 3. Pichi, el violinista</span>`;
   }
 
   if (countUnlocked === 0) {
