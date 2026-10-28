@@ -30,7 +30,7 @@ const RETOS_DATA = [
     badge: "RECUERDO #1",
     title: "Mini-hockey o se atreve 🍕",
     storyTitle: "Capítulo 1: Mini-hockey o se atreve",
-    storyText: "Todo comenzó cuando te encontré en Facebook gracias a aquel grupo que teníamos en común: Maestría en Ciencias Químicas. Me animé a agregarte y, sin imaginarlo, ese pequeño gesto sería el inicio de algo muy bonito. Lo que empezó con mensajes terminó convirtiéndose en café, pizza, risas, partidas de mini-hockey con cauchitos y penitencias que, entre preguntas y confesiones, nos fueron dejando al descubierto algo que ambos empezábamos a sentir: que nos gustábamos más de lo que decíamos. ❤️✨",
+    storyText: "Todo comenzó cuando te encontré en Facebook gracias a aquel grupo que teníamos en común: Maestría en Ciencias Químicas. Me animé a agregarte y, sin imaginarlo, ese pequeño gesto sería el inicio de algo muy bonito. Lo que empezó con mensajes terminó convirtiéndose en café, pizza, risas, partidas de mini-hockey con cauchitos y penitencias que, entre preguntas y confesiones, nos fueron dejando al descubierto algo que ambos empezábamos a sentir: que nos gustábamos. ❤️✨",
     sfx: "¡MINI-HOCKEY! 🍕",
     question: "Todo empezó porque te agregué al Facebook al ver que compartíamos el grupo de Maestría en Ciencias Químicas. El plan original era ir solo por un café; ese día primero me rechazaste, pero a los pocos minutos aceptaste y en ese mismo sitio terminamos comiendo pizza. Mientras jugábamos mini-hockey con cauchitos, yo te dije que me parecían muy lindos tus ojos, ¿qué me dejaste muy claro que te gustaba de mí?",
     options: [
