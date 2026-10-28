@@ -75,9 +75,12 @@
             <div class="locked-overlay" id="panelOverlay1">
               <div class="locked-icon">🔒</div>
               <h3>Viñeta Bloqueada</h3>
-              <div class="locked-day-notice" id="dayNoticeText1">📅 Se habilita el Miércoles</div>
+              <div class="countdown-box-panel">
+                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+                <span class="countdown-box-digits" id="stageCountdownDigits1">0d 00h 00m 00s</span>
+              </div>
               <p>Revisa la tarjetita de tu <strong>Regalo #1</strong> e ingresa el código de 6 dígitos.</p>
-              <button class="comic-btn secondary" onclick="openPinModal(1)">🔑 Ingresar Código #1</button>
+              <button class="comic-btn secondary" id="pinBtn1" onclick="openPinModal(1)">🔑 Ingresar Código #1</button>
             </div>
           </div>
           <div class="comic-story-side">
@@ -86,6 +89,9 @@
               <strong>El rechazo de 5 minutos, la pizza y la cara de ñoño:</strong><br>
               Todo empezó con ese mensaje por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y la mirada cómplice con ese Twingo blanco parqueado afuera.
             </div>
+            <button class="music-pill-btn" onclick="playVignetteSong(1)" title="Reproducir banda sonora de este capítulo">
+              🎵 Cabas - Increíble (8-bit) ▶️
+            </button>
           </div>
         </div>
       </article>
@@ -102,9 +108,12 @@
             <div class="locked-overlay" id="panelOverlay2">
               <div class="locked-icon">🔒</div>
               <h3>Viñeta Bloqueada</h3>
-              <div class="locked-day-notice" id="dayNoticeText2">📅 Se habilita el Viernes</div>
+              <div class="countdown-box-panel">
+                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+                <span class="countdown-box-digits" id="stageCountdownDigits2">0d 00h 00m 00s</span>
+              </div>
               <p>Revisa la tarjetita de tu <strong>Regalo #2</strong> e ingresa el código de 6 dígitos.</p>
-              <button class="comic-btn secondary" onclick="openPinModal(2)">🔑 Ingresar Código #2</button>
+              <button class="comic-btn secondary" id="pinBtn2" onclick="openPinModal(2)">🔑 Ingresar Código #2</button>
             </div>
           </div>
           <div class="comic-story-side">
@@ -113,6 +122,9 @@
               <strong>Jenga, lágrimas y el afogato:</strong><br>
               En esa segunda salida la conexión fue real. Entre charlas profundas sobre nuestras vidas y la tensión de no tumbar el Jenga, supimos quién era la llorona de la relación mientras disfrutabas tu afogato.
             </div>
+            <button class="music-pill-btn" onclick="playVignetteSong(2)" title="Reproducir banda sonora de este capítulo">
+              🎵 SOAD - Toxicity (8-bit) ▶️
+            </button>
           </div>
         </div>
       </article>
@@ -129,9 +141,12 @@
             <div class="locked-overlay" id="panelOverlay3">
               <div class="locked-icon">🔒</div>
               <h3>Viñeta Bloqueada</h3>
-              <div class="locked-day-notice" id="dayNoticeText3">📅 Se habilita el Sábado</div>
+              <div class="countdown-box-panel">
+                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+                <span class="countdown-box-digits" id="stageCountdownDigits3">0d 00h 00m 00s</span>
+              </div>
               <p>Revisa la tarjetita de tu <strong>Regalo #3</strong> para el reto y la sorpresa final.</p>
-              <button class="comic-btn secondary" onclick="openPinModal(3)">🔑 Ingresar Código #3</button>
+              <button class="comic-btn secondary" id="pinBtn3" onclick="openPinModal(3)">🔑 Ingresar Código #3</button>
             </div>
           </div>
           <div class="comic-story-side">
@@ -140,6 +155,9 @@
               <strong>El final de la primera cita y el primer beso:</strong><br>
               Parados en el carro con música agropecuaria de fondo. Te quedaste dormida de cansancio, pero justo cuando abriste los ojos... sucedió nuestro primer beso.
             </div>
+            <button class="music-pill-btn" onclick="playVignetteSong(3)" title="Reproducir banda sonora de este capítulo">
+              🎵 You & Me (8-bit) ▶️
+            </button>
           </div>
         </div>
       </article>
