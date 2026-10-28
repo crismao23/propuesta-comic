@@ -1,38 +1,37 @@
 /* ============================================================
    LÓGICA INTERACTIVA - NUESTRA HISTORIA EN PIXEL ART ❤️
-   Contadores en tiempo real (Días/Horas/Min/Seg), 
-   Bloqueo de 30 min, códigos de 6 dígitos
-   BANDA SONORA RETRO 8-BIT:
-     1. Cabas - "Increíble" (Capítulo 1)
-     2. System of a Down - "Toxicity" (Capítulo 2)
-     3. Disclosure / Flume - "You & Me" (Capítulo 3 y Propuesta)
+   Modo Misterio Progresivo:
+   - Solo se muestra la viñeta actual/próxima. Las demás están ocultas.
+   - Todo bloqueado: sin título, sin texto, sin canción hasta desbloquear.
+   - Cuenta regresiva en vivo (Días, Horas, Minutos, Segundos).
+   - Fechas: Miércoles, Viernes y Sábado.
+   - Sonido 8-bit Chiptune retro con soporte para archivos locales en audio/
    ============================================================ */
 
-// CÓDIGOS DE 6 DÍGITOS PARA CADA REGALO (Configurables)
+// CÓDIGOS DE 6 DÍGITOS PARA CADA REGALO
 const DEFAULT_CODES = {
   1: "140921", // Regalo 1 (Miércoles)
   2: "280419", // Regalo 2 (Viernes)
   3: "739105"  // Regalo 3 (Sábado)
 };
 
-// DÍAS REQUERIDOS
-const DAY_REQUIREMENTS = {
-  1: { dayIndex: 3, name: "Miércoles", label: "MIÉRCOLES" },
-  2: { dayIndex: 5, name: "Viernes", label: "VIERNES" },
-  3: { dayIndex: 6, name: "Sábado", label: "SÁBADO" }
+// FECHAS OBJETIVO DE DESBLOQUEO (Miércoles, Viernes, Sábado)
+// Se pueden ajustar en cualquier momento
+const DEFAULT_TARGETS = {
+  1: new Date("2026-10-28T00:00:00").getTime(),
+  2: new Date("2026-10-30T00:00:00").getTime(),
+  3: new Date("2026-10-31T00:00:00").getTime()
 };
 
 // PREGUNTAS Y OPCIONES EXACTAS DE SU HISTORIA
 const RETOS_DATA = [
   {
     id: 1,
-    badge: "CAPÍTULO 1",
-    dayLabel: "Miércoles",
+    badge: "RECUERDO #1",
     title: "El rechazo de 5 min, la pizza y la cara de ñoño 🍕",
     storyTitle: "Capítulo 1: El Primer Encuentro",
     storyText: "Todo empezó con ese mensaje de Facebook por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y la mirada puesta en ese Twingo blanco por la ventana.",
     sfx: "¡PIZZA! 🍕",
-    songName: "Cabas - Increíble",
     question: "Todo empezó porque te agregué al Facebook al ver que compartíamos el grupo de Maestría en Ciencias Químicas. El plan original era ir solo por un café; ese día primero me rechazaste, pero a los pocos minutos aceptaste y en ese mismo sitio terminamos comiendo pizza. Mientras jugábamos mini-hockey con cauchitos, yo te dije que me parecían muy lindos tus ojos, ¿qué me dejaste muy claro que te gustaba de mí?",
     options: [
       { text: "Que te daba mucha ternura mi Twingo blanco.", correct: false },
@@ -42,13 +41,11 @@ const RETOS_DATA = [
   },
   {
     id: 2,
-    badge: "CAPÍTULO 2",
-    dayLabel: "Viernes",
+    badge: "RECUERDO #2",
     title: "Jenga, lágrimas y el afogato ☕",
     storyTitle: "Capítulo 2: Conexión Real y Lágrimas",
     storyText: "En esa segunda salida la conexión fue mágica e inevitable. Entre tanta charla profunda sobre la vida y la tensión de no tumbar el Jenga, supimos quién era la llorona de la relación mientras disfrutabas tu afogato.",
     sfx: "¡JENGA! ✨",
-    songName: "SOAD - Toxicity",
     question: "En esa segunda salida a tomar alguito la conexión se volvió real. Hablamos de la vida, de nuestras familias y terminaste llorando un montón (ya sabemos quién es la llorona de la relación). Entre tanta charla profunda y la tensión de no tumbar el Jenga, ¿qué te pediste para acompañar el momento?",
     options: [
       { text: "Un afogato.", correct: true },
@@ -58,13 +55,11 @@ const RETOS_DATA = [
   },
   {
     id: 3,
-    badge: "CAPÍTULO 3",
-    dayLabel: "Sábado",
+    badge: "RECUERDO #3",
     title: "La radio agropecuaria y el primer beso 📻",
     storyTitle: "Capítulo 3: Nuestro Primer Beso",
     storyText: "En el carro de noche, con la música agropecuaria de fondo. Te quedaste profunda de sueño, pero al abrir los ojos, el universo conspiró para sellar nuestro primer beso.",
     sfx: "¡BESO! 💋",
-    songName: "You & Me",
     question: "Al finalizar esa misma primera cita, paramos en el carro con la intención de hablar un rato (seguro de fondo sonaba música agropecuaria, que es lo único que coge ese radio). Pero el cansancio te ganó y te quedaste profunda. ¿Qué fue lo primero que pasó justo en el instante en que abriste los ojos?",
     options: [
       { text: "Te dediqué a todo pulmón una canción de Bruno Mars.", correct: false },
@@ -77,7 +72,8 @@ const RETOS_DATA = [
 // ESTADO GLOBAL
 let unlockedPanels = { 1: false, 2: false, 3: false };
 let giftCodes = { ...DEFAULT_CODES };
-let simulationMode = "ALL"; // "ALL" = Pruebas, "REAL" = Días reales, o "3","5","6"
+let targetTimestamps = { ...DEFAULT_TARGETS };
+let simulationMode = "REAL"; // "REAL" = Misterio con fechas reales. "ALL" = Todo libre para pruebas.
 let currentPinInput = "";
 let currentActiveRetoId = null;
 let noButtonDodgeCount = 0;
@@ -85,9 +81,9 @@ let lockoutIntervalId = null;
 let countdownTickerInterval = null;
 
 // ============================================================
-// SISTEMA DE AUDIO MULTI-CANAL (STUDIO 16/24-BIT & CHIPTUNE)
+// SISTEMA DE AUDIO CHIPTUNE RETRO 8-BIT PURO
 // ============================================================
-class StudioAudioEngine {
+class Retro8BitSynth {
   constructor() {
     this.ctx = null;
     this.currentPlayingAudio = null;
@@ -118,8 +114,9 @@ class StudioAudioEngine {
       this.init();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.04);
       gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
       osc.connect(gain);
@@ -135,9 +132,9 @@ class StudioAudioEngine {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(160, this.ctx.currentTime);
-      osc.frequency.setValueAtTime(110, this.ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(95, this.ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.28, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
@@ -153,7 +150,7 @@ class StudioAudioEngine {
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(650, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
       osc.connect(gain);
@@ -163,143 +160,170 @@ class StudioAudioEngine {
     } catch(e){}
   }
 
-  // 1. CABAS - "INCREÍBLE" (Sintetizador 16/24-bit Cálido estilo Piano y Guitarra Acústica)
-  playCabasIncreibleSynth() {
+  // 1. CABAS - "INCREÍBLE" (8-bit Chiptune alegre)
+  playCabasIncreible8Bit() {
     try {
       this.init();
-      // Armónicos suaves y envolvente acústica de piano/guitarra
-      const cabasMelody = [
-        // "Que in-cre-í-ble..."
-        { f: 392.00, d: 0.35, chord: [196, 246.94, 293.66] }, // G4 + Sol Mayor
-        { f: 493.88, d: 0.35, chord: null },                   // B4
-        { f: 587.33, d: 0.45, chord: null },                   // D5
-        { f: 659.25, d: 0.85, chord: [164.81, 246.94, 329.63] }, // E5 + Mi menor
-        { f: 0,      d: 0.15, chord: null },
-        // "...como siento el corazón cuando te pienso"
-        { f: 659.25, d: 0.28, chord: null },                   // E5
-        { f: 587.33, d: 0.28, chord: null },                   // D5
-        { f: 493.88, d: 0.35, chord: null },                   // B4
-        { f: 392.00, d: 0.35, chord: null },                   // G4
-        { f: 440.00, d: 0.85, chord: [146.83, 220.00, 293.66] }, // A4 + Re Mayor
-        { f: 0,      d: 0.15, chord: null },
-        // "...increíble el color del cielo"
-        { f: 440.00, d: 0.25, chord: null },                   // A4
-        { f: 493.88, d: 0.25, chord: null },                   // B4
-        { f: 523.25, d: 0.32, chord: [130.81, 196.00, 261.63] }, // C5 + Do Mayor
-        { f: 493.88, d: 0.25, chord: null },                   // B4
-        { f: 440.00, d: 0.25, chord: null },                   // A4
-        { f: 392.00, d: 0.65, chord: null },                   // G4
-        { f: 0,      d: 0.15, chord: null },
-        // "...pero hoy contigo todo me lo creo"
-        { f: 392.00, d: 0.25, chord: null },                   // G4
-        { f: 493.88, d: 0.25, chord: null },                   // B4
-        { f: 587.33, d: 0.35, chord: null },                   // D5
-        { f: 523.25, d: 0.28, chord: null },                   // C5
-        { f: 493.88, d: 0.28, chord: null },                   // B4
-        { f: 440.00, d: 0.35, chord: null },                   // A4
-        { f: 392.00, d: 1.25, chord: [196, 246.94, 293.66, 392] } // G4 (Final cálido)
+      const notes = [
+        { f: 392.00, d: 0.30 }, // Sol4
+        { f: 493.88, d: 0.30 }, // Si4
+        { f: 587.33, d: 0.40 }, // Re5
+        { f: 659.25, d: 0.70 }, // Mi5 (In-cre-í-ble...)
+        { f: 0,      d: 0.12 },
+        { f: 659.25, d: 0.25 }, // Mi5
+        { f: 587.33, d: 0.25 }, // Re5
+        { f: 493.88, d: 0.30 }, // Si4
+        { f: 392.00, d: 0.30 }, // Sol4
+        { f: 440.00, d: 0.70 }, // La4 (...que tú estés aquí)
+        { f: 0,      d: 0.12 },
+        { f: 440.00, d: 0.22 }, // La4
+        { f: 493.88, d: 0.22 }, // Si4
+        { f: 523.25, d: 0.25 }, // Do5
+        { f: 493.88, d: 0.22 }, // Si4
+        { f: 440.00, d: 0.22 }, // La4
+        { f: 392.00, d: 0.55 }, // Sol4 (...tan bonita)
+        { f: 0,      d: 0.12 },
+        { f: 392.00, d: 0.22 }, // Sol4
+        { f: 493.88, d: 0.22 }, // Si4
+        { f: 587.33, d: 0.30 }, // Re5
+        { f: 523.25, d: 0.25 }, // Do5
+        { f: 493.88, d: 0.25 }, // Si4
+        { f: 440.00, d: 0.30 }, // La4
+        { f: 392.00, d: 1.00 }  // Sol4 (...tenerte cerca de mí)
       ];
 
       let t = this.ctx.currentTime + 0.05;
-      cabasMelody.forEach(item => {
+      notes.forEach(item => {
         if (item.f > 0) {
-          // Nota principal (sonido redondo de piano acústico)
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'triangle';
+          osc.type = 'square';
           osc.frequency.value = item.f;
-          gain.gain.setValueAtTime(0.24, t);
+          gain.gain.setValueAtTime(0.18, t);
           gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(t);
           osc.stop(t + item.d);
-
-          // Armónico sutil
-          const osc2 = this.ctx.createOscillator();
-          const gain2 = this.ctx.createGain();
-          osc2.type = 'sine';
-          osc2.frequency.value = item.f * 2;
-          gain2.gain.setValueAtTime(0.06, t);
-          gain2.gain.exponentialRampToValueAtTime(0.001, t + item.d * 0.7);
-          osc2.connect(gain2);
-          gain2.connect(this.ctx.destination);
-          osc2.start(t);
-          osc2.stop(t + item.d);
         }
+        t += item.d;
+      });
+    } catch(e){}
+  }
 
-        // Si hay acorde de acompañamiento
-        if (item.chord) {
-          item.chord.forEach(cFreq => {
-            const oscC = this.ctx.createOscillator();
-            const gainC = this.ctx.createGain();
-            oscC.type = 'sine';
-            oscC.frequency.value = cFreq;
-            gainC.gain.setValueAtTime(0.12, t);
-            gainC.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-            oscC.connect(gainC);
-            gainC.connect(this.ctx.destination);
-            oscC.start(t);
-            oscC.stop(t + 1.25);
-          });
+  // 2. SYSTEM OF A DOWN - "TOXICITY" (8-bit Chiptune Metal)
+  playSoadToxicity8Bit() {
+    try {
+      this.init();
+      const notes = [
+        // Riff arpegio intro
+        { f: 261.63, d: 0.15 }, { f: 311.13, d: 0.15 }, { f: 392.00, d: 0.15 },
+        { f: 523.25, d: 0.15 }, { f: 392.00, d: 0.15 }, { f: 311.13, d: 0.15 },
+        { f: 233.08, d: 0.15 }, { f: 293.66, d: 0.15 }, { f: 349.23, d: 0.15 },
+        { f: 466.16, d: 0.15 }, { f: 349.23, d: 0.15 }, { f: 293.66, d: 0.15 },
+        { f: 207.65, d: 0.15 }, { f: 261.63, d: 0.15 }, { f: 311.13, d: 0.15 },
+        { f: 415.30, d: 0.15 }, { f: 311.13, d: 0.15 }, { f: 261.63, d: 0.15 },
+        // Coro rápido: "The toxicity of our city..."
+        { f: 523.25, d: 0.20 }, { f: 523.25, d: 0.20 }, { f: 523.25, d: 0.20 },
+        { f: 466.16, d: 0.20 }, { f: 415.30, d: 0.20 }, { f: 392.00, d: 0.25 },
+        { f: 415.30, d: 0.20 }, { f: 392.00, d: 0.20 }, { f: 349.23, d: 0.20 },
+        { f: 311.13, d: 0.20 }, { f: 293.66, d: 0.20 }, { f: 261.63, d: 0.70 }
+      ];
+
+      let t = this.ctx.currentTime + 0.05;
+      notes.forEach(item => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = item.f;
+        gain.gain.setValueAtTime(0.22, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + item.d);
+        t += item.d;
+      });
+    } catch(e){}
+  }
+
+  // 3. DISCLOSURE / FLUME - "YOU & ME" (8-bit Chiptune)
+  playYouAndMe8Bit() {
+    try {
+      this.init();
+      const notes = [
+        { f: 370.0, d: 0.35 }, { f: 440.0, d: 0.35 }, { f: 493.9, d: 0.60 }, { f: 0, d: 0.10 },
+        { f: 554.4, d: 0.25 }, { f: 493.9, d: 0.25 }, { f: 440.0, d: 0.25 }, { f: 370.0, d: 0.60 }, { f: 0, d: 0.12 },
+        // Drop Flume
+        { f: 554.4, d: 0.18 }, { f: 659.3, d: 0.18 }, { f: 740.0, d: 0.35 },
+        { f: 740.0, d: 0.18 }, { f: 880.0, d: 0.35 }, { f: 830.6, d: 0.25 },
+        { f: 659.3, d: 0.25 }, { f: 740.0, d: 0.60 }, { f: 0, d: 0.10 },
+        { f: 740.0, d: 0.18 }, { f: 880.0, d: 0.18 }, { f: 1108.7, d: 0.35 },
+        { f: 987.8, d: 0.35 }, { f: 880.0, d: 0.25 }, { f: 987.8, d: 0.25 }, { f: 1108.7, d: 0.70 }
+      ];
+
+      let t = this.ctx.currentTime + 0.05;
+      notes.forEach(item => {
+        if (item.f > 0) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = item.f;
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + item.d);
         }
-
         t += item.d;
       });
     } catch(e){}
   }
 }
 
-const audio = new StudioAudioEngine();
+const audio = new Retro8BitSynth();
 
-// REPRODUCCIÓN INTELIGENTE: Archivo Real HD (16/24-bit) con Fallback a Sintetizador
+// REPRODUCCIÓN: Primero intenta archivo local en audio/, si no está, reproduce el sintetizador 8-bit
 function playVignetteSong(stageId) {
   audio.stopAll();
 
-  if (stageId === 1) {
-    const el1 = document.getElementById('audioVignette1');
-    if (el1 && el1.src && el1.duration > 0) {
-      audio.currentPlayingAudio = el1;
-      el1.currentTime = 0;
-      el1.play().catch(() => audio.playCabasIncreibleSynth());
-    } else {
-      audio.playCabasIncreibleSynth();
-    }
-  } else if (stageId === 2) {
-    const el2 = document.getElementById('audioVignette2');
-    if (el2) {
-      audio.currentPlayingAudio = el2;
-      el2.currentTime = 0;
-      el2.play().catch(e => console.warn("Error reproduciendo audio 2:", e));
-    }
-  } else if (stageId === 3) {
-    playLoveSong();
+  const localAudioEl = document.getElementById(`localAudio${stageId}`);
+  if (localAudioEl && localAudioEl.src) {
+    audio.currentPlayingAudio = localAudioEl;
+    localAudioEl.currentTime = 0;
+    localAudioEl.play().catch(() => {
+      // Si el archivo no existe o falla, suena el sintetizador 8-bit
+      trigger8BitSynth(stageId);
+    });
+  } else {
+    trigger8BitSynth(stageId);
   }
 }
 
+function trigger8BitSynth(stageId) {
+  if (stageId === 1) audio.playCabasIncreible8Bit();
+  else if (stageId === 2) audio.playSoadToxicity8Bit();
+  else if (stageId === 3) audio.playYouAndMe8Bit();
+}
+
 // ============================================================
-// CÁLCULO DE FECHAS Y CONTADORES EN TIEMPO REAL
+// CÁLCULO DE FECHAS OBJETIVO Y CONTADORES
 // ============================================================
 function getStageReleaseTimestamp(stageId) {
   if (simulationMode === "ALL") return Date.now() - 1000;
-  if (simulationMode === "3" && stageId === 1) return Date.now() - 1000;
-  if (simulationMode === "5" && stageId <= 2) return Date.now() - 1000;
-  if (simulationMode === "6") return Date.now() - 1000;
+  if (simulationMode === "1" && stageId === 1) return Date.now() - 1000;
+  if (simulationMode === "2" && stageId <= 2) return Date.now() - 1000;
+  if (simulationMode === "3") return Date.now() - 1000;
 
-  // Fechas: Miércoles 28 Oct, Viernes 30 Oct, Sábado 31 Oct
-  const targets = {
-    1: new Date("2026-10-28T00:00:00").getTime(),
-    2: new Date("2026-10-30T00:00:00").getTime(),
-    3: new Date("2026-10-31T00:00:00").getTime()
-  };
-
-  return targets[stageId] || (Date.now() - 1000);
+  return targetTimestamps[stageId] || (Date.now() - 1000);
 }
 
 function updateCountdowns() {
   for (let i = 1; i <= 3; i++) {
     const digitsEl = document.getElementById(`stageCountdownDigits${i}`);
     const pinBtn = document.getElementById(`pinBtn${i}`);
+    const mysteryDesc = document.getElementById(`mysteryDesc${i}`);
     if (!digitsEl) continue;
 
     const targetTime = getStageReleaseTimestamp(i);
@@ -308,12 +332,17 @@ function updateCountdowns() {
     if (diff <= 0) {
       digitsEl.textContent = "✨ ¡YA DISPONIBLE!";
       digitsEl.classList.add("available");
-      if (pinBtn) {
-        pinBtn.disabled = false;
-        pinBtn.style.opacity = "1";
+      if (pinBtn) pinBtn.style.display = "inline-flex";
+      if (mysteryDesc) {
+        mysteryDesc.textContent = "¡Ha llegado el momento! Ingresa el código de 6 dígitos de tu regalo para descubrir este recuerdo.";
       }
     } else {
       digitsEl.classList.remove("available");
+      if (pinBtn) pinBtn.style.display = "none";
+      if (mysteryDesc) {
+        mysteryDesc.textContent = "La fecha y hora de este recuerdo aún no llegan. ¡La paciencia tiene su recompensa! ❤️";
+      }
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -325,7 +354,7 @@ function updateCountdowns() {
 }
 
 // ============================================================
-// BLOQUEO REAL DE 30 MINUTOS POR RESPUESTA INCORRECTA
+// BLOQUEO REAL DE 30 MINUTOS POR ERROR
 // ============================================================
 function activateLockoutPenalty() {
   audio.playErrorBuzz();
@@ -391,7 +420,7 @@ function forceClearLockout() {
 }
 
 // ============================================================
-// TECLADO PIN DE 6 DÍGITOS PARA CADA REGALO
+// TECLADO PIN DE 6 DÍGITOS
 // ============================================================
 function openPinModal(stageId) {
   audio.playBeep();
@@ -401,7 +430,6 @@ function openPinModal(stageId) {
   currentPinInput = "";
   updatePinDisplay();
 
-  const req = DAY_REQUIREMENTS[stageId];
   const targetTime = getStageReleaseTimestamp(stageId);
   const isAvailable = (targetTime - Date.now()) <= 0;
 
@@ -409,13 +437,13 @@ function openPinModal(stageId) {
   const noticeEl = document.getElementById('pinModalDayNotice');
   const errorEl = document.getElementById('pinModalError');
 
-  titleEl.textContent = `Código del Regalo #${stageId} 🎁`;
+  titleEl.textContent = `Código del Recuerdo Secreto 🎁`;
   errorEl.textContent = "";
 
   if (isAvailable) {
-    noticeEl.innerHTML = `<span style="color:#06d6a0;">✅ ¡Disponible hoy (${req.name})!</span>`;
+    noticeEl.innerHTML = `<span style="color:#06d6a0;">✅ ¡Disponible ahora!</span>`;
   } else {
-    noticeEl.innerHTML = `<span style="color:#ffd166;">⏳ Se habilita el día <strong>${req.name}</strong></span>`;
+    noticeEl.innerHTML = `<span style="color:#ffd166;">⏳ Aún no llega el momento de este regalo</span>`;
   }
 
   const modal = document.getElementById('pinModalBackdrop');
@@ -484,11 +512,10 @@ function verifyEnteredPin() {
 
   const targetTime = getStageReleaseTimestamp(currentActiveRetoId);
   const diff = targetTime - Date.now();
-  const req = DAY_REQUIREMENTS[currentActiveRetoId];
 
   if (diff > 0) {
     audio.playBeep();
-    errorEl.innerHTML = `<span style="color:#ffd166">¡Código correcto! Pero este reto se activa el <strong>${req.name}</strong>. ¡Paciencia, pequeña impaciente! ❤️</span>`;
+    errorEl.innerHTML = `<span style="color:#ffd166">¡Código correcto! Pero la cuenta regresiva aún no termina. ¡Paciencia, pequeña impaciente! ❤️</span>`;
     return;
   }
 
@@ -507,7 +534,7 @@ function openRetoQuizModal(retoId) {
 
   const modal = document.getElementById('quizModalBackdrop');
   document.getElementById('modalRetoBadge').textContent = reto.badge;
-  document.getElementById('modalRetoTitle').textContent = reto.title;
+  document.getElementById('modalRetoTitle').textContent = "El Reto del Recuerdo";
   document.getElementById('modalRetoQuestion').textContent = reto.question;
   document.getElementById('modalRetoFeedback').textContent = '';
 
@@ -540,13 +567,12 @@ function handleQuizAnswer(retoId, option, btnElement) {
 
   if (option.correct) {
     btnElement.classList.add('correct');
-    feedback.innerHTML = `<span style="color:#2e7d32; font-weight:700;">🎉 ¡ACERTASTE! Desbloqueando viñeta y canción...</span>`;
+    feedback.innerHTML = `<span style="color:#2e7d32; font-weight:700;">🎉 ¡ACERTASTE! Revelando el recuerdo...</span>`;
     
     triggerHeartsConfetti();
     unlockedPanels[retoId] = true;
     saveProgressState();
 
-    // Reproducir la canción 8-bit de esa viñeta
     playVignetteSong(retoId);
 
     setTimeout(() => {
@@ -615,23 +641,10 @@ function handleNoButtonDodge() {
 }
 
 // ============================================================
-// CLÍMAX FINAL: SÍ ACEPTO + MÚSICA "YOU & ME" + CONFETI
+// CLÍMAX FINAL: SÍ ACEPTO + CANCIÓN FINAL + CONFETI
 // ============================================================
-function playLoveSong() {
-  audio.stopAll();
-  const externalAudio = document.getElementById('externalLoveSong') || document.getElementById('audioVignette3');
-  if (externalAudio) {
-    audio.currentPlayingAudio = externalAudio;
-    externalAudio.currentTime = 0;
-    externalAudio.play().catch(e => {
-      console.warn("Fallback to synth:", e);
-      audio.playCabasIncreibleSynth();
-    });
-  }
-}
-
 function acceptProposalFinal() {
-  playLoveSong();
+  playVignetteSong(3);
   triggerRomanticConfetti();
 
   const proposalSec = document.getElementById('finalProposalSection');
@@ -650,10 +663,6 @@ function acceptProposalFinal() {
   setTimeout(() => clearInterval(heartInterval), 20000);
 }
 
-function previewSong(trackNum) {
-  playVignetteSong(trackNum);
-}
-
 // Confeti de corazones
 function triggerHeartsConfetti() {
   if (typeof confetti === 'function') {
@@ -661,7 +670,7 @@ function triggerHeartsConfetti() {
       particleCount: 50,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#ff3366', '#ff758f', '#ffd166', '#06d6a0']
+      colors: ['#0284c7', '#38bdf8', '#ffd166', '#06d6a0']
     });
   }
 }
@@ -675,14 +684,14 @@ function triggerRomanticConfetti() {
         angle: 60,
         spread: 60,
         origin: { x: 0 },
-        colors: ['#ff3366', '#ff758f', '#ffd166', '#ffffff']
+        colors: ['#0284c7', '#38bdf8', '#ffd166', '#ffffff']
       });
       confetti({
         particleCount: 5,
         angle: 120,
         spread: 60,
         origin: { x: 1 },
-        colors: ['#ff3366', '#ff758f', '#ffd166', '#ffffff']
+        colors: ['#0284c7', '#38bdf8', '#ffd166', '#ffffff']
       });
       if (Date.now() < end) {
         requestAnimationFrame(frame);
@@ -692,47 +701,95 @@ function triggerRomanticConfetti() {
 }
 
 // ============================================================
-// ACTUALIZACIÓN DE INTERFAZ Y PANELES
+// ACTUALIZACIÓN DE INTERFAZ (MISTERIO PROGRESIVO)
 // ============================================================
 function updatePanelsUI() {
-  let unlockedCount = 0;
+  // 1. Viñeta 1: Siempre visible en el feed
+  const card1 = document.getElementById('panelCard1');
+  const mysteryBox1 = document.getElementById('mysteryBox1');
+  const tag1 = document.getElementById('panelTag1');
 
-  for (let i = 1; i <= 3; i++) {
-    const isUnlocked = unlockedPanels[i];
-    const overlay = document.getElementById(`panelOverlay${i}`);
-    const step = document.getElementById(`stepIndicator${i}`);
-
-    if (isUnlocked) {
-      unlockedCount++;
-      if (overlay) overlay.style.display = 'none';
-      if (step) {
-        step.classList.add('unlocked');
-        step.classList.remove('active');
-        step.innerHTML = `<span>Viñeta #${i}</span><span style="color:#2e7d32">✅ Lista</span>`;
-      }
-    } else {
-      if (overlay) overlay.style.display = 'flex';
-      if (step) {
-        step.classList.remove('unlocked');
-        if (i === unlockedCount + 1) {
-          step.classList.add('active');
-          step.innerHTML = `<span>Viñeta #${i}</span><span style="color:#ff3366">✨ Siguiente</span>`;
-        } else {
-          step.classList.remove('active');
-          step.innerHTML = `<span>Viñeta #${i}</span><span>🔒 Bloqueada</span>`;
-        }
-      }
-    }
+  if (unlockedPanels[1]) {
+    card1.classList.remove('is-locked');
+    if (mysteryBox1) mysteryBox1.style.display = 'none';
+    if (tag1) tag1.textContent = '✨ RECUERDO #1: EL COMIENZO';
+  } else {
+    card1.classList.add('is-locked');
+    if (mysteryBox1) mysteryBox1.style.display = 'flex';
+    if (tag1) tag1.textContent = '🔒 RECUERDO #1';
   }
 
-  const percent = Math.round((unlockedCount / 3) * 100);
-  const bar = document.getElementById('progressBarInner');
-  const countText = document.getElementById('progressCountText');
-  if (bar) bar.style.width = `${percent}%`;
-  if (countText) countText.textContent = `${unlockedCount} de 3 Capítulos`;
+  // 2. Viñeta 2: Solo visible si la Viñeta 1 ya fue superada
+  const card2 = document.getElementById('panelCard2');
+  const mysteryBox2 = document.getElementById('mysteryBox2');
+  const tag2 = document.getElementById('panelTag2');
 
+  if (unlockedPanels[1] || simulationMode === "ALL") {
+    card2.style.display = 'block';
+    if (unlockedPanels[2]) {
+      card2.classList.remove('is-locked');
+      if (mysteryBox2) mysteryBox2.style.display = 'none';
+      if (tag2) tag2.textContent = '✨ RECUERDO #2: CONEXIÓN REAL';
+    } else {
+      card2.classList.add('is-locked');
+      if (mysteryBox2) mysteryBox2.style.display = 'flex';
+      if (tag2) tag2.textContent = '🔒 PRÓXIMO RECUERDO';
+    }
+  } else {
+    card2.style.display = 'none';
+  }
+
+  // 3. Viñeta 3: Solo visible si la Viñeta 2 ya fue superada
+  const card3 = document.getElementById('panelCard3');
+  const mysteryBox3 = document.getElementById('mysteryBox3');
+  const tag3 = document.getElementById('panelTag3');
+
+  if (unlockedPanels[2] || simulationMode === "ALL") {
+    card3.style.display = 'block';
+    if (unlockedPanels[3]) {
+      card3.classList.remove('is-locked');
+      if (mysteryBox3) mysteryBox3.style.display = 'none';
+      if (tag3) tag3.textContent = '✨ RECUERDO #3: EL PRIMER BESO';
+    } else {
+      card3.classList.add('is-locked');
+      if (mysteryBox3) mysteryBox3.style.display = 'flex';
+      if (tag3) tag3.textContent = '🔒 RECUERDO DECISIVO';
+    }
+  } else {
+    card3.style.display = 'none';
+  }
+
+  // Actualizar badges de recuerdos revelados (Sin revelar el total)
+  const badgesContainer = document.getElementById('unlockedBadgesContainer');
+  const countText = document.getElementById('progressCountText');
+
+  let countUnlocked = 0;
+  let badgesHtml = '';
+
+  if (unlockedPanels[1]) {
+    countUnlocked++;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">🍕 1. Pizza y Twingo</span>`;
+  }
+  if (unlockedPanels[2]) {
+    countUnlocked++;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">☕ 2. Risas y Jenga</span>`;
+  }
+  if (unlockedPanels[3]) {
+    countUnlocked++;
+    badgesHtml += `<span class="pixel-badge" style="background:#e0f2fe; color:#0284c7; font-size:0.6rem;">💋 3. Primer Beso</span>`;
+  }
+
+  if (countUnlocked === 0) {
+    badgesHtml = `<span class="pixel-badge" style="background:#f1f5f9; color:#64748b; font-size:0.6rem;">🔒 En busca del primer recuerdo</span>`;
+    countText.textContent = "Descubriendo el camino...";
+  } else {
+    countText.textContent = `${countUnlocked} recuerdo(s) revelado(s)`;
+  }
+  badgesContainer.innerHTML = badgesHtml;
+
+  // Revelar sección final únicamente si los 3 están desbloqueados
   const proposalSection = document.getElementById('finalProposalSection');
-  if (unlockedCount === 3) {
+  if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
     if (proposalSection) proposalSection.classList.add('revealed');
   }
 
@@ -742,7 +799,7 @@ function updatePanelsUI() {
 // Guardar y Cargar Estado
 function loadProgressState() {
   try {
-    const saved = localStorage.getItem('propuesta_pixel_unlocked');
+    const saved = localStorage.getItem('propuesta_mystery_unlocked');
     if (saved) unlockedPanels = JSON.parse(saved);
 
     const savedCodes = localStorage.getItem('propuesta_gift_codes');
@@ -755,7 +812,7 @@ function loadProgressState() {
 
 function saveProgressState() {
   try {
-    localStorage.setItem('propuesta_pixel_unlocked', JSON.stringify(unlockedPanels));
+    localStorage.setItem('propuesta_mystery_unlocked', JSON.stringify(unlockedPanels));
   } catch(e){}
 }
 
@@ -808,7 +865,7 @@ function updateCodeCardsDisplay() {
 function resetAllProgress() {
   if (confirm("¿Deseas reiniciar todo el progreso a cero para volver a probar desde el inicio?")) {
     unlockedPanels = { 1: false, 2: false, 3: false };
-    localStorage.removeItem('propuesta_pixel_unlocked');
+    localStorage.removeItem('propuesta_mystery_unlocked');
     localStorage.removeItem('propuesta_lockout_until');
     location.reload();
   }

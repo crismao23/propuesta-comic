@@ -381,6 +381,54 @@ body {
   box-shadow: 2px 2px 0 var(--dark);
 }
 
+/* Mystery Locked Card Style */
+.comic-panel-card.is-locked .comic-story-side {
+  display: none !important;
+}
+
+.comic-panel-card.is-locked .comic-art-frame {
+  min-height: 280px;
+  background: #0f172a;
+}
+
+.comic-panel-card.is-locked .comic-art-frame img {
+  display: none !important;
+}
+
+.mystery-lock-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  width: 100%;
+  color: #fff;
+  z-index: 2;
+}
+
+.mystery-lock-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  animation: pulseLock 2s infinite ease-in-out;
+}
+
+.mystery-lock-title {
+  font-family: var(--font-retro);
+  font-size: 0.95rem;
+  color: var(--accent-yellow);
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.mystery-lock-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  max-width: 320px;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
 /* Music pill button for vignette soundtracks */
 .music-pill-btn {
   display: inline-flex;

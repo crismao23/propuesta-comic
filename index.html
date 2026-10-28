@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nuestra Historia en Pixel Art ❤️</title>
-  <meta name="description" content="Una aventura interactiva en pixel art y cómic con retos, recuerdos y una gran sorpresa.">
+  <meta name="description" content="Una aventura interactiva y misteriosa de recuerdos en pixel art.">
 
   <!-- Fuentes: Press Start 2P, Bangers, Fredoka -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,136 +26,134 @@
 
   <main class="app-container">
 
-    <!-- Encabezado Estilo Arcade / Pixel Art -->
+    <!-- Encabezado Misterioso -->
     <header class="comic-header">
-      <div class="pixel-badge">EDICIÓN ESPECIAL 16-BIT 🌟</div>
+      <div class="pixel-badge">EDICIÓN ESPECIAL 🌟</div>
       <h1 class="comic-title">Nuestra Historia de Amor</h1>
       <p class="comic-subtitle">
-        Ingresa el código secreto de 6 dígitos de cada regalo para desbloquear nuestras viñetas
+        Un viaje secreto a través de nuestros recuerdos más especiales ❤️
       </p>
     </header>
 
-    <!-- Barra de Progreso -->
+    <!-- Barra de Recuerdos Revelados (Misterio: No dice cuántos son en total) -->
     <section class="progress-panel" aria-label="Progreso">
       <div class="progress-header">
-        <span style="font-family: var(--font-retro); font-size: 0.7rem;">🏆 Progreso</span>
-        <span id="progressCountText">0 de 3 Capítulos</span>
+        <span style="font-family: var(--font-retro); font-size: 0.7rem;">📖 Recuerdos Desbloqueados</span>
+        <span id="progressCountText">Descubriendo el camino...</span>
       </div>
-      <div class="progress-bar-outer">
-        <div id="progressBarInner" class="progress-bar-inner"></div>
-      </div>
-      <div class="progress-steps">
-        <button id="stepIndicator1" class="step-indicator" onclick="openPinModal(1)">
-          <span>Viñeta #1</span>
-          <span>🔒 Bloqueada</span>
-        </button>
-        <button id="stepIndicator2" class="step-indicator" onclick="openPinModal(2)">
-          <span>Viñeta #2</span>
-          <span>🔒 Bloqueada</span>
-        </button>
-        <button id="stepIndicator3" class="step-indicator" onclick="openPinModal(3)">
-          <span>Viñeta #3</span>
-          <span>🔒 Bloqueada</span>
-        </button>
+      <div id="unlockedBadgesContainer" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <span class="pixel-badge" style="background:#e2e8f0; color:#64748b; font-size:0.6rem;">🔒 En busca del primer recuerdo</span>
       </div>
     </section>
 
-    <!-- Tira de Viñetas Pixel Art -->
+    <!-- Tira Progresiva de Viñetas (Solo se muestra la actual o próxima) -->
     <div class="comic-strip-container">
 
-      <!-- VIÑETA 1 (Miércoles) -->
-      <article class="comic-panel-card" id="panelCard1">
+      <!-- VIÑETA 1 -->
+      <article class="comic-panel-card is-locked" id="panelCard1">
         <div class="comic-panel-header">
-          <span class="comic-panel-tag">CAPÍTULO 1</span>
-          <span class="day-badge">📅 MIÉRCOLES</span>
+          <span class="comic-panel-tag" id="panelTag1">🔒 RECUERDO #1</span>
+          <span class="day-badge" id="panelBadge1" style="display:none;">DESBLOQUEADO</span>
         </div>
         <div class="comic-panel-body">
           <div class="comic-art-frame">
-            <img src="images/comic1.jpg" alt="Viñeta 1: Pizza, Mini-Hockey y Twingo" loading="lazy">
-            <div class="locked-overlay" id="panelOverlay1">
-              <div class="locked-icon">🔒</div>
-              <h3>Viñeta Bloqueada</h3>
-              <div class="countdown-box-panel">
-                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+            <img src="images/comic1.jpg" alt="Recuerdo 1" id="panelImg1" loading="lazy">
+            <div class="mystery-lock-box" id="mysteryBox1">
+              <div class="mystery-lock-icon">🔒</div>
+              <div class="mystery-lock-title">RECUERDO BLOQUEADO</div>
+              <div class="countdown-box-panel" id="countdownPanel1">
+                <span class="countdown-box-label">⏳ DISPONIBLE EN:</span>
                 <span class="countdown-box-digits" id="stageCountdownDigits1">0d 00h 00m 00s</span>
               </div>
-              <p>Revisa la tarjetita de tu <strong>Regalo #1</strong> e ingresa el código de 6 dígitos.</p>
-              <button class="comic-btn secondary" id="pinBtn1" onclick="openPinModal(1)">🔑 Ingresar Código #1</button>
+              <p class="mystery-lock-desc" id="mysteryDesc1">
+                La fecha y hora de este recuerdo aún no llegan. ¡La paciencia tiene su recompensa! ❤️
+              </p>
+              <button class="comic-btn secondary" id="pinBtn1" onclick="openPinModal(1)" style="display:none;">
+                🔑 Ingresar Código del Regalo
+              </button>
             </div>
           </div>
-          <div class="comic-story-side">
+          <div class="comic-story-side" id="storySide1">
             <div class="comic-sfx-badge">¡PIZZA Y TWINGO! 🍕</div>
             <div class="speech-bubble">
               <strong>El rechazo de 5 minutos, la pizza y la cara de ñoño:</strong><br>
               Todo empezó con ese mensaje por la Maestría en Ciencias Químicas. El café terminó en pizza, risas, mini-hockey con cauchitos y la mirada cómplice con ese Twingo blanco parqueado afuera.
             </div>
-            <button class="music-pill-btn" onclick="playVignetteSong(1)" title="Reproducir banda sonora de este capítulo">
+            <button class="music-pill-btn" onclick="playVignetteSong(1)" title="Reproducir banda sonora 8-bit">
               🎵 Cabas - Increíble (8-bit) ▶️
             </button>
           </div>
         </div>
       </article>
 
-      <!-- VIÑETA 2 (Viernes) -->
-      <article class="comic-panel-card" id="panelCard2">
+      <!-- VIÑETA 2 (Oculta hasta desbloquear la Viñeta 1) -->
+      <article class="comic-panel-card is-locked" id="panelCard2" style="display: none;">
         <div class="comic-panel-header">
-          <span class="comic-panel-tag">CAPÍTULO 2</span>
-          <span class="day-badge">📅 VIERNES</span>
+          <span class="comic-panel-tag" id="panelTag2">🔒 PRÓXIMO RECUERDO</span>
+          <span class="day-badge" id="panelBadge2" style="display:none;">DESBLOQUEADO</span>
         </div>
         <div class="comic-panel-body">
           <div class="comic-art-frame">
-            <img src="images/comic2.jpg" alt="Viñeta 2: Jenga, Lágrimas y Afogato" loading="lazy">
-            <div class="locked-overlay" id="panelOverlay2">
-              <div class="locked-icon">🔒</div>
-              <h3>Viñeta Bloqueada</h3>
-              <div class="countdown-box-panel">
-                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+            <img src="images/comic2.jpg" alt="Recuerdo 2" id="panelImg2" loading="lazy">
+            <div class="mystery-lock-box" id="mysteryBox2">
+              <div class="mystery-lock-icon">🔒</div>
+              <div class="mystery-lock-title">PRÓXIMO RECUERDO</div>
+              <div class="countdown-box-panel" id="countdownPanel2">
+                <span class="countdown-box-label">⏳ SE DESBLOQUEA EN:</span>
                 <span class="countdown-box-digits" id="stageCountdownDigits2">0d 00h 00m 00s</span>
               </div>
-              <p>Revisa la tarjetita de tu <strong>Regalo #2</strong> e ingresa el código de 6 dígitos.</p>
-              <button class="comic-btn secondary" id="pinBtn2" onclick="openPinModal(2)">🔑 Ingresar Código #2</button>
+              <p class="mystery-lock-desc" id="mysteryDesc2">
+                Un nuevo capítulo de nuestra historia se abrirá cuando el reloj llegue a cero.
+              </p>
+              <button class="comic-btn secondary" id="pinBtn2" onclick="openPinModal(2)" style="display:none;">
+                🔑 Ingresar Código del Regalo
+              </button>
             </div>
           </div>
-          <div class="comic-story-side">
+          <div class="comic-story-side" id="storySide2">
             <div class="comic-sfx-badge">¡JENGA Y CAFÉ! ✨</div>
             <div class="speech-bubble">
               <strong>Jenga, lágrimas y el afogato:</strong><br>
               En esa segunda salida la conexión fue real. Entre charlas profundas sobre nuestras vidas y la tensión de no tumbar el Jenga, supimos quién era la llorona de la relación mientras disfrutabas tu afogato.
             </div>
-            <button class="music-pill-btn" onclick="playVignetteSong(2)" title="Reproducir banda sonora de este capítulo">
+            <button class="music-pill-btn" onclick="playVignetteSong(2)" title="Reproducir banda sonora 8-bit">
               🎵 SOAD - Toxicity (8-bit) ▶️
             </button>
           </div>
         </div>
       </article>
 
-      <!-- VIÑETA 3 (Sábado) -->
-      <article class="comic-panel-card" id="panelCard3">
+      <!-- VIÑETA 3 (Oculta hasta desbloquear la Viñeta 2) -->
+      <article class="comic-panel-card is-locked" id="panelCard3" style="display: none;">
         <div class="comic-panel-header">
-          <span class="comic-panel-tag">CAPÍTULO 3</span>
-          <span class="day-badge">📅 SÁBADO</span>
+          <span class="comic-panel-tag" id="panelTag3">🔒 RECUERDO DECISIVO</span>
+          <span class="day-badge" id="panelBadge3" style="display:none;">DESBLOQUEADO</span>
         </div>
         <div class="comic-panel-body">
           <div class="comic-art-frame">
-            <img src="images/comic3.jpg" alt="Viñeta 3: Radio Agropecuaria y Primer Beso" loading="lazy">
-            <div class="locked-overlay" id="panelOverlay3">
-              <div class="locked-icon">🔒</div>
-              <h3>Viñeta Bloqueada</h3>
-              <div class="countdown-box-panel">
-                <span class="countdown-box-label">⏳ SE HABILITA EN:</span>
+            <img src="images/comic3.jpg" alt="Recuerdo 3" id="panelImg3" loading="lazy">
+            <div class="mystery-lock-box" id="mysteryBox3">
+              <div class="mystery-lock-icon">🔒</div>
+              <div class="mystery-lock-title">RECUERDO DECISIVO</div>
+              <div class="countdown-box-panel" id="countdownPanel3">
+                <span class="countdown-box-label">⏳ SE DESBLOQUEA EN:</span>
                 <span class="countdown-box-digits" id="stageCountdownDigits3">0d 00h 00m 00s</span>
               </div>
-              <p>Revisa la tarjetita de tu <strong>Regalo #3</strong> para el reto y la sorpresa final.</p>
-              <button class="comic-btn secondary" id="pinBtn3" onclick="openPinModal(3)">🔑 Ingresar Código #3</button>
+              <p class="mystery-lock-desc" id="mysteryDesc3">
+                El momento más especial de todos está guardado aquí. Espera a que termine la cuenta regresiva.
+              </p>
+              <button class="comic-btn secondary" id="pinBtn3" onclick="openPinModal(3)" style="display:none;">
+                🔑 Ingresar Código del Regalo
+              </button>
             </div>
           </div>
-          <div class="comic-story-side">
+          <div class="comic-story-side" id="storySide3">
             <div class="comic-sfx-badge">¡RADIO AGROPECUARIA! 📻</div>
             <div class="speech-bubble">
               <strong>El final de la primera cita y el primer beso:</strong><br>
               Parados en el carro con música agropecuaria de fondo. Te quedaste dormida de cansancio, pero justo cuando abriste los ojos... sucedió nuestro primer beso.
             </div>
-            <button class="music-pill-btn" onclick="playVignetteSong(3)" title="Reproducir banda sonora de este capítulo">
+            <button class="music-pill-btn" onclick="playVignetteSong(3)" title="Reproducir banda sonora 8-bit">
               🎵 You & Me (8-bit) ▶️
             </button>
           </div>
@@ -164,7 +162,7 @@
 
     </div>
 
-    <!-- SECCIÓN CLÍMAX: PROPUESTA FINAL (Aparece tras desbloquear las 3) -->
+    <!-- SECCIÓN CLÍMAX: PROPUESTA FINAL (Aparece únicamente tras desbloquear el Capítulo 3) -->
     <section class="final-proposal-section" id="finalProposalSection">
       <div class="proposal-banner">💥 EL MOMENTO DECISIVO 💥</div>
       <p class="proposal-text">
@@ -192,7 +190,7 @@
 
     <!-- Pie de página con Herramientas para Cristian -->
     <footer class="app-footer">
-      <p style="font-size: 0.85rem; color: #775c65;">Hecho con todo el amor especialmente para ti ❤️</p>
+      <p style="font-size: 0.85rem; color: #5a748c;">Hecho con todo el amor especialmente para ti ❤️</p>
       <button class="creator-pill-btn" onclick="openCreatorModal()">
         ⚙️ Modo Creador: Códigos, Pruebas y Tiempos
       </button>
@@ -206,7 +204,7 @@
       <button class="modal-close-btn" onclick="closePinModal()" aria-label="Cerrar">✕</button>
 
       <div class="pixel-badge" style="background: var(--accent-cyan);">SEGURIDAD DEL REGALO</div>
-      <h2 class="modal-title" id="pinModalTitle">Código del Regalo #1 🎁</h2>
+      <h2 class="modal-title" id="pinModalTitle">Código Secreto 🎁</h2>
       <div id="pinModalDayNotice" style="margin: 0.35rem 0 0.8rem 0; font-size: 0.88rem;"></div>
 
       <p style="font-size: 0.85rem; color: #555; margin-bottom: 0.5rem;">
@@ -248,7 +246,7 @@
     <div class="comic-modal">
       <button class="modal-close-btn" onclick="closeQuizModal()" aria-label="Cerrar">✕</button>
       <div class="modal-header">
-        <div class="pixel-badge" id="modalRetoBadge">CAPÍTULO 1</div>
+        <div class="pixel-badge" id="modalRetoBadge">CAPÍTULO</div>
         <h2 class="modal-title" id="modalRetoTitle">El Reto del Recuerdo</h2>
       </div>
 
@@ -294,25 +292,25 @@
       </div>
 
       <!-- Selector de Modo de Simulación de Días -->
-      <div style="background: #fff3f6; border: 2px dashed #ff8fa3; padding: 1rem; border-radius: 12px; margin-bottom: 1.25rem;">
+      <div style="background: #f0fdf4; border: 2px dashed #22c55e; padding: 1rem; border-radius: 12px; margin-bottom: 1.25rem;">
         <label for="simModeSelect" style="display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem;">
-          🗓️ Modo de Tiempo / Simulación de Días:
+          🗓️ Modo de Tiempo / Misterio:
         </label>
         <select id="simModeSelect" style="width: 100%; padding: 0.6rem; font-size: 0.95rem; border: 2px solid var(--dark); border-radius: 8px; font-family: inherit;">
-          <option value="ALL">🧪 Modo Pruebas (Todo desbloqueado sin importar el día)</option>
-          <option value="3">🗓️ Simular Miércoles (Solo Capítulo 1 disponible)</option>
-          <option value="5">🗓️ Simular Viernes (Capítulos 1 y 2 disponibles)</option>
-          <option value="6">🗓️ Simular Sábado (Todos disponibles)</option>
-          <option value="REAL">🚀 Modo Real Oficial (Depende del día de la semana actual del celular)</option>
+          <option value="REAL">🚀 Modo Real Misterio (Fechas reales Mié, Vie, Sáb con contadores y bloqueo)</option>
+          <option value="ALL">🧪 Modo Pruebas (Todo desbloqueado sin importar el tiempo para probar)</option>
+          <option value="1">🗓️ Simular Fase 1 (Solo Capítulo 1 disponible para probar)</option>
+          <option value="2">🗓️ Simular Fase 2 (Capítulo 2 disponible para probar)</option>
+          <option value="3">🗓️ Simular Fase 3 (Capítulo 3 y propuesta disponibles)</option>
         </select>
-        <p style="font-size: 0.78rem; color: #666; margin-top: 0.35rem;">
-          💡 En <strong>Modo Pruebas</strong> puedes verificar las preguntas y pantallas hoy mismo. Cuando se lo vayas a dar a ella, cambia a <strong>Modo Real Oficial</strong>.
+        <p style="font-size: 0.78rem; color: #555; margin-top: 0.35rem;">
+          💡 En <strong>Modo Real Misterio</strong> las viñetas futuras están totalmente ocultas hasta que llegue su fecha correspondiente (Mié, Vie, Sáb).
         </p>
       </div>
 
       <!-- Configuración de Códigos de 6 Dígitos -->
-      <div style="background: #f0fdf4; border: 2px solid #22c55e; padding: 1rem; border-radius: 12px; margin-bottom: 1.25rem;">
-        <h3 style="font-family: var(--font-retro); font-size: 0.75rem; color: #15803d; margin-bottom: 0.75rem;">
+      <div style="background: #eff6ff; border: 2px solid #3b82f6; padding: 1rem; border-radius: 12px; margin-bottom: 1.25rem;">
+        <h3 style="font-family: var(--font-retro); font-size: 0.75rem; color: #1d4ed8; margin-bottom: 0.75rem;">
           🔑 Códigos de 6 Dígitos para los 3 Regalos:
         </h3>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
@@ -335,26 +333,26 @@
       <div class="code-cards-grid">
         <div class="code-card-item">
           <div class="pixel-badge" style="font-size: 0.6rem;">REGALO #1 🎁</div>
-          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Capítulo 1 (Miércoles)</div>
+          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Primer Recuerdo</div>
           <div class="code-card-digits" id="displayCardCode1">140921</div>
           <div style="font-size: 0.65rem; color: #555;">Pégalo en el primer regalo</div>
         </div>
         <div class="code-card-item">
           <div class="pixel-badge" style="font-size: 0.6rem;">REGALO #2 🎁</div>
-          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Capítulo 2 (Viernes)</div>
+          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Segundo Recuerdo</div>
           <div class="code-card-digits" id="displayCardCode2">280419</div>
           <div style="font-size: 0.65rem; color: #555;">Pégalo en el segundo regalo</div>
         </div>
         <div class="code-card-item">
           <div class="pixel-badge" style="font-size: 0.6rem;">REGALO #3 🎁</div>
-          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Capítulo 3 (Sábado)</div>
+          <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Recuerdo Final</div>
           <div class="code-card-digits" id="displayCardCode3">739105</div>
           <div style="font-size: 0.65rem; color: #555;">Pégalo en el tercer regalo</div>
         </div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem;">
-        <button class="comic-btn" onclick="saveCreatorSettings()" style="background: #2563eb;">
+        <button class="comic-btn" onclick="saveCreatorSettings()" style="background: #0284c7;">
           💾 Guardar Configuración
         </button>
         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
@@ -376,11 +374,10 @@
     </div>
   </div>
 
-  <!-- Audio HD (16/24-bit Studio & Master Audio) -->
-  <audio id="audioVignette1" src="audio/cabas-increible.mp3" preload="none"></audio>
-  <audio id="audioVignette2" src="audio/soad-toxicity.m4a" preload="none"></audio>
-  <audio id="audioVignette3" src="audio/you-and-me.m4a" preload="none"></audio>
-  <audio id="externalLoveSong" src="audio/you-and-me.m4a" preload="none"></audio>
+  <!-- Audio local opcional (si Cristian coloca los archivos MP3 en la carpeta audio) -->
+  <audio id="localAudio1" src="audio/cancion1.mp3" preload="none"></audio>
+  <audio id="localAudio2" src="audio/cancion2.mp3" preload="none"></audio>
+  <audio id="localAudio3" src="audio/cancion3.mp3" preload="none"></audio>
 
   <script src="confetti.min.js"></script>
   <script src="app.js"></script>
