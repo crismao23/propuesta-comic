@@ -4,14 +4,15 @@
    ============================================================ */
 
 :root {
-  --primary: #ff3366;
-  --primary-hover: #e6194b;
-  --secondary: #ff99aa;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --secondary: #7dd3fc;
+  --accent-love: #ff3366;
   --accent-yellow: #ffd166;
   --accent-cyan: #06d6a0;
-  --accent-purple: #8338ec;
-  --dark: #1f1424;
-  --light: #fffafb;
+  --accent-blue: #38bdf8;
+  --dark: #0f172a;
+  --light: #f8fafc;
   --card-bg: #ffffff;
   --border-pixel: 3.5px solid var(--dark);
   --shadow-pixel: 4px 4px 0px var(--dark);
@@ -31,10 +32,10 @@
 
 body {
   font-family: var(--font-body);
-  background-color: #ffeef2;
+  background-color: #e0f2fe;
   background-image: 
-    radial-gradient(#ffccd5 18%, transparent 19%),
-    radial-gradient(#ffb3c1 18%, transparent 19%);
+    radial-gradient(#bae6fd 20%, transparent 21%),
+    radial-gradient(#93c5fd 20%, transparent 21%);
   background-size: 20px 20px;
   background-position: 0 0, 10px 10px;
   color: var(--dark);
@@ -148,7 +149,7 @@ body {
 
 .progress-bar-outer {
   height: 16px;
-  background: #f8e5eb;
+  background: #e0f2fe;
   border-radius: 12px;
   border: 2.5px solid var(--dark);
   overflow: hidden;
@@ -157,7 +158,7 @@ body {
 .progress-bar-inner {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #ff758f, var(--primary));
+  background: linear-gradient(90deg, #38bdf8, var(--primary));
   transition: width 0.5s ease;
 }
 
@@ -169,8 +170,8 @@ body {
 }
 
 .step-indicator {
-  background: #fff8f9;
-  border: 2px solid #332629;
+  background: #f8fafc;
+  border: 2px solid var(--dark);
   border-radius: 10px;
   padding: 0.45rem 0.2rem;
   text-align: center;
@@ -186,7 +187,7 @@ body {
 
 .step-indicator.active {
   border-color: var(--primary);
-  background: #ffe3e8;
+  background: #e0f2fe;
   box-shadow: 0 3px 0 var(--primary);
 }
 

@@ -85,11 +85,12 @@ let lockoutIntervalId = null;
 let countdownTickerInterval = null;
 
 // ============================================================
-// SISTEMA DE AUDIO CHIPTUNE RETRO 8-BIT
+// SISTEMA DE AUDIO MULTI-CANAL (STUDIO 16/24-BIT & CHIPTUNE)
 // ============================================================
-class ChiptuneAudio {
+class StudioAudioEngine {
   constructor() {
     this.ctx = null;
+    this.currentPlayingAudio = null;
   }
 
   init() {
@@ -102,15 +103,24 @@ class ChiptuneAudio {
     }
   }
 
+  stopAll() {
+    if (this.currentPlayingAudio) {
+      try {
+        this.currentPlayingAudio.pause();
+        this.currentPlayingAudio.currentTime = 0;
+      } catch(e){}
+      this.currentPlayingAudio = null;
+    }
+  }
+
   playBeep() {
     try {
       this.init();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-      osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
       osc.connect(gain);
       gain.connect(this.ctx.destination);
@@ -125,7 +135,7 @@ class ChiptuneAudio {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(160, this.ctx.currentTime);
       osc.frequency.setValueAtTime(110, this.ctx.currentTime + 0.15);
       gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.45);
@@ -142,8 +152,8 @@ class ChiptuneAudio {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-      osc.frequency.setValueAtTime(300, this.ctx.currentTime + 0.12);
+      osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
       osc.connect(gain);
@@ -153,278 +163,115 @@ class ChiptuneAudio {
     } catch(e){}
   }
 
-  // 1. CABAS - "INCREÍBLE" (Estilo Chiptune 8-bit Pop Latino)
-  playCabasIncreible() {
+  // 1. CABAS - "INCREÍBLE" (Sintetizador 16/24-bit Cálido estilo Piano y Guitarra Acústica)
+  playCabasIncreibleSynth() {
     try {
       this.init();
-      // "Increíble... que tú estés aquí... tan bonita... tenerte cerca de mí"
-      const cabasNotes = [
-        // "In-cre-í-ble..."
-        { f: 392.00, d: 0.35 }, // G4
-        { f: 493.88, d: 0.35 }, // B4
-        { f: 587.33, d: 0.45 }, // D5
-        { f: 659.25, d: 0.75 }, // E5
-        { f: 0,      d: 0.15 },
-        // "...que tú estés aquí"
-        { f: 659.25, d: 0.28 }, // E5
-        { f: 587.33, d: 0.28 }, // D5
-        { f: 493.88, d: 0.35 }, // B4
-        { f: 392.00, d: 0.35 }, // G4
-        { f: 440.00, d: 0.75 }, // A4
-        { f: 0,      d: 0.15 },
-        // "...tan bonita, tan perfecta"
-        { f: 440.00, d: 0.25 }, // A4
-        { f: 493.88, d: 0.25 }, // B4
-        { f: 523.25, d: 0.30 }, // C5
-        { f: 493.88, d: 0.25 }, // B4
-        { f: 440.00, d: 0.25 }, // A4
-        { f: 392.00, d: 0.60 }, // G4
-        { f: 0,      d: 0.15 },
-        // "...increíble tenerte cerca de mí"
-        { f: 392.00, d: 0.25 }, // G4
-        { f: 493.88, d: 0.25 }, // B4
-        { f: 587.33, d: 0.35 }, // D5
-        { f: 523.25, d: 0.28 }, // C5
-        { f: 493.88, d: 0.28 }, // B4
-        { f: 440.00, d: 0.35 }, // A4
-        { f: 392.00, d: 1.10 }  // G4
-      ];
-
-      const bassNotes = [
-        { f: 196.00, d: 1.4 }, // G2
-        { f: 164.81, d: 1.4 }, // E2
-        { f: 130.81, d: 1.4 }, // C2
-        { f: 146.83, d: 1.6 }  // D2
+      // Armónicos suaves y envolvente acústica de piano/guitarra
+      const cabasMelody = [
+        // "Que in-cre-í-ble..."
+        { f: 392.00, d: 0.35, chord: [196, 246.94, 293.66] }, // G4 + Sol Mayor
+        { f: 493.88, d: 0.35, chord: null },                   // B4
+        { f: 587.33, d: 0.45, chord: null },                   // D5
+        { f: 659.25, d: 0.85, chord: [164.81, 246.94, 329.63] }, // E5 + Mi menor
+        { f: 0,      d: 0.15, chord: null },
+        // "...como siento el corazón cuando te pienso"
+        { f: 659.25, d: 0.28, chord: null },                   // E5
+        { f: 587.33, d: 0.28, chord: null },                   // D5
+        { f: 493.88, d: 0.35, chord: null },                   // B4
+        { f: 392.00, d: 0.35, chord: null },                   // G4
+        { f: 440.00, d: 0.85, chord: [146.83, 220.00, 293.66] }, // A4 + Re Mayor
+        { f: 0,      d: 0.15, chord: null },
+        // "...increíble el color del cielo"
+        { f: 440.00, d: 0.25, chord: null },                   // A4
+        { f: 493.88, d: 0.25, chord: null },                   // B4
+        { f: 523.25, d: 0.32, chord: [130.81, 196.00, 261.63] }, // C5 + Do Mayor
+        { f: 493.88, d: 0.25, chord: null },                   // B4
+        { f: 440.00, d: 0.25, chord: null },                   // A4
+        { f: 392.00, d: 0.65, chord: null },                   // G4
+        { f: 0,      d: 0.15, chord: null },
+        // "...pero hoy contigo todo me lo creo"
+        { f: 392.00, d: 0.25, chord: null },                   // G4
+        { f: 493.88, d: 0.25, chord: null },                   // B4
+        { f: 587.33, d: 0.35, chord: null },                   // D5
+        { f: 523.25, d: 0.28, chord: null },                   // C5
+        { f: 493.88, d: 0.28, chord: null },                   // B4
+        { f: 440.00, d: 0.35, chord: null },                   // A4
+        { f: 392.00, d: 1.25, chord: [196, 246.94, 293.66, 392] } // G4 (Final cálido)
       ];
 
       let t = this.ctx.currentTime + 0.05;
-      cabasNotes.forEach(note => {
-        if (note.f > 0) {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.value = note.f;
-          gain.gain.setValueAtTime(0.2, t);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + note.d);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(t);
-          osc.stop(t + note.d);
-        }
-        t += note.d;
-      });
-
-      let tb = this.ctx.currentTime + 0.05;
-      bassNotes.forEach(bn => {
-        const oscB = this.ctx.createOscillator();
-        const gainB = this.ctx.createGain();
-        oscB.type = 'triangle';
-        oscB.frequency.value = bn.f;
-        gainB.gain.setValueAtTime(0.25, tb);
-        gainB.gain.exponentialRampToValueAtTime(0.001, tb + bn.d);
-        oscB.connect(gainB);
-        gainB.connect(this.ctx.destination);
-        oscB.start(tb);
-        oscB.stop(tb + bn.d);
-        tb += bn.d;
-      });
-    } catch(e){}
-  }
-
-  // 2. SYSTEM OF A DOWN - "TOXICITY" (Estilo 8-bit Metal / Chiptune)
-  playSoadToxicity() {
-    try {
-      this.init();
-      // Arpegio icónico de Toxicity en Drop C / C Minor
-      const soadIntro = [
-        // Riff arpegio
-        { f: 261.63, d: 0.16 }, // C4
-        { f: 311.13, d: 0.16 }, // Eb4
-        { f: 392.00, d: 0.16 }, // G4
-        { f: 523.25, d: 0.16 }, // C5
-        { f: 392.00, d: 0.16 }, // G4
-        { f: 311.13, d: 0.16 }, // Eb4
-
-        { f: 233.08, d: 0.16 }, // Bb3
-        { f: 293.66, d: 0.16 }, // D4
-        { f: 349.23, d: 0.16 }, // F4
-        { f: 466.16, d: 0.16 }, // Bb4
-        { f: 349.23, d: 0.16 }, // F4
-        { f: 293.66, d: 0.16 }, // D4
-
-        { f: 207.65, d: 0.16 }, // Ab3
-        { f: 261.63, d: 0.16 }, // C4
-        { f: 311.13, d: 0.16 }, // Eb4
-        { f: 415.30, d: 0.16 }, // Ab4
-        { f: 311.13, d: 0.16 }, // Eb4
-        { f: 261.63, d: 0.16 }, // C4
-
-        { f: 196.00, d: 0.16 }, // G3
-        { f: 246.94, d: 0.16 }, // B3
-        { f: 293.66, d: 0.16 }, // D4
-        { f: 392.00, d: 0.16 }, // G4
-        { f: 293.66, d: 0.16 }, // D4
-        { f: 246.94, d: 0.16 }, // B3
-
-        // EL CORO EXPLOSIVO: "The toxicity of our city, of our city..."
-        { f: 523.25, d: 0.22 }, // C5
-        { f: 523.25, d: 0.22 }, // C5
-        { f: 523.25, d: 0.22 }, // C5
-        { f: 466.16, d: 0.22 }, // Bb4
-        { f: 415.30, d: 0.22 }, // Ab4
-        { f: 392.00, d: 0.28 }, // G4
-        { f: 415.30, d: 0.22 }, // Ab4
-        { f: 392.00, d: 0.22 }, // G4
-        { f: 349.23, d: 0.22 }, // F4
-        { f: 311.13, d: 0.22 }, // Eb4
-        { f: 293.66, d: 0.22 }, // D4
-        { f: 261.63, d: 0.75 }  // C4
-      ];
-
-      let t = this.ctx.currentTime + 0.05;
-      soadIntro.forEach(note => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth'; // Sonido distorsionado tipo metal 8-bit
-        osc.frequency.value = note.f;
-        gain.gain.setValueAtTime(0.24, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + note.d);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t);
-        osc.stop(t + note.d);
-        t += note.d;
-      });
-
-      // Batería / Bombo y caja 8-bit
-      let td = this.ctx.currentTime + 0.05;
-      for (let i = 0; i < 28; i++) {
-        const oscD = this.ctx.createOscillator();
-        const gainD = this.ctx.createGain();
-        oscD.type = 'triangle';
-        oscD.frequency.setValueAtTime(120, td);
-        oscD.frequency.exponentialRampToValueAtTime(40, td + 0.08);
-        gainD.gain.setValueAtTime(0.3, td);
-        gainD.gain.exponentialRampToValueAtTime(0.01, td + 0.08);
-        oscD.connect(gainD);
-        gainD.connect(this.ctx.destination);
-        oscD.start(td);
-        oscD.stop(td + 0.09);
-        td += 0.25;
-      }
-    } catch(e){}
-  }
-
-  // 3. DISCLOSURE / FLUME - "YOU & ME" (Estilo Chiptune 8-bit)
-  playYouAndMeChiptune() {
-    try {
-      this.init();
-      const melodyNotes = [
-        // "You and me..."
-        { f: 370.0, d: 0.38 }, // F#4
-        { f: 440.0, d: 0.38 }, // A4
-        { f: 493.9, d: 0.65 }, // B4
-        { f: 0,     d: 0.12 },
-        // "...and me and you..."
-        { f: 554.4, d: 0.28 }, // C#5
-        { f: 493.9, d: 0.28 }, // B4
-        { f: 440.0, d: 0.28 }, // A4
-        { f: 370.0, d: 0.65 }, // F#4
-        { f: 0,     d: 0.15 },
-        // "look at us now..."
-        { f: 370.0, d: 0.25 }, // F#4
-        { f: 440.0, d: 0.25 }, // A4
-        { f: 493.9, d: 0.25 }, // B4
-        { f: 554.4, d: 0.35 }, // C#5
-        { f: 587.3, d: 0.35 }, // D5
-        { f: 554.4, d: 0.75 }, // C#5
-        { f: 0,     d: 0.25 },
-
-        // EL DROP ICÓNICO DE "YOU & ME":
-        { f: 554.4, d: 0.20 }, // C#5
-        { f: 659.3, d: 0.20 }, // E5
-        { f: 740.0, d: 0.38 }, // F#5
-        { f: 740.0, d: 0.20 }, // F#5
-        { f: 880.0, d: 0.38 }, // A5
-        { f: 830.6, d: 0.28 }, // G#5
-        { f: 659.3, d: 0.28 }, // E5
-        { f: 740.0, d: 0.65 }, // F#5
-        { f: 0,     d: 0.10 },
-
-        { f: 740.0, d: 0.20 }, // F#5
-        { f: 880.0, d: 0.20 }, // A5
-        { f: 1108.7, d: 0.38 }, // C#6
-        { f: 987.8, d: 0.38 }, // B5
-        { f: 880.0, d: 0.28 }, // A5
-        { f: 987.8, d: 0.28 }, // B5
-        { f: 1108.7, d: 0.75 }, // C#6
-        { f: 0,     d: 0.12 },
-
-        // Final épico
-        { f: 1174.7, d: 0.28 }, // D6
-        { f: 1108.7, d: 0.28 }, // C#6
-        { f: 987.8, d: 0.28 },  // B5
-        { f: 880.0, d: 0.28 },  // A5
-        { f: 830.6, d: 0.35 },  // G#5
-        { f: 740.0, d: 0.35 },  // F#5
-        { f: 659.3, d: 0.35 },  // E5
-        { f: 740.0, d: 1.2 }    // F#5
-      ];
-
-      const bassNotes = [
-        { f: 185.0, d: 1.5 }, // F#2
-        { f: 146.8, d: 1.5 }, // D2
-        { f: 220.0, d: 1.5 }, // A2
-        { f: 164.8, d: 1.5 }, // E2
-        { f: 185.0, d: 2.0 }, // F#2
-        { f: 146.8, d: 2.0 }, // D2
-        { f: 220.0, d: 2.0 }, // A2
-        { f: 164.8, d: 2.5 }  // E2
-      ];
-
-      let t = this.ctx.currentTime + 0.05;
-      melodyNotes.forEach(item => {
+      cabasMelody.forEach(item => {
         if (item.f > 0) {
+          // Nota principal (sonido redondo de piano acústico)
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'square';
+          osc.type = 'triangle';
           osc.frequency.value = item.f;
-          gain.gain.setValueAtTime(0.22, t);
+          gain.gain.setValueAtTime(0.24, t);
           gain.gain.exponentialRampToValueAtTime(0.001, t + item.d);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(t);
           osc.stop(t + item.d);
-        }
-        t += item.d;
-      });
 
-      let tb = this.ctx.currentTime + 0.05;
-      bassNotes.forEach(bItem => {
-        const oscB = this.ctx.createOscillator();
-        const gainB = this.ctx.createGain();
-        oscB.type = 'triangle';
-        oscB.frequency.value = bItem.f;
-        gainB.gain.setValueAtTime(0.28, tb);
-        gainB.gain.exponentialRampToValueAtTime(0.001, tb + bItem.d);
-        oscB.connect(gainB);
-        gainB.connect(this.ctx.destination);
-        oscB.start(tb);
-        oscB.stop(tb + bItem.d);
-        tb += bItem.d;
+          // Armónico sutil
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.value = item.f * 2;
+          gain2.gain.setValueAtTime(0.06, t);
+          gain2.gain.exponentialRampToValueAtTime(0.001, t + item.d * 0.7);
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start(t);
+          osc2.stop(t + item.d);
+        }
+
+        // Si hay acorde de acompañamiento
+        if (item.chord) {
+          item.chord.forEach(cFreq => {
+            const oscC = this.ctx.createOscillator();
+            const gainC = this.ctx.createGain();
+            oscC.type = 'sine';
+            oscC.frequency.value = cFreq;
+            gainC.gain.setValueAtTime(0.12, t);
+            gainC.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            oscC.connect(gainC);
+            gainC.connect(this.ctx.destination);
+            oscC.start(t);
+            oscC.stop(t + 1.25);
+          });
+        }
+
+        t += item.d;
       });
     } catch(e){}
   }
 }
 
-const audio = new ChiptuneAudio();
+const audio = new StudioAudioEngine();
 
-// Reproducir la canción correspondiente a cada viñeta
+// REPRODUCCIÓN INTELIGENTE: Archivo Real HD (16/24-bit) con Fallback a Sintetizador
 function playVignetteSong(stageId) {
+  audio.stopAll();
+
   if (stageId === 1) {
-    audio.playCabasIncreible();
+    const el1 = document.getElementById('audioVignette1');
+    if (el1 && el1.src && el1.duration > 0) {
+      audio.currentPlayingAudio = el1;
+      el1.currentTime = 0;
+      el1.play().catch(() => audio.playCabasIncreibleSynth());
+    } else {
+      audio.playCabasIncreibleSynth();
+    }
   } else if (stageId === 2) {
-    audio.playSoadToxicity();
+    const el2 = document.getElementById('audioVignette2');
+    if (el2) {
+      audio.currentPlayingAudio = el2;
+      el2.currentTime = 0;
+      el2.play().catch(e => console.warn("Error reproduciendo audio 2:", e));
+    }
   } else if (stageId === 3) {
     playLoveSong();
   }
@@ -771,13 +618,15 @@ function handleNoButtonDodge() {
 // CLÍMAX FINAL: SÍ ACEPTO + MÚSICA "YOU & ME" + CONFETI
 // ============================================================
 function playLoveSong() {
-  const externalAudio = document.getElementById('externalLoveSong');
-  if (externalAudio && externalAudio.src) {
-    externalAudio.play().catch(() => {
-      audio.playYouAndMeChiptune();
+  audio.stopAll();
+  const externalAudio = document.getElementById('externalLoveSong') || document.getElementById('audioVignette3');
+  if (externalAudio) {
+    audio.currentPlayingAudio = externalAudio;
+    externalAudio.currentTime = 0;
+    externalAudio.play().catch(e => {
+      console.warn("Fallback to synth:", e);
+      audio.playCabasIncreibleSynth();
     });
-  } else {
-    audio.playYouAndMeChiptune();
   }
 }
 
