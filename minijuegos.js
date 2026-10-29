@@ -567,6 +567,9 @@ class MinijuegosManager {
     this.logoMargarita = new Image();
     this.logoMargarita.src = 'images/logo_margarita.png';
 
+    // Factor de aceleración / velocidad de juego (1.2 = +20% por defecto)
+    this.speedMultiplier = parseFloat(localStorage.getItem('arcade_speed_multiplier') || '1.2');
+
     this.game1 = null;
     this.game2 = null;
     this.game3 = null;
@@ -575,6 +578,13 @@ class MinijuegosManager {
     this.initEventListeners();
     this.setupLevel(1);
     this.startLoop();
+  }
+
+  setSpeedMultiplier(multiplier) {
+    this.speedMultiplier = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.2));
+    try {
+      localStorage.setItem('arcade_speed_multiplier', this.speedMultiplier.toString());
+    } catch (e) {}
   }
 
   initEventListeners() {
@@ -1527,16 +1537,14 @@ class MinijuegosManager {
     };
   }
 
-  updateGame3(dt, step = 1.0) {
+  updateGame3(dt, step = 1.0, realDt = dt) {
     const g = this.game3;
 
-    // Mini animación de beso de 5 segundos con música de Kraken al 100%
+    // Mini animación de beso de 8 segundos con música de Kraken al 100% (sin contador arriba)
     if (g.kissing) {
-      g.kissTimer += dt;
-      const timeLeftSec = Math.max(0, Math.ceil((5000 - g.kissTimer) / 1000));
-      document.getElementById('hudParam').textContent = `💋 ¡Beso Rockero! ${timeLeftSec}s`;
+      g.kissTimer += realDt;
 
-      if (g.kissTimer >= 5000) {
+      if (g.kissTimer >= 8000) {
         this.handleLevelVictory();
       }
       return;
@@ -2028,16 +2036,14 @@ class MinijuegosManager {
     };
   }
 
-  updateGame4(dt, step = 1.0) {
+  updateGame4(dt, step = 1.0, realDt = dt) {
     const g = this.game4;
 
-    // Mini animación de beso de 5 segundos al llegar
+    // Mini animación de beso de 8 segundos al llegar (sin contador arriba)
     if (g.kissing) {
-      g.kissTimer += dt;
-      const timeLeftSec = Math.max(0, Math.ceil((5000 - g.kissTimer) / 1000));
-      document.getElementById('hudParam').textContent = `💋 ¡Beso en Primera Fila! ${timeLeftSec}s`;
+      g.kissTimer += realDt;
 
-      if (g.kissTimer >= 5000) {
+      if (g.kissTimer >= 8000) {
         this.handleLevelVictory();
       }
       return;
@@ -2426,8 +2432,10 @@ class MinijuegosManager {
 
       // Limitar dt para evitar saltos o tirones
       const dt = Math.max(8, Math.min(rawDt, 50));
-      // Factor normalizado a 60 FPS estándar (1.0 a 60 FPS, 2.0 a 30 FPS)
-      const step = dt / 16.666;
+      // Factor normalizado a 60 FPS estándar multiplicado por el factor de velocidad
+      const baseStep = dt / 16.666;
+      const step = baseStep * this.speedMultiplier;
+      const gameDt = dt * this.speedMultiplier;
 
       frameCounter++;
       if (frameCounter % Math.max(1, Math.round(8 / step)) === 0) {
@@ -2435,10 +2443,10 @@ class MinijuegosManager {
       }
 
       if (this.gameState === 'PLAYING') {
-        if (this.currentLevel === 1) this.updateGame1(dt, step);
-        else if (this.currentLevel === 2) this.updateGame2(dt, step);
-        else if (this.currentLevel === 3) this.updateGame3(dt, step);
-        else if (this.currentLevel === 4) this.updateGame4(dt, step);
+        if (this.currentLevel === 1) this.updateGame1(gameDt, step, dt);
+        else if (this.currentLevel === 2) this.updateGame2(gameDt, step, dt);
+        else if (this.currentLevel === 3) this.updateGame3(gameDt, step, dt);
+        else if (this.currentLevel === 4) this.updateGame4(gameDt, step, dt);
       }
 
       this.ctx.clearRect(0, 0, this.width, this.height);
@@ -2456,5 +2464,6 @@ class MinijuegosManager {
 
 let gameInstance = null;
 window.addEventListener('DOMContentLoaded', () => {
-  gameInstance = new MinijuegosManager();
+  window.gameInstance = new MinijuegosManager();
+  gameInstance = window.gameInstance;
 });

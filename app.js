@@ -1069,12 +1069,55 @@ function adminLaunchGame(level) {
   }
 }
 
+// CONTROL DE VELOCIDAD / ACELERACIÓN DE MINIJUEGOS (ADMIN)
+function setAdminGameSpeed(multiplier) {
+  const mult = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.2));
+  localStorage.setItem('arcade_speed_multiplier', mult.toString());
+  syncSpeedUI(mult);
+
+  if (window.gameInstance && typeof window.gameInstance.setSpeedMultiplier === 'function') {
+    window.gameInstance.setSpeedMultiplier(mult);
+  }
+}
+
+function onSpeedSliderChange(val) {
+  const mult = parseFloat(val) / 100;
+  setAdminGameSpeed(mult);
+}
+
+function syncSpeedUI(multiplier) {
+  const mult = parseFloat(multiplier) || 1.2;
+  const percent = Math.round(mult * 100);
+
+  const slider1 = document.getElementById('adminSpeedSlider');
+  const label1 = document.getElementById('adminSpeedLabel');
+  const slider2 = document.getElementById('modalSpeedSlider');
+  const label2 = document.getElementById('modalSpeedLabel');
+
+  if (slider1) slider1.value = percent;
+  if (label1) label1.textContent = `${percent}%`;
+  if (slider2) slider2.value = percent;
+  if (label2) label2.textContent = `${percent}%`;
+
+  ['100', '120', '135', '150'].forEach(val => {
+    const btn = document.getElementById(`speedBtn${val}`);
+    if (btn) {
+      if (Math.round(parseFloat(val)) === percent) {
+        btn.style.background = '#10b981';
+      } else {
+        btn.style.background = '#94a3b8';
+      }
+    }
+  });
+}
+
 // INICIALIZACIÓN
 document.addEventListener('DOMContentLoaded', () => {
   loadProgressState();
   checkActiveLockout();
   checkCreatorAccess();
   updatePanelsUI();
+  syncSpeedUI(parseFloat(localStorage.getItem('arcade_speed_multiplier') || '1.2'));
 
   // Listener para el gesto secreto de 5 toques en el badge
   const secretBadge = document.getElementById('secretTriggerBadge');

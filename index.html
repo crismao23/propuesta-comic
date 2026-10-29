@@ -174,13 +174,24 @@
         </p>
       </div>
 
-      <!-- Barra Admin para probar los 4 juegos directamente sobre el arcade -->
-      <div id="arcadeAdminBar" style="display: none; justify-content: center; gap: 0.4rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-        <span style="font-family: var(--font-retro); font-size: 0.6rem; color: #000; align-self: center; font-weight: 700;">TEST ADMIN:</span>
-        <button class="pixel-badge" onclick="adminLaunchGame(1)" style="cursor: pointer; background: #3b82f6;">N1: inDrive</button>
-        <button class="pixel-badge" onclick="adminLaunchGame(2)" style="cursor: pointer; background: #eab308; color: #000;">N2: Museo</button>
-        <button class="pixel-badge" onclick="adminLaunchGame(3)" style="cursor: pointer; background: #ef4444;">N3: Kraken</button>
-        <button class="pixel-badge" onclick="adminLaunchGame(4)" style="cursor: pointer; background: #ec4899;">N4: Margarita</button>
+      <!-- Barra Admin para probar los 4 juegos y ajustar velocidad -->
+      <div id="arcadeAdminBar" style="display: none; flex-direction: column; align-items: center; gap: 0.45rem; margin-bottom: 0.75rem;">
+        <div style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
+          <span style="font-family: var(--font-retro); font-size: 0.6rem; color: #000; align-self: center; font-weight: 700;">TEST NIVELES:</span>
+          <button class="pixel-badge" onclick="adminLaunchGame(1)" style="cursor: pointer; background: #3b82f6;">N1: inDrive</button>
+          <button class="pixel-badge" onclick="adminLaunchGame(2)" style="cursor: pointer; background: #eab308; color: #000;">N2: Museo</button>
+          <button class="pixel-badge" onclick="adminLaunchGame(3)" style="cursor: pointer; background: #ef4444;">N3: Kraken</button>
+          <button class="pixel-badge" onclick="adminLaunchGame(4)" style="cursor: pointer; background: #ec4899;">N4: Margarita</button>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.4rem; flex-wrap: wrap; background: #f8fafc; padding: 0.35rem 0.65rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+          <span style="font-family: var(--font-retro); font-size: 0.58rem; color: #1e293b; font-weight: 700;">⚡ VELOCIDAD:</span>
+          <button class="pixel-badge speed-btn" id="speedBtn100" onclick="setAdminGameSpeed(1.0)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">100%</button>
+          <button class="pixel-badge speed-btn" id="speedBtn120" onclick="setAdminGameSpeed(1.2)" style="cursor: pointer; background: #10b981; font-size: 0.55rem;">120% (+20%)</button>
+          <button class="pixel-badge speed-btn" id="speedBtn135" onclick="setAdminGameSpeed(1.35)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">135%</button>
+          <button class="pixel-badge speed-btn" id="speedBtn150" onclick="setAdminGameSpeed(1.5)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">150%</button>
+          <input type="range" id="adminSpeedSlider" min="80" max="200" step="5" value="120" oninput="onSpeedSliderChange(this.value)" style="width: 80px; cursor: pointer; accent-color: #3b82f6;">
+          <span id="adminSpeedLabel" style="font-family: var(--font-retro); font-size: 0.62rem; color: #2563eb; font-weight: 700; min-width: 44px;">120%</span>
+        </div>
       </div>
 
       <!-- Contenedor Arcade -->
@@ -434,6 +445,26 @@
           <button class="comic-btn" onclick="adminLaunchGame(4)" style="background: #ec4899; font-size: 0.68rem; padding: 0.5rem 0.25rem;">
             🌸 4. Parque & Margarita
           </button>
+        </div>
+      </div>
+
+      <!-- VELOCIDAD Y ACELERACIÓN DE LOS JUEGOS (ADMIN) -->
+      <div style="background: #f0fdf4; border: 2px solid #86efac; padding: 0.85rem; border-radius: 12px; margin-top: 1rem;">
+        <h3 style="font-family: var(--font-retro); font-size: 0.72rem; color: #166534; margin-bottom: 0.5rem; text-align: center;">
+          ⚡ VELOCIDAD Y ACELERACIÓN DE LOS JUEGOS
+        </h3>
+        <p style="font-size: 0.75rem; color: #15803d; text-align: center; margin-bottom: 0.6rem;">
+          Ajusta la velocidad general para probar y definir el ritmo ideal:
+        </p>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+          <input type="range" id="modalSpeedSlider" min="80" max="200" step="5" value="120" oninput="onSpeedSliderChange(this.value)" style="width: 65%; cursor: pointer; accent-color: #16a34a;">
+          <span id="modalSpeedLabel" style="font-family: var(--font-retro); font-size: 0.75rem; color: #166534; font-weight: bold; min-width: 45px;">120%</span>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap;">
+          <button class="comic-btn" onclick="setAdminGameSpeed(1.0)" style="font-size: 0.65rem; padding: 0.35rem 0.5rem; background: #64748b;">100% (Base)</button>
+          <button class="comic-btn" onclick="setAdminGameSpeed(1.2)" style="font-size: 0.65rem; padding: 0.35rem 0.5rem; background: #16a34a;">120% (+20%)</button>
+          <button class="comic-btn" onclick="setAdminGameSpeed(1.35)" style="font-size: 0.65rem; padding: 0.35rem 0.5rem; background: #0284c7;">135% (+35%)</button>
+          <button class="comic-btn" onclick="setAdminGameSpeed(1.5)" style="font-size: 0.65rem; padding: 0.35rem 0.5rem; background: #f59e0b;">150% (+50%)</button>
         </div>
       </div>
 
