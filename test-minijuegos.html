@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🧪 Laboratorio de Minijuegos 2D Pixel Art - Crhis & Made</title>
+  
+  <!-- Fuentes Retro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="minijuegos.css">
+</head>
+<body class="game-page-body">
+
+  <div class="arcade-wrapper">
+    
+    <!-- Encabezado del Arcade -->
+    <header class="arcade-header">
+      <div class="arcade-brand">
+        <span>🎮</span>
+        <span>CRHIS & MADE RETRO</span>
+      </div>
+      <div class="level-indicator-badge" id="hudLevelTag">NIVEL 1/4</div>
+    </header>
+
+    <!-- Pantalla del Juego (Canvas + HUD + Modales) -->
+    <div class="game-screen-area">
+      
+      <!-- HUD en vivo -->
+      <div class="game-hud-overlay">
+        <div class="hud-item timer" id="hudParam">🏁 Meta: 500m</div>
+        <div class="hud-item volume-meter" id="hudVolume" style="display: none;">🔊 15%</div>
+      </div>
+
+      <!-- Pantalla Canvas Pixel Art -->
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Overlay de Mensajes, Instrucciones y Game Over -->
+      <div class="game-msg-overlay" id="gameOverlay">
+        <h2 class="game-msg-title intro" id="overlayTitle">🚗 NIVEL 1</h2>
+        <p class="game-msg-desc" id="overlayDesc">
+          Cargando aventura de Crhis y Made...
+        </p>
+        <button class="game-btn-start" id="overlayStartBtn">¡ARRANCAR!</button>
+      </div>
+
+    </div>
+
+    <!-- Zona de Controles Táctiles para Celular -->
+    <div class="arcade-controls-area">
+      <div class="controls-row">
+        
+        <!-- D-PAD VIRTUAL -->
+        <div class="dpad-container">
+          <div></div>
+          <button class="dpad-btn" id="dpadUp" aria-label="Arriba">▲</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadLeft" aria-label="Izquierda">◀</button>
+          <div class="dpad-btn center-btn">PAD</div>
+          <button class="dpad-btn" id="dpadRight" aria-label="Derecha">▶</button>
+          <div></div>
+          <button class="dpad-btn" id="dpadDown" aria-label="Abajo">▼</button>
+          <div></div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN (DETENERSE / FRENAR EN ZONAS SEGURAS O AVANZAR) -->
+        <div class="action-buttons-group">
+          <button class="game-action-btn btn-speed" id="btnActionWalk">
+            <span>👟</span>
+            <span>IR</span>
+          </button>
+          <button class="game-action-btn btn-stop" id="btnActionStop">
+            <span>🛡️</span>
+            <span>STOP</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANEL DE PRUEBAS PARA CRISTIAN (LOCALHOST) -->
+  <section class="dev-test-panel">
+    <div class="dev-test-title">
+      <span>⚙️ PANEL DE CONTROL - PRUEBAS LOCALHOST</span>
+      <span style="font-size: 0.6rem; color: #16a34a;">● EN VIVO</span>
+    </div>
+    
+    <p style="font-size: 0.78rem; color: #475569; margin-bottom: 0.5rem;">
+      Selecciona cualquier nivel para probarlo individualmente, o déjate llevar por la secuencia completa. En PC usa las flechas <strong>←, →, ↑, ↓</strong> (o <strong>W, A, S, D</strong>). En celular usa el D-Pad táctil o toca la pantalla.
+    </p>
+
+    <div class="dev-buttons-grid">
+      <button class="dev-btn active" id="devBtnLevel1" onclick="gameInstance.setupLevel(1)">
+        🚗 1. inDrive Carro & Moto
+      </button>
+      <button class="dev-btn" id="devBtnLevel2" onclick="gameInstance.setupLevel(2)">
+        🏺 2. Museo del Oro
+      </button>
+      <button class="dev-btn" id="devBtnLevel3" onclick="gameInstance.setupLevel(3)">
+        🍺 3. BBC & Kraken
+      </button>
+      <button class="dev-btn" id="devBtnLevel4" onclick="gameInstance.setupLevel(4)">
+        🌸 4. Margarita en Vivo
+      </button>
+    </div>
+
+    <div style="margin: 0.75rem 0 0.5rem 0;">
+      <button class="dev-btn" onclick="openCharacterGallery()" style="width: 100%; background: #ffd166; font-size: 0.8rem; font-family: var(--font-pixel); padding: 0.6rem;">
+        👥 VER PERSONAJES PIXEL ART 🎨
+      </button>
+    </div>
+
+    <div class="audio-debug-info">
+      <strong>🎵 Música y Celebraciones:</strong><br>
+      • Nivel 3: <em>KRAKEN - Muere Libre</em> (Al entregarle la pola a Made, brindan y se besan durante 5 segundos con el rock de fondo).<br>
+      • Nivel 4: <em>Margarita Siempre Viva - Los Días Apacibles</em> (Al llegar a primera fila, celebran con su beso en el concierto).
+    </div>
+  </section>
+
+  <!-- MODAL: GALERÍA DE PERSONAJES PIXEL ART -->
+  <div class="game-msg-overlay hidden" id="galleryModal" style="z-index: 50; overflow-y: auto; padding: 1rem;">
+    <div style="background: #1e293b; border: 3px solid #000; border-radius: 16px; padding: 1.25rem; max-width: 380px; width: 100%; text-align: center; box-shadow: 6px 6px 0 #000;">
+      <h2 style="font-family: var(--font-pixel); font-size: 0.85rem; color: #ffd166; margin-bottom: 0.5rem;">
+        🎨 PERSONAJES PIXEL ART 2D
+      </h2>
+      <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 1rem;">
+        Modelos adaptados con peinado de lado, gafitas, buso de capota, vestidito y los 4 rockeros para los escenarios:
+      </p>
+
+      <img src="images/sprites_sheet_concept.jpg" alt="Hoja de Sprites Concepto" style="width: 100%; border: 2px solid #000; border-radius: 8px; margin-bottom: 1rem; image-rendering: pixelated; box-shadow: 2px 2px 0 #000;">
+
+      <div style="text-align: left; font-size: 0.75rem; color: #e2e8f0; line-height: 1.5; background: #0f172a; padding: 0.75rem; border-radius: 8px; border: 1.5px solid #334155; margin-bottom: 1rem;">
+        • <strong>Crhis:</strong> Peinado de lado, gafas de marco grueso, buso con capota, jeans y tenis.<br>
+        • <strong>Made:</strong> Cabello negro, vestidito campesino celeste con hombros descubiertos, aretes dorados.<br>
+        • <strong>Rockero Cresta:</strong> Punk con cresta mohawk roja, lados rapados, chaqueta con tachas.<br>
+        • <strong>Rockero Melenudo:</strong> Heavy metalero con melena larga y camiseta negra de banda.<br>
+        • <strong>Rockera Pelo Rojo:</strong> Chica alternativa con cabello rojo fuego y corset.<br>
+        • <strong>Rockera Pelo Violeta:</strong> Chica con cabello morado eléctrico y chaleco rockero.
+      </div>
+
+      <button class="game-btn-start" onclick="closeCharacterGallery()" style="width: 100%;">
+        ¡VOLVER AL JUEGO! 🎮
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function openCharacterGallery() {
+      document.getElementById('galleryModal').classList.remove('hidden');
+    }
+    function closeCharacterGallery() {
+      document.getElementById('galleryModal').classList.add('hidden');
+    }
+  </script>
+
+  <script src="minijuegos.js"></script>
+</body>
+</html>

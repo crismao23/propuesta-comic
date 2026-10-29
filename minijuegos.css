@@ -1,0 +1,383 @@
+/* ============================================================
+   ESTILOS DE MINIJUEGOS EN PIXEL ART (2D MOBILE & DESKTOP)
+   ============================================================ */
+
+:root {
+  --game-bg: #0f172a;
+  --accent-blue: #38bdf8;
+  --accent-yellow: #ffd166;
+  --accent-pink: #f43f5e;
+  --accent-green: #10b981;
+  --font-pixel: 'Press Start 2P', monospace, sans-serif;
+  --font-retro: 'Fredoka', cursive, sans-serif;
+}
+
+.arcade-wrapper,
+.arcade-wrapper *,
+.dev-test-panel,
+.dev-test-panel * {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Sección Arcade integrada en el Cómic */
+.minigames-arcade-section {
+  width: 100%;
+  max-width: 680px;
+  margin: 2rem auto;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.arcade-intro-card {
+  background: #ffffff;
+  border: 3.5px solid var(--dark, #0f172a);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0px var(--dark, #0f172a);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+body.game-page-body {
+  background: #0284c7;
+  background-image: 
+    radial-gradient(#38bdf8 15%, transparent 16%),
+    radial-gradient(#0284c7 15%, transparent 16%);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  font-family: var(--font-retro);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.5rem;
+  overflow-x: hidden;
+}
+
+/* Contenedor Principal tipo GameBoy / Arcade Celular */
+.arcade-wrapper {
+  width: 100%;
+  max-width: 440px;
+  background: #1e293b;
+  border: 4px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 6px 6px 0px #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0.5rem auto;
+}
+
+/* Header del Arcade */
+.arcade-header {
+  background: #0f172a;
+  padding: 0.75rem 1rem;
+  border-bottom: 3px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.arcade-brand {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--accent-yellow);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.level-indicator-badge {
+  background: var(--accent-pink);
+  color: #fff;
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 2px solid #000;
+}
+
+/* Pantalla del Juego (Canvas) */
+.game-screen-area {
+  position: relative;
+  width: 100%;
+  background: #050b14;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #000;
+  border-bottom: 3px solid #000;
+}
+
+/* HUD Superior sobre el Canvas */
+.game-hud-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-item {
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.58rem;
+  color: #fff;
+  box-shadow: 2px 2px 0 #000;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hud-item.timer {
+  color: var(--accent-yellow);
+}
+
+.hud-item.distance {
+  color: var(--accent-blue);
+}
+
+.hud-item.volume-meter {
+  color: var(--accent-green);
+}
+
+/* Modales y Mensajes Flotantes sobre el Canvas */
+.game-msg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  z-index: 20;
+  backdrop-filter: blur(4px);
+}
+
+.game-msg-overlay.hidden {
+  display: none !important;
+}
+
+.game-msg-title {
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.game-msg-title.success {
+  color: var(--accent-green);
+}
+
+.game-msg-title.fail {
+  color: var(--accent-pink);
+}
+
+.game-msg-title.intro {
+  color: var(--accent-yellow);
+}
+
+.game-msg-desc {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin-bottom: 1.25rem;
+  max-width: 320px;
+}
+
+.game-btn-start {
+  background: var(--accent-yellow);
+  color: #0f172a;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.game-btn-start:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* Zona de Controles Táctiles (GamePad para Móviles) */
+.arcade-controls-area {
+  background: #334155;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 3px solid #000;
+}
+
+.controls-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* D-PAD Virtual */
+.dpad-container {
+  display: grid;
+  grid-template-columns: repeat(3, 50px);
+  grid-template-rows: repeat(3, 50px);
+  gap: 4px;
+}
+
+.dpad-btn {
+  background: #1e293b;
+  border: 3px solid #000;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #000;
+  touch-action: manipulation;
+}
+
+.dpad-btn:active, .dpad-btn.pressed {
+  background: var(--accent-yellow);
+  color: #000;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+.dpad-btn.center-btn {
+  background: #0f172a;
+  font-size: 0.65rem;
+  font-family: var(--font-pixel);
+  color: var(--accent-yellow);
+}
+
+/* Botones de Acción (A / B / Freno) */
+.action-buttons-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.game-action-btn {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 3px solid #000;
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: 3px 3px 0 #000;
+  touch-action: manipulation;
+}
+
+.game-action-btn.btn-stop {
+  background: var(--accent-pink);
+}
+
+.game-action-btn.btn-speed {
+  background: var(--accent-green);
+}
+
+.game-action-btn:active, .game-action-btn.pressed {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* Barra de Pruebas de Desarrollo (Para Cristian probar cada minijuego) */
+.dev-test-panel {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 3px solid #000;
+  border-radius: 14px;
+  padding: 0.85rem;
+  margin-top: 0.75rem;
+  box-shadow: 4px 4px 0 #000;
+  font-size: 0.85rem;
+}
+
+.dev-test-title {
+  font-family: var(--font-pixel);
+  font-size: 0.68rem;
+  color: #0284c7;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dev-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.dev-btn {
+  background: #f1f5f9;
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-family: var(--font-retro);
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.dev-btn:hover {
+  background: var(--accent-yellow);
+}
+
+.dev-btn.active {
+  background: #bae6fd;
+  border-color: #0284c7;
+}
+
+.audio-debug-info {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.72rem;
+  color: #475569;
+  line-height: 1.35;
+}

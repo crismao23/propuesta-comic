@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="minijuegos.css">
 </head>
 <body>
 
@@ -117,7 +118,7 @@
               En la siguiente salida, la conexión se hizo aún más evidente. Entre conversaciones profundas sobre nuestras vidas, la tensión de no derribar la torre de Jenga y lo mucho que disfrutaste aquel affogato, empezamos a descubrir nuestras pequeñas peculiaridades... y quedó claro quién era el más sensible con esas lágrimas. 🥹❤️
             </div>
             <button class="music-pill-btn" onclick="playVignetteSong(2)" title="Reproducir canción">
-              🎵 SOAD - Toxicity ▶️
+              🎵 Bruno Mars - Locked Out Of Heaven ▶️
             </button>
           </div>
         </div>
@@ -163,7 +164,73 @@
 
     </div>
 
-    <!-- SECCIÓN CLÍMAX: PROPUESTA FINAL (Aparece únicamente tras desbloquear el Capítulo 3) -->
+    <!-- SECCIÓN RETO ARCADE: MINIJUEGOS 2D PIXEL ART (Se desbloquea al completar los 3 recuerdos) -->
+    <section class="minigames-arcade-section" id="minigamesArcadeSection" style="display: none;">
+      <div class="arcade-intro-card">
+        <div class="pixel-badge" style="background: var(--accent-yellow); color: var(--dark);">🎮 RETO ESPECIAL EN PAREJA</div>
+        <h2 style="font-family: var(--font-comic); font-size: 2.2rem; color: #1e1b4b; margin: 0.5rem 0;">¡NUESTRAS AVENTURAS EN 8-BIT!</h2>
+        <p style="font-size: 0.95rem; line-height: 1.5; color: #334155; max-width: 600px; margin: 0 auto 0.75rem auto; font-weight: 500;">
+          Para llegar al momento más decisivo de nuestra historia, Made debe superar estos 4 desafíos retro en secuencia. ¡Demuestra que juntos superan cualquier obstáculo! 🕹️❤️
+        </p>
+      </div>
+
+      <!-- Contenedor Arcade -->
+      <div class="arcade-wrapper">
+        <header class="arcade-header">
+          <div class="arcade-brand">
+            <span>🎮</span>
+            <span>CRHIS & MADE RETRO</span>
+          </div>
+          <div class="level-indicator-badge" id="hudLevelTag">NIVEL 1/4</div>
+        </header>
+
+        <div class="game-screen-area">
+          <div class="game-hud-overlay">
+            <div class="hud-item timer" id="hudParam">🏁 Meta: 500m</div>
+            <div class="hud-item volume-meter" id="hudVolume" style="display: none;">🔊 15%</div>
+          </div>
+
+          <canvas id="gameCanvas"></canvas>
+
+          <div class="game-msg-overlay" id="gameOverlay">
+            <h2 class="game-msg-title intro" id="overlayTitle">🚗 NIVEL 1</h2>
+            <p class="game-msg-desc" id="overlayDesc">
+              Cargando aventura de Crhis y Made...
+            </p>
+            <button class="game-btn-start" id="overlayStartBtn">¡ARRANCAR!</button>
+          </div>
+        </div>
+
+        <div class="arcade-controls-area">
+          <div class="controls-row">
+            <div class="dpad-container">
+              <div></div>
+              <button class="dpad-btn" id="dpadUp" aria-label="Arriba">▲</button>
+              <div></div>
+              <button class="dpad-btn" id="dpadLeft" aria-label="Izquierda">◀</button>
+              <div class="dpad-btn center-btn">PAD</div>
+              <button class="dpad-btn" id="dpadRight" aria-label="Derecha">▶</button>
+              <div></div>
+              <button class="dpad-btn" id="dpadDown" aria-label="Abajo">▼</button>
+              <div></div>
+            </div>
+
+            <div class="action-buttons-group">
+              <button class="game-action-btn btn-speed" id="btnActionWalk">
+                <span>👟</span>
+                <span>IR</span>
+              </button>
+              <button class="game-action-btn btn-stop" id="btnActionStop">
+                <span>🛡️</span>
+                <span>STOP</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN CLÍMAX: PROPUESTA FINAL (Aparece únicamente tras desbloquear el Capítulo 3 y superar los Minijuegos) -->
     <section class="final-proposal-section" id="finalProposalSection">
       <div class="proposal-banner">💥 EL MOMENTO DECISIVO 💥</div>
       <p class="proposal-text">
@@ -185,7 +252,7 @@
       <p style="font-size: 1.15rem; max-width: 580px; margin: 1rem auto; line-height: 1.6; font-weight: 600;">
         ¡Dijiste que sí! 🥰❤️ Ahora comienza una nueva etapa de esta historia tan bonita que estamos construyendo. Prometo seguir llenando tus días de sonrisas, abrazarte cuando más lo necesites, apoyarte en cada sueño y recordarte lo especial que eres para mí. ¡Que nos queden muchísimas aventuras por vivir juntos!
       </p>
-      <div style="font-size: 3rem; margin: 1.25rem 0;">👩‍❤️‍👨 💍 ✨</div>
+      <div style="font-size: 3rem; margin: 1.25rem 0;">👩‍❤️‍👨 ❤️ ✨</div>
       <div class="pixel-badge" style="background:var(--accent-yellow); font-size:0.65rem;">CONTINUARÁ... POR SIEMPRE ❤️</div>
     </section>
 
@@ -369,6 +436,9 @@
           <button class="comic-btn secondary" onclick="unlockAllDirectPreview()" style="font-size: 0.7rem;">
             👀 Ver Todo Desbloqueado
           </button>
+          <button class="comic-btn" onclick="testLaunchMinigames()" style="background: #eab308; font-size: 0.7rem; color: #000;">
+            🎮 Probar Minijuegos
+          </button>
           <button class="comic-btn" onclick="hideCreatorModeForGirlfriend()" style="background: #334155; font-size: 0.7rem; color: #fff;">
             🔒 Ocultar Modo Creador (Para ella)
           </button>
@@ -380,10 +450,11 @@
 
   <!-- Canciones seleccionadas por Cristian -->
   <audio id="localAudio1" src="audio/cancion1.mp3" preload="auto"></audio>
-  <audio id="localAudio2" src="audio/cancion2.m4a" preload="auto"></audio>
+  <audio id="localAudio2" src="audio/bruno_mars.mp3" preload="auto"></audio>
   <audio id="localAudio3" src="audio/cancion3.mp3" preload="auto"></audio>
 
   <script src="confetti.min.js"></script>
+  <script src="minijuegos.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

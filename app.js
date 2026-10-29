@@ -321,6 +321,9 @@ const audio = new Retro8BitSynth();
 // REPRODUCCIÓN: Primero intenta archivo local en audio/, si no está, reproduce el sintetizador 8-bit
 function playVignetteSong(stageId) {
   audio.stopAll();
+  if (window.gameInstance && typeof window.gameInstance.stopAudio === 'function') {
+    window.gameInstance.stopAudio();
+  }
 
   const localAudioEl = document.getElementById(`localAudio${stageId}`);
   if (localAudioEl && localAudioEl.src) {
@@ -620,10 +623,20 @@ function handleQuizAnswer(retoId, option, btnElement) {
 
       if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
         setTimeout(() => {
-          const propSec = document.getElementById('finalProposalSection');
-          if (propSec) {
-            propSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const isGamesDone = localStorage.getItem('minijuegos_completed') === 'true';
+          const arcadeSec = document.getElementById('minigamesArcadeSection');
+          if (!isGamesDone && arcadeSec) {
+            arcadeSec.style.display = 'block';
+            arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
             triggerRomanticConfetti();
+          } else {
+            const propSec = document.getElementById('finalProposalSection');
+            if (propSec) {
+              propSec.classList.add('revealed');
+              propSec.style.display = 'block';
+              propSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              triggerRomanticConfetti();
+            }
           }
         }, 1200);
       }
@@ -821,14 +834,49 @@ function updatePanelsUI() {
   }
   badgesContainer.innerHTML = badgesHtml;
 
-  // Revelar sección final únicamente si los 3 están desbloqueados
+  // Revelar sección Arcade de Minijuegos tras los 3 recuerdos y la propuesta al ganarlos
+  const arcadeSection = document.getElementById('minigamesArcadeSection');
   const proposalSection = document.getElementById('finalProposalSection');
+  const isGamesDone = localStorage.getItem('minijuegos_completed') === 'true';
+
   if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
-    if (proposalSection) proposalSection.classList.add('revealed');
+    if (arcadeSection) arcadeSection.style.display = 'block';
+    if (isGamesDone) {
+      if (proposalSection) {
+        proposalSection.classList.add('revealed');
+        proposalSection.style.display = 'block';
+      }
+    } else {
+      if (proposalSection) {
+        proposalSection.classList.remove('revealed');
+        proposalSection.style.display = 'none';
+      }
+    }
+  } else {
+    if (arcadeSection) arcadeSection.style.display = 'none';
+    if (proposalSection) {
+      proposalSection.classList.remove('revealed');
+      proposalSection.style.display = 'none';
+    }
   }
 
   updateCountdowns();
 }
+
+// Callback global llamado por el motor de minijuegos al vencer el nivel 4
+window.onMinijuegosCompleted = function() {
+  localStorage.setItem('minijuegos_completed', 'true');
+  triggerHeartsConfetti();
+  const proposalSec = document.getElementById('finalProposalSection');
+  if (proposalSec) {
+    proposalSec.classList.add('revealed');
+    proposalSec.style.display = 'block';
+    setTimeout(() => {
+      proposalSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      triggerRomanticConfetti();
+    }, 400);
+  }
+};
 
 // Guardar y Cargar Estado
 function loadProgressState() {
@@ -969,12 +1017,14 @@ function resetAllProgress() {
     unlockedPanels = { 1: false, 2: false, 3: false };
     localStorage.removeItem('propuesta_mystery_unlocked');
     localStorage.removeItem('propuesta_lockout_until');
+    localStorage.removeItem('minijuegos_completed');
     location.reload();
   }
 }
 
 function unlockAllDirectPreview() {
   unlockedPanels = { 1: true, 2: true, 3: true };
+  localStorage.setItem('minijuegos_completed', 'true');
   saveProgressState();
   updatePanelsUI();
   closeCreatorModal();
@@ -982,6 +1032,15 @@ function unlockAllDirectPreview() {
     const prop = document.getElementById('finalProposalSection');
     if (prop) prop.scrollIntoView({ behavior: 'smooth' });
   }, 300);
+}
+
+function testLaunchMinigames() {
+  closeCreatorModal();
+  const arcadeSec = document.getElementById('minigamesArcadeSection');
+  if (arcadeSec) {
+    arcadeSec.style.display = 'block';
+    arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // INICIALIZACIÓN
