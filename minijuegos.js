@@ -597,10 +597,19 @@ class MinijuegosManager {
     const bindBtn = (id, onStart, onEnd) => {
       const el = document.getElementById(id);
       if (!el) return;
-      const start = (e) => { e.preventDefault(); onStart(); el.classList.add('pressed'); };
-      const end = (e) => { e.preventDefault(); onEnd(); el.classList.remove('pressed'); };
+      const start = (e) => { 
+        if (e.cancelable) e.preventDefault(); 
+        onStart(); 
+        el.classList.add('pressed'); 
+      };
+      const end = (e) => { 
+        if (e.cancelable) e.preventDefault(); 
+        onEnd(); 
+        el.classList.remove('pressed'); 
+      };
       el.addEventListener('touchstart', start, { passive: false });
       el.addEventListener('touchend', end, { passive: false });
+      el.addEventListener('touchcancel', end, { passive: false });
       el.addEventListener('mousedown', start);
       el.addEventListener('mouseup', end);
       el.addEventListener('mouseleave', end);
@@ -614,10 +623,8 @@ class MinijuegosManager {
       () => { if (this.currentLevel === 1) this.handleLaneShift(1); this.keys.right = true; }, 
       () => { this.keys.right = false; }
     );
-    bindBtn('dpadUp', () => { this.keys.up = true; this.keys.walk = true; }, () => { this.keys.up = false; this.keys.walk = false; });
+    bindBtn('dpadUp', () => { this.keys.up = true; }, () => { this.keys.up = false; });
     bindBtn('dpadDown', () => { this.keys.down = true; }, () => { this.keys.down = false; });
-    bindBtn('btnActionStop', () => { this.keys.action = true; }, () => { this.keys.action = false; });
-    bindBtn('btnActionWalk', () => { this.keys.walk = true; this.keys.up = true; }, () => { this.keys.walk = false; this.keys.up = false; });
 
     this.canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
@@ -711,9 +718,6 @@ class MinijuegosManager {
     const clamped = Math.max(0, Math.min(1, progressRatio));
     const vol = 0.15 + (clamped * 0.85);
     this.currentActiveAudio.volume = Math.min(1.0, Math.max(0.1, vol));
-
-    const volHud = document.getElementById('hudVolume');
-    if (volHud) volHud.textContent = `🔊 ${Math.round(vol * 100)}%`;
   }
 
   setupLevel(levelNumber) {
@@ -722,8 +726,6 @@ class MinijuegosManager {
     this.stopAllExternalMusic();
 
     document.getElementById('hudLevelTag').textContent = `NIVEL ${levelNumber}/4`;
-    const volHud = document.getElementById('hudVolume');
-    if (volHud) volHud.style.display = (levelNumber >= 3) ? 'flex' : 'none';
 
     for (let i = 1; i <= 4; i++) {
       const btn = document.getElementById(`devBtnLevel${i}`);
@@ -871,9 +873,9 @@ class MinijuegosManager {
         h: 46
       },
       roadOffset: 0,
-      roadSpeed: 4.2,
+      roadSpeed: 5.4,
       distanceTraveled: 0,
-      targetDistance: 580,
+      targetDistance: 450,
       traffic: [],
       spawnTimer: 0,
       terminalBuildingY: -130,
@@ -887,7 +889,7 @@ class MinijuegosManager {
     };
   }
 
-  updateGame1(dt) {
+  updateGame1(dt, step = 1.0) {
     const g = this.game1;
 
     // Fase 3: Animación de encuentro, beso y abordaje al bus
@@ -895,8 +897,8 @@ class MinijuegosManager {
       g.animTimer += dt;
 
       // Made y Crhis caminan hacia el centro del andén para encontrarse
-      if (g.madeArrivalX < 145) g.madeArrivalX += 1.2;
-      if (g.crhisWaitingX > 155) g.crhisWaitingX -= 1.2;
+      if (g.madeArrivalX < 145) g.madeArrivalX += 1.4 * step;
+      if (g.crhisWaitingX > 155) g.crhisWaitingX -= 1.4 * step;
 
       document.getElementById('hudParam').textContent = `👩‍❤️‍💋‍👨 ¡Encuentro y beso en la Terminal!`;
 
@@ -913,15 +915,15 @@ class MinijuegosManager {
 
       // Caminan juntos hacia la puerta del bus
       if (g.madeArrivalX > 115) {
-        g.madeArrivalX -= 1.0;
-        g.crhisWaitingX -= 1.0;
+        g.madeArrivalX -= 1.2 * step;
+        g.crhisWaitingX -= 1.2 * step;
       }
 
       document.getElementById('hudParam').textContent = `🚌 ¡Abordando bus a Bogotá!`;
 
-      // A los 2 segundos, el bus cierra puertas y arranca
+      // A los 1.8 segundos, el bus cierra puertas y arranca
       if (g.animTimer > 1800) {
-        g.busOffset += 2.8;
+        g.busOffset += 3.4 * step;
       }
 
       if (g.animTimer >= 3600) {
@@ -931,22 +933,22 @@ class MinijuegosManager {
     }
 
     // Fases de conducción (Crhis inDrive o Made Moto)
-    g.distanceTraveled += g.roadSpeed * 0.45;
-    g.roadOffset = (g.roadOffset + g.roadSpeed) % 40;
+    g.distanceTraveled += g.roadSpeed * 0.55 * step;
+    g.roadOffset = (g.roadOffset + g.roadSpeed * step) % 40;
 
-    g.player.x += (g.player.targetX - g.player.x) * 0.28;
+    g.player.x += (g.player.targetX - g.player.x) * Math.min(1, 0.35 * step);
 
     const distLeft = Math.max(0, Math.round(g.targetDistance - g.distanceTraveled));
     const conductorName = (g.subPhase === 'CRHIS_INDRIVE') ? 'Crhis inDrive' : 'Made inDrive Moto';
     document.getElementById('hudParam').textContent = `🏁 ${conductorName}: ${distLeft}m`;
 
     if (g.distanceTraveled >= g.targetDistance) {
-      g.terminalBuildingY += g.roadSpeed * 0.7;
+      g.terminalBuildingY += g.roadSpeed * 0.75 * step;
       if (g.terminalBuildingY >= g.player.y - 65) {
         if (g.subPhase === 'CRHIS_INDRIVE') {
           g.subPhase = 'MADE_MOTO';
           g.distanceTraveled = 0;
-          g.targetDistance = 580;
+          g.targetDistance = 450;
           g.terminalBuildingY = -130;
           g.traffic = [];
           g.player.currentLane = 1;
@@ -969,9 +971,9 @@ class MinijuegosManager {
       }
     }
 
-    if (g.distanceTraveled < g.targetDistance - 100) {
-      g.spawnTimer++;
-      if (g.spawnTimer > 38) {
+    if (g.distanceTraveled < g.targetDistance - 80) {
+      g.spawnTimer += step;
+      if (g.spawnTimer > 34) {
         g.spawnTimer = 0;
         const availableLanes = [0, 1, 2];
         const chosenLane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
@@ -983,7 +985,7 @@ class MinijuegosManager {
           y: -65,
           w: (type === 'bus') ? 34 : 26,
           h: (type === 'bus') ? 64 : 44,
-          speed: (type === 'bus') ? 2.0 : 2.8,
+          speed: (type === 'bus') ? 2.4 : 3.2,
           type: type
         });
       }
@@ -991,7 +993,7 @@ class MinijuegosManager {
 
     for (let i = g.traffic.length - 1; i >= 0; i--) {
       const car = g.traffic[i];
-      car.y += car.speed + (g.roadSpeed * 0.35);
+      car.y += (car.speed + (g.roadSpeed * 0.35)) * step;
 
       if (
         Math.abs(g.player.x - car.x) < 22 &&
@@ -1232,7 +1234,7 @@ class MinijuegosManager {
         y: this.height - 50,
         w: 26,
         h: 22,
-        speed: 2.2,
+        speed: 3.2,
         facingDir: 'UP'
       },
       timeLeft: 80,
@@ -1258,7 +1260,7 @@ class MinijuegosManager {
     };
   }
 
-  updateGame2(dt) {
+  updateGame2(dt, step = 1.0) {
     const g = this.game2;
     g.timerAcc += dt;
     if (g.timerAcc >= 1000) {
@@ -1274,10 +1276,10 @@ class MinijuegosManager {
 
     let moveX = 0;
     let moveY = 0;
-    if (this.keys.up && g.player.y > 18) { g.player.y -= g.player.speed; moveY -= 1; }
-    if (this.keys.down && g.player.y < this.height - 28) { g.player.y += g.player.speed; moveY += 1; }
-    if (this.keys.left && g.player.x > 45) { g.player.x -= g.player.speed; moveX -= 1; }
-    if (this.keys.right && g.player.x < this.width - 45 - g.player.w) { g.player.x += g.player.speed; moveX += 1; }
+    if (this.keys.up && g.player.y > 18) { g.player.y -= g.player.speed * step; moveY -= 1; }
+    if (this.keys.down && g.player.y < this.height - 28) { g.player.y += g.player.speed * step; moveY += 1; }
+    if (this.keys.left && g.player.x > 45) { g.player.x -= g.player.speed * step; moveX -= 1; }
+    if (this.keys.right && g.player.x < this.width - 45 - g.player.w) { g.player.x += g.player.speed * step; moveX += 1; }
 
     if (moveX !== 0 || moveY !== 0) {
       if (moveY < 0 && moveX < 0) g.player.facingDir = 'UP_LEFT';
@@ -1294,15 +1296,15 @@ class MinijuegosManager {
       g.player.y >= z.y && g.player.y + g.player.h <= z.y + z.h
     );
 
-    g.arrowCycle = (g.arrowCycle + 1) % 110;
-    if (g.arrowCycle === 35 || g.arrowCycle === 50) {
-      g.arrows.push({ x: 38, y: 285, speed: 4.8, dir: 1, w: 14, h: 4 });
-      g.arrows.push({ x: this.width - 38, y: 125, speed: -4.8, dir: -1, w: 14, h: 4 });
+    g.arrowCycle = (g.arrowCycle + step) % 100;
+    if (g.arrowCycle >= 35 && g.arrowCycle < 35 + step) {
+      g.arrows.push({ x: 38, y: 285, speed: 5.2, dir: 1, w: 14, h: 4 });
+      g.arrows.push({ x: this.width - 38, y: 125, speed: -5.2, dir: -1, w: 14, h: 4 });
     }
 
     for (let i = g.arrows.length - 1; i >= 0; i--) {
       const arr = g.arrows[i];
-      arr.x += arr.speed;
+      arr.x += arr.speed * step;
 
       if (!inSafeZone && this.checkAABB(g.player, arr)) {
         this.handleFail("¡Una trampa ancestral de flechas los alcanzó! 🏹💥");
@@ -1312,7 +1314,7 @@ class MinijuegosManager {
     }
 
     g.boulders.forEach(b => {
-      b.x += b.speed;
+      b.x += b.speed * step;
       if (b.speed > 0 && b.x > this.width + 40) b.x = -40;
       if (b.speed < 0 && b.x < -40) b.x = this.width + 40;
 
@@ -1499,16 +1501,16 @@ class MinijuegosManager {
       player: {
         x: this.width / 2,
         y: this.height - 55,
-        speedX: 2.8,
-        speedY: 2.4,
+        speedX: 3.2,
+        speedY: 2.8,
         facingDir: 'UP'
       },
       made: {
         x: this.width / 2 + 55,
         y: 118
       },
-      distanceToStage: 750, // Ajustado para ser más accesible y divertido
-      totalDistance: 750,
+      distanceToStage: 550, // Trayecto ágil y entretenido
+      totalDistance: 550,
       reachedFront: false,
       kissing: false,
       kissTimer: 0,
@@ -1519,7 +1521,7 @@ class MinijuegosManager {
     };
   }
 
-  updateGame3(dt) {
+  updateGame3(dt, step = 1.0) {
     const g = this.game3;
 
     // Mini animación de beso de 5 segundos con música de Kraken al 100%
@@ -1539,32 +1541,32 @@ class MinijuegosManager {
     let moveY = 0;
 
     // Subir / Avanzar hacia la tarima
-    if (this.keys.up || this.keys.walk) {
+    if (this.keys.up) {
       moveY -= 1;
       if (!g.reachedFront) {
-        g.distanceToStage -= g.player.speedY * 2.6;
-        if (g.player.y > 170) g.player.y -= g.player.speedY * 0.7;
+        g.distanceToStage -= g.player.speedY * 3.4 * step;
+        if (g.player.y > 170) g.player.y -= g.player.speedY * 0.7 * step;
       } else {
-        if (g.player.y > 118) g.player.y -= g.player.speedY;
+        if (g.player.y > 118) g.player.y -= g.player.speedY * step;
       }
     }
 
     // Retroceder / Bajar
     if (this.keys.down) {
       moveY += 1;
-      if (g.player.y < this.height - 35) g.player.y += g.player.speedY;
+      if (g.player.y < this.height - 35) g.player.y += g.player.speedY * step;
       if (!g.reachedFront && g.distanceToStage < g.totalDistance) {
-        g.distanceToStage += g.player.speedY * 1.2;
+        g.distanceToStage += g.player.speedY * 1.2 * step;
       }
     }
 
     // Mover izquierda / derecha
     if (this.keys.left && g.player.x > 35) {
-      g.player.x -= g.player.speedX;
+      g.player.x -= g.player.speedX * step;
       moveX -= 1;
     }
     if (this.keys.right && g.player.x < this.width - 35) {
-      g.player.x += g.player.speedX;
+      g.player.x += g.player.speedX * step;
       moveX += 1;
     }
 
@@ -1589,23 +1591,23 @@ class MinijuegosManager {
       document.getElementById('hudParam').textContent = `🍻 ¡Llévale la pola a Made!`;
     }
 
-    g.stageLightsTimer++;
-    if (g.stageLightsTimer % 25 === 0) {
+    g.stageLightsTimer += step;
+    if (Math.floor(g.stageLightsTimer) % 25 === 0) {
       const colors = ['#dc2626', '#3b82f6', '#9333ea', '#eab308'];
       g.stageColor = colors[Math.floor(Math.random() * colors.length)];
     }
 
     if (!g.reachedFront) {
-      g.spawnTimer++;
-      // Metaleros borrachos lentos y espaciados (dificultad suave y accesible)
-      if (g.spawnTimer > 48 && g.distanceToStage > 25) {
+      g.spawnTimer += step;
+      // Metaleros borrachos lentos y espaciados
+      if (g.spawnTimer > 42 && g.distanceToStage > 25) {
         g.spawnTimer = 0;
         g.drunkMetalheads.push({
           x: 45 + Math.random() * (this.width - 90),
           y: 90,
           w: 20,
           h: 30,
-          speedY: 0.50 + Math.random() * 0.25, // Paso lento y suave
+          speedY: 0.60 + Math.random() * 0.25, // Paso lento y suave
           swaySpeed: 0.02 + Math.random() * 0.015,
           swayRange: 15 + Math.random() * 10,
           baseX: 0,
@@ -1617,8 +1619,8 @@ class MinijuegosManager {
 
       for (let i = g.drunkMetalheads.length - 1; i >= 0; i--) {
         const m = g.drunkMetalheads[i];
-        m.y += m.speedY;
-        m.time += m.swaySpeed;
+        m.y += m.speedY * step;
+        m.time += m.swaySpeed * step;
         m.x = m.baseX + Math.sin(m.time) * m.swayRange;
 
         // Hitbox más permisiva para no chocar injustamente
@@ -1789,27 +1791,27 @@ class MinijuegosManager {
         y: this.height - 45,
         w: 22,
         h: 22,
-        speed: 1.9,
+        speed: 3.0,
         facingDir: 'UP'
       },
-      distanceToStage: 1500, // Trayecto extendido
-      totalDistance: 1500,
+      distanceToStage: 900, // Trayecto dinámico y divertido
+      totalDistance: 900,
       kissing: false,
       kissTimer: 0,
       // Círculos de slam NO ALINEADOS en X (distribuidos en distintos puntos)
       moshRings: [
-        { x: 95, y: 310, radius: 44, angle: 0, rotSpeed: 0.010, gapWidth: 1.05 },             // Círculo 1 a la izquierda
-        { x: this.width - 95, y: 205, radius: 44, angle: Math.PI / 2, rotSpeed: -0.010, gapWidth: 1.05 }, // Círculo 2 a la derecha
-        { x: 120, y: 95, radius: 44, angle: 1.2, rotSpeed: 0.010, gapWidth: 1.05 }           // Círculo 3 al centro-izq
+        { x: 95, y: 310, radius: 44, angle: 0, rotSpeed: 0.012, gapWidth: 1.05 },             // Círculo 1 a la izquierda
+        { x: this.width - 95, y: 205, radius: 44, angle: Math.PI / 2, rotSpeed: -0.012, gapWidth: 1.05 }, // Círculo 2 a la derecha
+        { x: 120, y: 95, radius: 44, angle: 1.2, rotSpeed: 0.012, gapWidth: 1.05 }           // Círculo 3 al centro-izq
       ],
       humanChains: [
-        { y: 255, xOffset: 0, speed: 0.7, dir: 1, gapX: 180 },
-        { y: 150, xOffset: 30, speed: 0.8, dir: -1, gapX: 110 }
+        { y: 255, xOffset: 0, speed: 0.8, dir: 1, gapX: 180 },
+        { y: 150, xOffset: 30, speed: 0.9, dir: -1, gapX: 110 }
       ]
     };
   }
 
-  updateGame4(dt) {
+  updateGame4(dt, step = 1.0) {
     const g = this.game4;
 
     // Mini animación de beso de 5 segundos al llegar
@@ -1827,21 +1829,21 @@ class MinijuegosManager {
     let moveX = 0;
     let moveY = 0;
     if (this.keys.up && g.player.y > 52) {
-      g.player.y -= g.player.speed;
-      g.distanceToStage -= g.player.speed * 2.5;
+      g.player.y -= g.player.speed * step;
+      g.distanceToStage -= g.player.speed * 3.5 * step;
       moveY -= 1;
     }
     if (this.keys.down && g.player.y < this.height - 30) {
-      g.player.y += g.player.speed;
-      g.distanceToStage += g.player.speed * 1.5;
+      g.player.y += g.player.speed * step;
+      g.distanceToStage += g.player.speed * 1.5 * step;
       moveY += 1;
     }
     if (this.keys.left && g.player.x > 25) {
-      g.player.x -= g.player.speed;
+      g.player.x -= g.player.speed * step;
       moveX -= 1;
     }
     if (this.keys.right && g.player.x < this.width - 25 - g.player.w) {
-      g.player.x += g.player.speed;
+      g.player.x += g.player.speed * step;
       moveX += 1;
     }
 
@@ -1863,7 +1865,7 @@ class MinijuegosManager {
 
     // Rotación y verificación de paso a través de los círculos
     g.moshRings.forEach(ring => {
-      ring.angle += ring.rotSpeed;
+      ring.angle += ring.rotSpeed * step;
 
       const px = g.player.x + g.player.w / 2;
       const py = g.player.y + g.player.h / 2;
@@ -1892,7 +1894,7 @@ class MinijuegosManager {
 
     // Filas de rockeros en pogo
     g.humanChains.forEach(chain => {
-      chain.xOffset += chain.speed * chain.dir;
+      chain.xOffset += chain.speed * chain.dir * step;
       if (chain.xOffset > 35 || chain.xOffset < -35) chain.dir *= -1;
 
       if (Math.abs(g.player.y - chain.y) < 10) {
@@ -2133,19 +2135,25 @@ class MinijuegosManager {
   startLoop() {
     let frameCounter = 0;
     const loop = (timestamp) => {
-      const dt = timestamp - this.lastTime;
+      if (!this.lastTime) this.lastTime = timestamp;
+      const rawDt = timestamp - this.lastTime;
       this.lastTime = timestamp;
 
+      // Limitar dt para evitar saltos o tirones
+      const dt = Math.max(8, Math.min(rawDt, 50));
+      // Factor normalizado a 60 FPS estándar (1.0 a 60 FPS, 2.0 a 30 FPS)
+      const step = dt / 16.666;
+
       frameCounter++;
-      if (frameCounter % 8 === 0) {
+      if (frameCounter % Math.max(1, Math.round(8 / step)) === 0) {
         this.walkCycle = (this.walkCycle + 1) % 4;
       }
 
       if (this.gameState === 'PLAYING') {
-        if (this.currentLevel === 1) this.updateGame1(dt);
-        else if (this.currentLevel === 2) this.updateGame2(dt);
-        else if (this.currentLevel === 3) this.updateGame3(dt);
-        else if (this.currentLevel === 4) this.updateGame4(dt);
+        if (this.currentLevel === 1) this.updateGame1(dt, step);
+        else if (this.currentLevel === 2) this.updateGame2(dt, step);
+        else if (this.currentLevel === 3) this.updateGame3(dt, step);
+        else if (this.currentLevel === 4) this.updateGame4(dt, step);
       }
 
       this.ctx.clearRect(0, 0, this.width, this.height);

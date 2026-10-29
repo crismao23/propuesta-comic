@@ -160,10 +160,6 @@ body.game-page-body {
   color: var(--accent-blue);
 }
 
-.hud-item.volume-meter {
-  color: var(--accent-green);
-}
-
 /* Modales y Mensajes Flotantes sobre el Canvas */
 .game-msg-overlay {
   position: absolute;
@@ -231,46 +227,50 @@ body.game-page-body {
 
 /* Zona de Controles Táctiles (GamePad para Móviles) */
 .arcade-controls-area {
-  background: #334155;
-  padding: 1rem;
+  background: #1e293b;
+  padding: 0.9rem 1rem 1.25rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
   border-top: 3px solid #000;
 }
 
 .controls-row {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 /* D-PAD Virtual */
 .dpad-container {
   display: grid;
-  grid-template-columns: repeat(3, 50px);
-  grid-template-rows: repeat(3, 50px);
-  gap: 4px;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+  touch-action: none;
 }
 
 .dpad-btn {
-  background: #1e293b;
-  border: 3px solid #000;
-  border-radius: 8px;
+  background: #334155;
+  border: 3.5px solid #000;
+  border-radius: 10px;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 2px 2px 0 #000;
-  touch-action: manipulation;
+  box-shadow: 3px 3px 0 #000;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dpad-btn:active, .dpad-btn.pressed {
   background: var(--accent-yellow);
   color: #000;
-  transform: translate(1px, 1px);
+  transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 #000;
 }
 
@@ -279,44 +279,6 @@ body.game-page-body {
   font-size: 0.65rem;
   font-family: var(--font-pixel);
   color: var(--accent-yellow);
-}
-
-/* Botones de Acción (A / B / Freno) */
-.action-buttons-group {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.game-action-btn {
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  border: 3px solid #000;
-  font-family: var(--font-pixel);
-  font-size: 0.7rem;
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  box-shadow: 3px 3px 0 #000;
-  touch-action: manipulation;
-}
-
-.game-action-btn.btn-stop {
-  background: var(--accent-pink);
-}
-
-.game-action-btn.btn-speed {
-  background: var(--accent-green);
-}
-
-.game-action-btn:active, .game-action-btn.pressed {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #000;
 }
 
 /* Barra de Pruebas de Desarrollo (Para Cristian probar cada minijuego) */
