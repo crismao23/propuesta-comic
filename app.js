@@ -929,10 +929,13 @@ function checkCreatorAccess() {
   }
 
   const btn = document.getElementById('creatorBtn');
+  const adminBar = document.getElementById('arcadeAdminBar');
   if (localStorage.getItem('propuesta_modo_cristian') === 'true') {
     if (btn) btn.classList.add('is-active');
+    if (adminBar) adminBar.style.display = 'flex';
   } else {
     if (btn) btn.classList.remove('is-active');
+    if (adminBar) adminBar.style.display = 'none';
   }
 }
 
@@ -1051,6 +1054,18 @@ function testLaunchMinigames() {
   if (arcadeSec) {
     arcadeSec.style.display = 'block';
     arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function adminLaunchGame(level) {
+  closeCreatorModal();
+  const arcadeSec = document.getElementById('minigamesArcadeSection');
+  if (arcadeSec) {
+    arcadeSec.style.display = 'block';
+    arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (window.gameInstance) {
+    window.gameInstance.setupLevel(level);
   }
 }
 

@@ -174,6 +174,15 @@
         </p>
       </div>
 
+      <!-- Barra Admin para probar los 4 juegos directamente sobre el arcade -->
+      <div id="arcadeAdminBar" style="display: none; justify-content: center; gap: 0.4rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+        <span style="font-family: var(--font-retro); font-size: 0.6rem; color: #000; align-self: center; font-weight: 700;">TEST ADMIN:</span>
+        <button class="pixel-badge" onclick="adminLaunchGame(1)" style="cursor: pointer; background: #3b82f6;">N1: inDrive</button>
+        <button class="pixel-badge" onclick="adminLaunchGame(2)" style="cursor: pointer; background: #eab308; color: #000;">N2: Museo</button>
+        <button class="pixel-badge" onclick="adminLaunchGame(3)" style="cursor: pointer; background: #ef4444;">N3: Kraken</button>
+        <button class="pixel-badge" onclick="adminLaunchGame(4)" style="cursor: pointer; background: #ec4899;">N4: Margarita</button>
+      </div>
+
       <!-- Contenedor Arcade -->
       <div class="arcade-wrapper">
         <header class="arcade-header">
@@ -404,6 +413,27 @@
           <div style="font-size: 0.75rem; font-weight: 700; margin-top: 4px;">Recuerdo Final</div>
           <div class="code-card-digits" id="displayCardCode3">739105</div>
           <div style="font-size: 0.65rem; color: #555;">Pégalo en el tercer regalo</div>
+        </div>
+      </div>
+
+      <!-- PROBAR LOS 4 JUEGOS INDIVIDUALMENTE (ADMIN) -->
+      <div style="background: #fdf4ff; border: 2px solid #c084fc; padding: 0.85rem; border-radius: 12px; margin-top: 1rem;">
+        <h3 style="font-family: var(--font-retro); font-size: 0.72rem; color: #7e22ce; margin-bottom: 0.5rem; text-align: center;">
+          🎮 PROBAR LOS 4 MINIJUEGOS (ACCESO ADMIN)
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+          <button class="comic-btn" onclick="adminLaunchGame(1)" style="background: #3b82f6; font-size: 0.68rem; padding: 0.5rem 0.25rem;">
+            🚗 1. inDrive Carro & Moto
+          </button>
+          <button class="comic-btn" onclick="adminLaunchGame(2)" style="background: #eab308; font-size: 0.68rem; padding: 0.5rem 0.25rem; color: #000;">
+            🏺 2. Museo del Oro & Poporo
+          </button>
+          <button class="comic-btn" onclick="adminLaunchGame(3)" style="background: #ef4444; font-size: 0.68rem; padding: 0.5rem 0.25rem;">
+            🍺 3. Parque & Kraken
+          </button>
+          <button class="comic-btn" onclick="adminLaunchGame(4)" style="background: #ec4899; font-size: 0.68rem; padding: 0.5rem 0.25rem;">
+            🌸 4. Parque & Margarita
+          </button>
         </div>
       </div>
 

@@ -561,6 +561,12 @@ class MinijuegosManager {
     this.audioMargarita = new Audio('audio/margarita.mp3');
     this.currentActiveAudio = null;
 
+    // Logos oficiales precargados para los escenarios de concierto
+    this.logoKraken = new Image();
+    this.logoKraken.src = 'images/logo_kraken.png';
+    this.logoMargarita = new Image();
+    this.logoMargarita.src = 'images/logo_margarita.png';
+
     this.game1 = null;
     this.game2 = null;
     this.game3 = null;
@@ -843,7 +849,7 @@ class MinijuegosManager {
       Superaron llegar a tiempo a la terminal, disfrutaron de un parche cultural en el Museo del Oro, brindis con polas en frente de la tarima de Kraken y momento de besos y abrazos en Margarita Siempre Viva. 🥰❤️<br><br>
       <strong>¡Ahora están juntos y listos para lo que sigue!</strong> ✨❤️
     `;
-    btn.textContent = '🌟 CONTINUAR A LA SORPRESA 🌟';
+    btn.textContent = 'SIGUIENTE';
 
     btn.onclick = () => {
       this.stopAudio();
@@ -1655,14 +1661,14 @@ class MinijuegosManager {
     const g = this.game3;
     const ctx = this.ctx;
 
-    ctx.fillStyle = '#090d16';
-    ctx.fillRect(0, 0, this.width, this.height);
+    // Prado y árboles de parque al aire libre (Simón Bolívar / Rock al Parque)
+    this.drawParkFestivalScenery(g.stageColor);
 
     this.drawKrakenStageBanner();
 
-    // Luces
+    // Luces de escenario
     ctx.fillStyle = g.stageColor;
-    ctx.globalAlpha = 0.25;
+    ctx.globalAlpha = 0.20;
     ctx.beginPath();
     ctx.moveTo(40, 30); ctx.lineTo(0, 220); ctx.lineTo(130, 220); ctx.fill();
     ctx.beginPath();
@@ -1733,50 +1739,261 @@ class MinijuegosManager {
     }
   }
 
+  // Dibuja el escenario del festival en parque al aire libre (prado y árboles laterales)
+  drawParkFestivalScenery(stageColor = '#dc2626') {
+    const ctx = this.ctx;
+    const w = this.width;
+    const h = this.height;
+
+    // 1. Césped nocturno de base (prado del parque)
+    ctx.fillStyle = '#0e381b';
+    ctx.fillRect(0, 0, w, h);
+
+    // Franjas de textura de pasto en el prado
+    ctx.fillStyle = '#144c26';
+    for (let y = 40; y < h; y += 18) {
+      ctx.fillRect(0, y, w, 9);
+    }
+
+    // Briznas y matas de hierba verde esparcidas en el prado
+    ctx.fillStyle = '#22783d';
+    const grassSpots = [
+      [42, 120], [75, 145], [115, 130], [185, 140], [225, 125], [270, 150],
+      [55, 190], [140, 205], [210, 185], [260, 220],
+      [48, 260], [105, 275], [175, 250], [235, 270],
+      [60, 330], [120, 350], [190, 325], [255, 345],
+      [45, 395], [110, 410], [180, 390], [240, 415]
+    ];
+    grassSpots.forEach(([gx, gy]) => {
+      ctx.fillRect(gx, gy, 2, 4);
+      ctx.fillRect(gx + 2, gy - 2, 2, 6);
+      ctx.fillRect(gx + 4, gy + 1, 2, 3);
+    });
+
+    // 2. Iluminación nocturna de festival sobre el prado
+    ctx.save();
+    ctx.globalAlpha = 0.20;
+    ctx.fillStyle = stageColor;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.25, 45);
+    ctx.lineTo(0, h);
+    ctx.lineTo(w * 0.55, h);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(w * 0.75, 45);
+    ctx.lineTo(w * 0.45, h);
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 3. Árboles frondosos de parque en los bordes laterales
+    this.drawParkTrees();
+  }
+
+  drawParkTrees() {
+    const ctx = this.ctx;
+    const w = this.width;
+
+    const drawTree = (x, y, scale = 1.0) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      // Sombra en el prado
+      ctx.fillStyle = 'rgba(5, 25, 12, 0.45)';
+      ctx.beginPath();
+      ctx.ellipse(0, 30, 16, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Tronco marrón
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(-4, 2, 8, 28);
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-2, 2, 3, 26);
+
+      // Raíces
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(-7, 26, 4, 3);
+      ctx.fillRect(3, 26, 4, 3);
+
+      // Copa frondosa exterior (verde profundo bosque nocturno)
+      ctx.fillStyle = '#052e16';
+      ctx.beginPath();
+      ctx.arc(0, -6, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Copa frondosa media (verde parque)
+      ctx.fillStyle = '#0f5132';
+      ctx.beginPath();
+      ctx.arc(-7, -8, 14, 0, Math.PI * 2);
+      ctx.arc(7, -8, 14, 0, Math.PI * 2);
+      ctx.arc(0, -18, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hojas con iluminación suave
+      ctx.fillStyle = '#198754';
+      ctx.fillRect(-9, -23, 6, 5);
+      ctx.fillRect(3, -25, 6, 5);
+      ctx.fillRect(-14, -12, 5, 5);
+      ctx.fillRect(8, -10, 6, 5);
+      ctx.fillRect(-3, -15, 6, 6);
+
+      ctx.restore();
+    };
+
+    // Árboles alineados en el borde izquierdo del parque
+    drawTree(12, 90, 0.85);
+    drawTree(14, 175, 0.95);
+    drawTree(11, 265, 0.95);
+    drawTree(15, 355, 0.9);
+    drawTree(12, 420, 0.8);
+
+    // Árboles alineados en el borde derecho del parque
+    drawTree(w - 12, 90, 0.85);
+    drawTree(w - 14, 175, 0.95);
+    drawTree(w - 11, 265, 0.95);
+    drawTree(w - 15, 355, 0.9);
+    drawTree(w - 12, 420, 0.8);
+  }
+
   drawKrakenStageBanner() {
     const ctx = this.ctx;
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, this.width, 108);
+    const w = this.width;
+    const cx = w / 2;
 
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(this.width / 2 - 75, 4, 150, 8);
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(this.width / 2 - 75, 12, 150, 5);
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(this.width / 2 - 75, 17, 150, 5);
+    // Estructura de tarima de festival
+    ctx.fillStyle = '#0b0f19';
+    ctx.fillRect(0, 0, w, 108);
 
-    const cx = this.width / 2;
-    const cy = 13;
-    ctx.fillStyle = '#1c1917';
-    ctx.beginPath();
-    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#f59e0b';
+    // Viga/truss superior de metal
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, w, 6);
+    ctx.fillStyle = '#334155';
+    for (let tx = 4; tx < w; tx += 12) {
+      ctx.fillRect(tx, 1, 6, 4);
+    }
+
+    // Pantalla LED central de fondo de Kraken
+    const screenW = 124;
+    const screenH = 46;
+    const sx = cx - screenW / 2;
+    const sy = 8;
+
+    // Marco de pantalla con brillo dorado/metálico
+    ctx.fillStyle = '#05070c';
+    ctx.fillRect(sx - 3, sy - 2, screenW + 6, screenH + 4);
+    ctx.strokeStyle = '#d97706';
     ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.strokeRect(sx - 2, sy - 1, screenW + 4, screenH + 2);
 
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(cx - 5, cy - 7, 2, 14);
-    ctx.fillRect(cx - 3, cy - 1, 3, 2);
-    ctx.fillRect(cx, cy - 7, 2, 4);
-    ctx.fillRect(cx + 2, cy - 5, 2, 4);
-    ctx.fillRect(cx, cy + 3, 2, 4);
-    ctx.fillRect(cx + 2, cy + 5, 3, 3);
+    // Contenido de la pantalla: Si la imagen oficial está lista, dibujarla con alta fidelidad
+    let drewLogoImg = false;
+    if (this.logoKraken && this.logoKraken.complete && this.logoKraken.naturalWidth > 0) {
+      try {
+        ctx.save();
+        // Recortamos levemente el pie de copyright (sy 0 a 282) para resaltar el arte cósmico y logotipo
+        ctx.drawImage(this.logoKraken, 0, 0, 399, 282, sx, sy, screenW, screenH);
+        drewLogoImg = true;
+        ctx.restore();
+      } catch (e) {
+        drewLogoImg = false;
+      }
+    }
 
-    ctx.fillStyle = '#000';
-    ctx.font = '10px "Press Start 2P"';
-    ctx.fillText('K R A K E N', cx - 58, 38);
-    ctx.fillStyle = '#facc15';
-    ctx.fillText('K R A K E N', cx - 60, 37);
-    ctx.fillStyle = '#fef08a';
-    ctx.fillText('K R A K E N', cx - 60, 36);
+    // Si aún no carga o fallback: renderizado 8-bit idéntico al logo oficial
+    if (!drewLogoImg) {
+      // Fondo espacial/estelar
+      ctx.fillStyle = '#050814';
+      ctx.fillRect(sx, sy, screenW, screenH);
 
-    ctx.fillStyle = '#18181b';
-    ctx.fillRect(10, 42, 22, 40);
-    ctx.fillRect(this.width - 32, 42, 22, 40);
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(13, 46, 2, 2);
-    ctx.fillRect(this.width - 29, 46, 2, 2);
+      // Estrellas titilantes
+      ctx.fillStyle = '#ffffff';
+      const stars = [
+        [sx + 10, sy + 6], [sx + 24, sy + 18], [sx + 95, sy + 8],
+        [sx + 108, sy + 22], [sx + 15, sy + 38], [sx + 102, sy + 40]
+      ];
+      stars.forEach(([stX, stY]) => ctx.fillRect(stX, stY, 1, 1));
+
+      // Bandera de Colombia estilizada detrás del medallón
+      const flagY = sy + 6;
+      ctx.fillStyle = '#facc15'; // Amarillo
+      ctx.fillRect(sx + 12, flagY, screenW - 24, 7);
+      ctx.fillStyle = '#2563eb'; // Azul
+      ctx.fillRect(sx + 12, flagY + 7, screenW - 24, 4);
+      ctx.fillStyle = '#dc2626'; // Rojo
+      ctx.fillRect(sx + 12, flagY + 11, screenW - 24, 4);
+
+      // Medallón circular con K ornamental
+      const medX = cx;
+      const medY = sy + 13;
+      ctx.fillStyle = '#1c1917';
+      ctx.beginPath();
+      ctx.arc(medX, medY, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borde de flama/tribal dorado
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // "K" ornamental central
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(medX - 4, medY - 6, 2, 12);
+      ctx.fillRect(medX - 2, medY - 1, 2, 2);
+      ctx.fillRect(medX, medY - 5, 2, 4);
+      ctx.fillRect(medX + 2, medY - 3, 2, 3);
+      ctx.fillRect(medX, medY + 2, 2, 4);
+      ctx.fillRect(medX + 2, medY + 4, 3, 3);
+
+      // Letras doradas K R A K E N en 3D
+      ctx.fillStyle = '#000000';
+      ctx.font = '9px "Press Start 2P"';
+      ctx.fillText('K R A K E N', cx - 51, sy + 38);
+      ctx.fillStyle = '#b45309';
+      ctx.fillText('K R A K E N', cx - 53, sy + 37);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillText('K R A K E N', cx - 53, sy + 36);
+    }
+
+    // Luces/spots estroboscópicos sobre el marco de la pantalla
+    const spotColors = ['#ef4444', '#facc15', '#3b82f6', '#10b981'];
+    for (let li = 0; li < 6; li++) {
+      ctx.fillStyle = spotColors[(li + Math.floor(this.walkCycle * 0.1)) % spotColors.length];
+      ctx.fillRect(sx + 6 + li * 20, sy - 4, 6, 2);
+    }
+
+    // Columnas de altavoces / line array a los lados del escenario
+    const drawSpeakerStack = (stackX) => {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(stackX, 22, 20, 68);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(stackX, 22, 20, 68);
+
+      // Conos de altavoces
+      for (let spY = 26; spY < 86; spY += 15) {
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(stackX + 10, spY + 6, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.arc(stackX + 10, spY + 6, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Luz piloto roja y verde
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(stackX + 2, 84, 2, 2);
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(stackX + 6, 84, 2, 2);
+    };
+
+    drawSpeakerStack(6);
+    drawSpeakerStack(w - 26);
   }
 
   // ============================================================
@@ -1919,8 +2136,8 @@ class MinijuegosManager {
     const g = this.game4;
     const ctx = this.ctx;
 
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, this.width, this.height);
+    // Prado y árboles de parque al aire libre (Simón Bolívar / Rock al Parque)
+    this.drawParkFestivalScenery('#38bdf8');
 
     this.drawMargaritaBandOnStage();
 
@@ -1962,34 +2179,102 @@ class MinijuegosManager {
 
   drawMargaritaBandOnStage() {
     const ctx = this.ctx;
-    ctx.fillStyle = '#121517';
-    ctx.fillRect(0, 0, this.width, 50);
+    const w = this.width;
+    const cx = w / 2;
 
-    ctx.fillStyle = '#d8c39d';
-    ctx.font = '8px "Press Start 2P"';
-    ctx.fillText('MARGARITA', this.width / 2 - 44, 15);
-    ctx.fillText('SIEMPRE VIVA', this.width / 2 - 58, 26);
+    // Tarima de madera / base de escenario
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, w, 56);
 
-    this.drawDaisyFlower(24, 18);
-    this.drawDaisyFlower(this.width - 24, 18);
+    // Truss superior metálico
+    ctx.fillStyle = '#1f2937';
+    ctx.fillRect(0, 0, w, 4);
 
+    // Pantalla LED central de fondo con el logo oficial
+    const screenW = 124;
+    const screenH = 34;
+    const sx = cx - screenW / 2;
+    const sy = 5;
+
+    // Marco de pantalla con tono cálido / dorado retro
+    ctx.fillStyle = '#182226'; // Fondo característico del logo
+    ctx.fillRect(sx - 2, sy - 1, screenW + 4, screenH + 2);
+    ctx.strokeStyle = '#c5a982';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx - 1, sy, screenW + 2, screenH);
+
+    // Dibujar logo oficial si está cargado
+    let drewMargaritaImg = false;
+    if (this.logoMargarita && this.logoMargarita.complete && this.logoMargarita.naturalWidth > 0) {
+      try {
+        ctx.save();
+        // Usamos el recorte exacto donde se ubica el texto: sx: 58, sy: 154, sw: 332, sh: 125
+        ctx.drawImage(this.logoMargarita, 58, 154, 332, 125, sx + 2, sy + 2, screenW - 4, screenH - 4);
+        drewMargaritaImg = true;
+        ctx.restore();
+      } catch (e) {
+        drewMargaritaImg = false;
+      }
+    }
+
+    // Si aún no carga o fallback 8-bit:
+    if (!drewMargaritaImg) {
+      ctx.fillStyle = '#182226';
+      ctx.fillRect(sx, sy, screenW, screenH);
+
+      // Tipografía idéntica al logo:
+      // "MARGARITA"
+      // "SIEMPRE VIVA" en beige dorado
+      ctx.fillStyle = '#050709';
+      ctx.font = '8px "Press Start 2P"';
+      ctx.fillText('MARGARITA', cx - 39, sy + 14);
+      ctx.fillText('SIEMPRE VIVA', cx - 51, sy + 26);
+
+      ctx.fillStyle = '#c5a982'; // Color cálido beige original del logo
+      ctx.fillText('MARGARITA', cx - 40, sy + 13);
+      ctx.fillText('SIEMPRE VIVA', cx - 52, sy + 25);
+    }
+
+    // Altavoces laterales (torres de sonido del festival)
+    const drawSpeaker = (spX) => {
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(spX, 8, 16, 42);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(spX, 8, 16, 42);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(spX + 2, 12, 12, 10);
+      ctx.fillRect(spX + 2, 25, 12, 10);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(spX + 3, 38, 2, 2);
+    };
+    drawSpeaker(6);
+    drawSpeaker(w - 22);
+
+    // Margaritas / flores decorativas a los lados de la tarima
+    this.drawDaisyFlower(27, 20);
+    this.drawDaisyFlower(w - 27, 20);
+
+    // Batería en el centro de la tarima
     ctx.fillStyle = '#e2e8f0';
-    ctx.fillRect(this.width / 2 - 12, 30, 24, 12);
-    ctx.fillStyle = '#facc15';
+    ctx.fillRect(cx - 10, 36, 20, 10);
+    ctx.fillStyle = '#facc15'; // Platillos dorados
     ctx.beginPath();
-    ctx.arc(this.width / 2 - 14, 32, 4, 0, Math.PI * 2);
-    ctx.arc(this.width / 2 + 14, 32, 4, 0, Math.PI * 2);
+    ctx.arc(cx - 13, 37, 4, 0, Math.PI * 2);
+    ctx.arc(cx + 13, 37, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    PixelSprites.drawMargaritaFan(ctx, this.width / 2, 38, this.walkCycle, 0);
-    PixelSprites.drawMargaritaFan(ctx, 58, 38, this.walkCycle, 1);
-    PixelSprites.drawMargaritaFan(ctx, this.width - 58, 38, this.walkCycle, 2);
+    // Músicos de Margarita Siempre Viva en tarima (TODOS con cabello 100% negro)
+    PixelSprites.drawMargaritaFan(ctx, cx, 43, this.walkCycle, 0);       // Baterista / Vocalista
+    PixelSprites.drawMargaritaFan(ctx, cx - 42, 43, this.walkCycle, 1);  // Guitarrista
+    PixelSprites.drawMargaritaFan(ctx, cx + 42, 43, this.walkCycle, 2);  // Bajista
 
+    // Valla de contención frente a tarima (primera fila)
     ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(0, 50);
-    ctx.lineTo(this.width, 50);
+    ctx.moveTo(0, 56);
+    ctx.lineTo(w, 56);
     ctx.stroke();
   }
 
