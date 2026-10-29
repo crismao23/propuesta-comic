@@ -107,6 +107,16 @@ class Retro8BitSynth {
       } catch(e){}
       this.currentPlayingAudio = null;
     }
+    // Detener explícitamente cualquier audio de viñeta del DOM
+    ['localAudio1', 'localAudio2', 'localAudio3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        try {
+          el.pause();
+          el.currentTime = 0;
+        } catch(e){}
+      }
+    });
   }
 
   playBeep() {
@@ -626,6 +636,7 @@ function handleQuizAnswer(retoId, option, btnElement) {
           const isGamesDone = localStorage.getItem('minijuegos_completed') === 'true';
           const arcadeSec = document.getElementById('minigamesArcadeSection');
           if (!isGamesDone && arcadeSec) {
+            audio.stopAll();
             arcadeSec.style.display = 'block';
             arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
             triggerRomanticConfetti();

@@ -675,11 +675,24 @@ class MinijuegosManager {
     }
   }
 
-  playLevelAudio(level) {
-    this.stopAudio();
+  stopAllExternalMusic() {
     if (window.audio && typeof window.audio.stopAll === 'function') {
       window.audio.stopAll();
     }
+    ['localAudio1', 'localAudio2', 'localAudio3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        try {
+          el.pause();
+          el.currentTime = 0;
+        } catch(e){}
+      }
+    });
+  }
+
+  playLevelAudio(level) {
+    this.stopAudio();
+    this.stopAllExternalMusic();
     if (level === 3) {
       this.currentActiveAudio = this.audioKraken;
       this.audioKraken.currentTime = 120; // Minuto 2:00
@@ -706,6 +719,7 @@ class MinijuegosManager {
   setupLevel(levelNumber) {
     this.currentLevel = levelNumber;
     this.stopAudio();
+    this.stopAllExternalMusic();
 
     document.getElementById('hudLevelTag').textContent = `NIVEL ${levelNumber}/4`;
     const volHud = document.getElementById('hudVolume');
@@ -765,6 +779,7 @@ class MinijuegosManager {
 
   startGameplay() {
     this.gameState = 'PLAYING';
+    this.stopAllExternalMusic();
     if (this.currentLevel === 3 || this.currentLevel === 4) {
       this.playLevelAudio(this.currentLevel);
     }
