@@ -581,6 +581,8 @@ class MinijuegosManager {
     }
     this.speedMultiplier = parseFloat(initialSpeed || '1.7');
 
+    this.deathData = null;
+
     this.game1 = null;
     this.game2 = null;
     this.game3 = null;
@@ -1044,6 +1046,7 @@ class MinijuegosManager {
 
   setupLevel(levelNumber) {
     this.currentLevel = levelNumber;
+    this.deathData = null;
     this.stopAudio();
     this.stopAllExternalMusic();
 
@@ -1127,6 +1130,208 @@ class MinijuegosManager {
     };
 
     overlay.classList.remove('hidden');
+  }
+
+  // ============================================================
+  // EFECTO DE MUERTE CON SANGRE Y SONIDO RETRO ESTILO MARIO (NES)
+  // ============================================================
+  playMarioDeathSound() {
+    this.initAudioContext();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      // Jingle de muerte icónico de Super Mario Bros (NES APU Square Wave)
+      // B4 -> pausa breve -> F5 -> F5 -> F5 -> E5 -> D5 -> C5
+      const notes = [
+        { freq: 493.88, start: 0.00, dur: 0.09 }, // B4
+        { freq: 698.46, start: 0.15, dur: 0.11 }, // F5
+        { freq: 698.46, start: 0.29, dur: 0.11 }, // F5
+        { freq: 698.46, start: 0.43, dur: 0.11 }, // F5
+        { freq: 659.25, start: 0.57, dur: 0.12 }, // E5
+        { freq: 587.33, start: 0.72, dur: 0.12 }, // D5
+        { freq: 523.25, start: 0.87, dur: 0.38 }  // C5 (trágico final)
+      ];
+
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(n.freq, now + n.start);
+
+        gain.gain.setValueAtTime(0.001, now + n.start);
+        gain.gain.linearRampToValueAtTime(0.09, now + n.start + 0.015);
+        gain.gain.setValueAtTime(0.08, now + n.start + n.dur - 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + n.start);
+        osc.stop(now + n.start + n.dur + 0.02);
+      });
+    } catch (e) {
+      console.log('Error playing Mario death sound:', e);
+    }
+  }
+
+  triggerDeath(reasonText, deathX, deathY) {
+    this.gameState = 'DYING';
+    this.stopAudio();
+    this.playMarioDeathSound();
+
+    // Gotas y salpicaduras de sangre pixel art
+    const particles = [];
+    const bloodColors = ['#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#ef4444', '#f87171'];
+    
+    // 38 partículas de sangre expulsadas en arco
+    for (let i = 0; i < 38; i++) {
+      const angle = (Math.PI * 2 * i) / 38 + (Math.random() - 0.5) * 0.4;
+      const speed = 1.4 + Math.random() * 4.6;
+      particles.push({
+        x: deathX,
+        y: deathY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (2.4 + Math.random() * 3.8), // Salto hacia arriba
+        gravity: 0.28,
+        size: Math.random() < 0.65 ? 3 : 5,
+        color: bloodColors[Math.floor(Math.random() * bloodColors.length)],
+        groundY: deathY + 6 + Math.random() * 26,
+        isGrounded: false
+      });
+    }
+
+    // Charcos de sangre en el suelo
+    const pools = [];
+    for (let i = 0; i < 6; i++) {
+      pools.push({
+        x: deathX + (Math.random() - 0.5) * 32,
+        y: deathY + 12 + (Math.random() - 0.5) * 14,
+        r: 0,
+        maxR: 5 + Math.random() * 9,
+        color: bloodColors[Math.floor(Math.random() * bloodColors.length)]
+      });
+    }
+
+    this.deathData = {
+      x: deathX,
+      y: deathY,
+      timer: 0,
+      duration: 2000, // 2 segundos completos
+      reasonText: reasonText,
+      characterHopY: 0,
+      characterHopVy: -5.8, // Salto hacia arriba clásico de Mario al morir
+      particles: particles,
+      pools: pools,
+      level: this.currentLevel,
+      subPhase: this.game1 ? this.game1.subPhase : null
+    };
+  }
+
+  updateDeath(dt) {
+    if (!this.deathData) return;
+    this.deathData.timer += dt;
+
+    // Física del salto y caída de Mario
+    this.deathData.characterHopY += this.deathData.characterHopVy;
+    this.deathData.characterHopVy += 0.32;
+
+    // Actualizar partículas de sangre
+    this.deathData.particles.forEach(p => {
+      if (!p.isGrounded) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        if (p.y >= p.groundY) {
+          p.y = p.groundY;
+          p.isGrounded = true;
+        }
+      }
+    });
+
+    // Expandir charcos de sangre
+    this.deathData.pools.forEach(pool => {
+      if (pool.r < pool.maxR) {
+        pool.r += 0.35;
+      }
+    });
+
+    // Al terminar los 2 segundos, desplegar Game Over
+    if (this.deathData.timer >= this.deathData.duration) {
+      const reason = this.deathData.reasonText;
+      this.deathData = null;
+      this.handleFail(reason);
+    }
+  }
+
+  drawDeathEffect() {
+    if (!this.deathData) return;
+    const ctx = this.ctx;
+    const d = this.deathData;
+
+    // 1. Dibujar charcos de sangre en el suelo
+    d.pools.forEach(pool => {
+      ctx.fillStyle = pool.color;
+      ctx.beginPath();
+      ctx.ellipse(pool.x, pool.y, pool.r * 1.4, pool.r * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 2. Dibujar gotas y salpicaduras de sangre (cuadraditos de píxeles)
+    d.particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+      // Brillo en sangre fresca
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
+    });
+
+    // 3. Dibujar al personaje muriendo con salto de Mario, giro y parpadeo rojo
+    ctx.save();
+    const charX = d.x;
+    const charY = d.y + d.characterHopY;
+    ctx.translate(charX, charY);
+
+    const rot = Math.min(Math.PI, (d.timer / 1000) * Math.PI);
+    ctx.rotate(rot);
+
+    // Parpadeo de impacto
+    const isFlashingRed = Math.floor(d.timer / 75) % 2 === 0;
+
+    if (d.level === 1) {
+      if (d.subPhase === 'CRHIS_INDRIVE') {
+        PixelSprites.drawCrhis(ctx, 0, 0, 'DOWN', 0, false);
+      } else {
+        PixelSprites.drawMade(ctx, 0, 0, 'DOWN', 0);
+      }
+    } else {
+      PixelSprites.drawCrhis(ctx, -8, 0, 'DOWN', 0, false);
+      PixelSprites.drawMade(ctx, 8, 0, 'DOWN', 0);
+    }
+
+    if (isFlashingRed) {
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.6)';
+      ctx.fillRect(-16, -18, 32, 36);
+    }
+
+    ctx.restore();
+
+    // 4. Letrero pixel art de impacto
+    const bannerAlpha = Math.min(1.0, d.timer / 350);
+    ctx.fillStyle = `rgba(127, 29, 29, ${bannerAlpha * 0.9})`;
+    ctx.fillRect(this.width / 2 - 65, 38, 130, 25);
+    ctx.strokeStyle = '#fca5a5';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(this.width / 2 - 65, 38, 130, 25);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '8px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText('💀 ¡DEAD! 💀', this.width / 2, 54);
+    ctx.textAlign = 'left';
   }
 
   handleLevelVictory() {
@@ -1324,7 +1529,7 @@ class MinijuegosManager {
         g.player.y + g.player.h > car.y + 6
       ) {
         const victim = (g.subPhase === 'CRHIS_INDRIVE') ? 'El inDrive de Crhis chocó' : 'El inDrive Moto de Made tropezó';
-        this.handleFail(`¡${victim} en la autopista hacia la terminal! 💥`);
+        this.triggerDeath(`¡${victim} en la autopista hacia la terminal! 💥`, g.player.x, g.player.y);
         return;
       }
 
@@ -1454,10 +1659,12 @@ class MinijuegosManager {
         this.drawTrafficCar(car.x - car.w / 2, car.y, car.w, car.h, car.type);
       });
 
-      if (g.subPhase === 'CRHIS_INDRIVE') {
-        this.drawInDriveCar(g.player.x, g.player.y);
-      } else {
-        this.drawMadeInDriveMotorcycle(g.player.x, g.player.y);
+      if (this.gameState !== 'DYING') {
+        if (g.subPhase === 'CRHIS_INDRIVE') {
+          this.drawInDriveCar(g.player.x, g.player.y);
+        } else {
+          this.drawMadeInDriveMotorcycle(g.player.x, g.player.y);
+        }
       }
     }
   }
@@ -1590,7 +1797,7 @@ class MinijuegosManager {
       g.timerAcc -= 1000;
       g.timeLeft--;
       if (g.timeLeft <= 0) {
-        this.handleFail("¡Se agotó el tiempo en el Museo del Oro! ⏳🏛️");
+        this.triggerDeath("¡Se agotó el tiempo en el Museo del Oro! ⏳💥", g.player.x + 11, g.player.y + 8);
         return;
       }
     }
@@ -1630,7 +1837,7 @@ class MinijuegosManager {
       arr.x += arr.speed * step;
 
       if (!inSafeZone && this.checkAABB(g.player, arr)) {
-        this.handleFail("¡Una trampa ancestral de flechas los alcanzó! 🏹💥");
+        this.triggerDeath("¡Una trampa ancestral de flechas los alcanzó! 🏹💥", g.player.x + 11, g.player.y + 8);
         return;
       }
       if (arr.x < -20 || arr.x > this.width + 20) g.arrows.splice(i, 1);
@@ -1645,7 +1852,7 @@ class MinijuegosManager {
         const px = g.player.x + g.player.w / 2;
         const py = g.player.y + g.player.h / 2;
         if (Math.hypot(px - b.x, py - b.y) < b.r + 7) {
-          this.handleFail("¡Cuidado con la bola de piedra gigante del templo! 🪨💥");
+          this.triggerDeath("¡Cuidado con la bola de piedra gigante del templo! 🪨💥", px, py);
           return;
         }
       }
@@ -1749,13 +1956,15 @@ class MinijuegosManager {
 
     this.drawPoporo(g.poporo.x, g.poporo.y);
 
-    PixelSprites.drawCrhis(ctx, g.player.x + 4, g.player.y + 6, g.player.facingDir, this.walkCycle);
-    PixelSprites.drawMade(ctx, g.player.x + 18, g.player.y + 6, g.player.facingDir, this.walkCycle);
-    ctx.fillStyle = '#fed7aa';
-    ctx.fillRect(g.player.x + 9, g.player.y + 8, 4, 3);
-    ctx.fillStyle = '#f43f5e';
-    ctx.font = '7px sans-serif';
-    ctx.fillText('❤️', g.player.x + 9, g.player.y - 14);
+    if (this.gameState !== 'DYING') {
+      PixelSprites.drawCrhis(ctx, g.player.x + 4, g.player.y + 6, g.player.facingDir, this.walkCycle);
+      PixelSprites.drawMade(ctx, g.player.x + 18, g.player.y + 6, g.player.facingDir, this.walkCycle);
+      ctx.fillStyle = '#fed7aa';
+      ctx.fillRect(g.player.x + 9, g.player.y + 8, 4, 3);
+      ctx.fillStyle = '#f43f5e';
+      ctx.font = '7px sans-serif';
+      ctx.fillText('❤️', g.player.x + 9, g.player.y - 14);
+    }
   }
 
   drawMuseumShowcase(x, y, type, cultureName) {
@@ -2754,6 +2963,8 @@ class MinijuegosManager {
         else if (this.currentLevel === 2) this.updateGame2(gameDt, step, dt);
         else if (this.currentLevel === 3) this.updateGame3(gameDt, step, dt);
         else if (this.currentLevel === 4) this.updateGame4(gameDt, step, dt);
+      } else if (this.gameState === 'DYING') {
+        this.updateDeath(rawDt || dt);
       }
 
       this.ctx.clearRect(0, 0, this.width, this.height);
@@ -2761,6 +2972,10 @@ class MinijuegosManager {
       else if (this.currentLevel === 2) this.drawGame2();
       else if (this.currentLevel === 3) this.drawGame3();
       else if (this.currentLevel === 4) this.drawGame4();
+
+      if (this.gameState === 'DYING') {
+        this.drawDeathEffect();
+      }
 
       this.animationFrameId = requestAnimationFrame(loop);
     };
