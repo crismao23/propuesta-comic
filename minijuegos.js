@@ -1052,6 +1052,12 @@ class MinijuegosManager {
 
     document.getElementById('hudLevelTag').textContent = `NIVEL ${levelNumber}/4`;
 
+    // Ocultar HUD flotante en los niveles 3 y 4 (conciertos) para no tapar el escenario
+    const hudOverlay = document.querySelector('.game-hud-overlay');
+    if (hudOverlay) {
+      hudOverlay.style.display = (levelNumber >= 3) ? 'none' : 'flex';
+    }
+
     for (let i = 1; i <= 4; i++) {
       const btn = document.getElementById(`devBtnLevel${i}`);
       if (btn) btn.classList.toggle('active', i === levelNumber);
@@ -2355,97 +2361,197 @@ class MinijuegosManager {
   drawGame2() {
     const g = this.game2;
     const ctx = this.ctx;
+    const w = this.width;
+    const h = this.height;
 
-    ctx.fillStyle = '#1c1917';
-    ctx.fillRect(0, 0, this.width, this.height);
+    // 1. Fondo elegante de sala del Museo del Oro (Bogotá)
+    ctx.fillStyle = '#0f0e12';
+    ctx.fillRect(0, 0, w, h);
 
-    for (let py = 0; py < this.height; py += 32) {
-      for (let px = 40; px < this.width - 40; px += 32) {
-        ctx.fillStyle = ((px + py) % 64 === 0) ? '#262220' : '#1f1b19';
-        ctx.fillRect(px, py, 32, 32);
-        ctx.strokeStyle = '#2f2b28';
+    // 2. Baldosas de mármol negro/basalto pulido en el corredor central
+    const tileSize = 32;
+    for (let py = 0; py < h; py += tileSize) {
+      for (let px = 38; px < w - 38; px += tileSize) {
+        const isAlt = ((px + py) / tileSize) % 2 === 0;
+        ctx.fillStyle = isAlt ? '#19181d' : '#131216';
+        ctx.fillRect(px, py, tileSize, tileSize);
+        // Junta dorada muy sutil entre baldosas de museo
+        ctx.strokeStyle = 'rgba(217, 163, 24, 0.14)';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(px, py, 32, 32);
+        ctx.strokeRect(px, py, tileSize, tileSize);
+        // Brillo de pulido en esquinas
+        if (isAlt) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
+          ctx.fillRect(px + 1, py + 1, 8, 8);
+        }
       }
     }
 
-    for (let y = 0; y < this.height; y += 42) {
-      ctx.fillStyle = '#78350f';
-      ctx.fillRect(36, y, 4, 38);
-      ctx.fillStyle = '#b45309';
-      ctx.fillRect(37, y + 4, 2, 8);
-      ctx.fillRect(37, y + 16, 2, 8);
-      ctx.fillStyle = '#78350f';
-      ctx.fillRect(this.width - 40, y, 4, 38);
-      ctx.fillStyle = '#b45309';
-      ctx.fillRect(this.width - 39, y + 4, 2, 8);
-      ctx.fillRect(this.width - 39, y + 16, 2, 8);
-    }
+    // 3. Franjas arquitectónicas de pared en los laterales (galería arqueológica)
+    ctx.fillStyle = '#0a0a0d';
+    ctx.fillRect(0, 0, 38, h);
+    ctx.fillRect(w - 38, 0, 38, h);
 
-    ctx.strokeStyle = '#b91c1c';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(34, 0); ctx.lineTo(34, this.height);
-    ctx.moveTo(this.width - 34, 0); ctx.lineTo(this.width - 34, this.height);
-    ctx.stroke();
+    // Zócalo de madera noble en paredes laterales
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(34, 0, 4, h);
+    ctx.fillRect(w - 38, 0, 4, h);
 
-    for (let py = 20; py < this.height; py += 60) {
+    // Columnas/pilastras talladas con capiteles dorados en los costados
+    for (let py = 20; py < h; py += 75) {
+      // Columna izquierda
+      ctx.fillStyle = '#262626';
+      ctx.fillRect(32, py, 6, 26);
+      ctx.fillStyle = '#404040';
+      ctx.fillRect(34, py + 2, 2, 22);
+      ctx.fillStyle = '#ca8a04';
+      ctx.fillRect(31, py - 3, 8, 4);
+      ctx.fillRect(31, py + 25, 8, 4);
       ctx.fillStyle = '#facc15';
-      ctx.fillRect(32, py, 4, 12);
-      ctx.beginPath(); ctx.arc(34, py, 3, 0, Math.PI * 2); ctx.fill();
-      ctx.fillRect(this.width - 36, py, 4, 12);
-      ctx.beginPath(); ctx.arc(this.width - 34, py, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillRect(32, py - 2, 6, 2);
+      ctx.fillRect(32, py + 26, 6, 2);
+
+      // Columna derecha
+      ctx.fillStyle = '#262626';
+      ctx.fillRect(w - 38, py, 6, 26);
+      ctx.fillStyle = '#404040';
+      ctx.fillRect(w - 36, py + 2, 2, 22);
+      ctx.fillStyle = '#ca8a04';
+      ctx.fillRect(w - 39, py - 3, 8, 4);
+      ctx.fillRect(w - 39, py + 25, 8, 4);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(w - 38, py - 2, 6, 2);
+      ctx.fillRect(w - 38, py + 26, 6, 2);
     }
 
-    this.drawMuseumShowcase(6, 320, 'balsa', 'MUISCA');
-    this.drawMuseumShowcase(this.width - 34, 320, 'pectoral', 'QUIMBAYA');
-    this.drawMuseumShowcase(6, 230, 'mascara', 'CALIMA');
-    this.drawMuseumShowcase(this.width - 34, 230, 'nariguera', 'SINÚ');
-    this.drawMuseumShowcase(6, 140, 'figura', 'TOLIMA');
-    this.drawMuseumShowcase(this.width - 34, 140, 'corona', 'TAYRONA');
-    this.drawMuseumShowcase(6, 50, 'poporito', 'QUIMBAYA');
-    this.drawMuseumShowcase(this.width - 34, 50, 'cuenco', 'SAN AGUSTÍN');
+    // Cordón de terciopelo rojo de seguridad con postes de bronce dorado
+    for (let py = 0; py < h; py += 30) {
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(35, py + 12, 3, 10);
+      ctx.beginPath();
+      ctx.arc(36.5, py + 12, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillRect(w - 38, py + 12, 3, 10);
+      ctx.beginPath();
+      ctx.arc(w - 36.5, py + 12, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(36.5, py + 13);
+      ctx.quadraticCurveTo(34, py + 27, 36.5, py + 42);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(w - 36.5, py + 13);
+      ctx.quadraticCurveTo(w - 34, py + 27, w - 36.5, py + 42);
+      ctx.stroke();
+    }
+
+    // 4. Vitrinas de orfebrería de las culturas prehispánicas de Colombia
+    this.drawMuseumShowcase(5, 330, 'balsa', 'MUISCA');
+    this.drawMuseumShowcase(w - 33, 330, 'pectoral', 'QUIMBAYA');
+    this.drawMuseumShowcase(5, 240, 'mascara', 'CALIMA');
+    this.drawMuseumShowcase(w - 33, 240, 'nariguera', 'SINÚ');
+    this.drawMuseumShowcase(5, 150, 'figura', 'TOLIMA');
+    this.drawMuseumShowcase(w - 33, 150, 'corona', 'TAYRONA');
+    this.drawMuseumShowcase(5, 60, 'poporito', 'QUIMBAYA');
+    this.drawMuseumShowcase(w - 33, 60, 'cuenco', 'SAN AGUSTÍN');
+
+    // 5. Alfombras rojas ceremoniales protegidas (Zonas Seguras)
+    const inSafeZone = g.safeZones.some(z => 
+      g.player.y + g.player.h > z.y && g.player.y < z.y + z.h
+    );
 
     g.safeZones.forEach(z => {
       ctx.fillStyle = '#7f1d1d';
-      ctx.fillRect(42, z.y, this.width - 84, z.h);
+      ctx.fillRect(40, z.y, w - 80, z.h);
+
+      ctx.fillStyle = '#991b1b';
+      ctx.fillRect(43, z.y + 3, w - 86, z.h - 6);
+
       ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(42, z.y, this.width - 84, z.h);
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(40, z.y, w - 80, z.h);
 
       ctx.strokeStyle = '#ca8a04';
       ctx.lineWidth = 1;
-      ctx.strokeRect(46, z.y + 4, this.width - 92, z.h - 8);
+      ctx.strokeRect(43, z.y + 3, w - 86, z.h - 6);
 
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(44, z.y + 3, 3, z.h - 6);
-      ctx.fillRect(this.width - 47, z.y + 3, 3, z.h - 6);
+      for (let sy = z.y + 6; sy < z.y + z.h - 6; sy += 7) {
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(45, sy, 3, 3);
+        ctx.fillRect(w - 48, sy, 3, 3);
+      }
 
       ctx.fillStyle = '#fef08a';
       ctx.font = '6px "Press Start 2P"';
-      ctx.fillText('🛡️ ZONA SEGURA (STOP)', 75, z.y + z.h / 2 + 3);
+      ctx.fillText('🛡️ ZONA PROTEGIDA (ALTO)', 72, z.y + z.h / 2 + 3);
     });
 
-    ctx.fillStyle = '#fef08a';
+    // 6. Trampas de flechas ancestrales del templo
     g.arrows.forEach(arr => {
-      ctx.fillRect(arr.x, arr.y, arr.w, arr.h);
+      ctx.fillStyle = '#ca8a04';
+      ctx.fillRect(arr.x, arr.y + 1, arr.w, arr.h - 2);
+      ctx.fillStyle = '#1e293b';
+      const tipX = (arr.dir > 0) ? arr.x + arr.w : arr.x - 3;
+      ctx.fillRect(tipX, arr.y, 3, arr.h);
       ctx.fillStyle = '#ea580c';
-      ctx.fillRect((arr.dir > 0) ? arr.x + arr.w - 3 : arr.x, arr.y - 1, 3, 6);
+      const fletchX = (arr.dir > 0) ? arr.x : arr.x + arr.w - 3;
+      ctx.fillRect(fletchX, arr.y - 1, 3, arr.h + 2);
     });
 
+    // 7. Bolas rodantes de piedra labrada
     g.boulders.forEach(b => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.beginPath();
+      ctx.ellipse(b.x, b.y + b.r - 2, b.r, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.fillStyle = '#57534e';
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#292524';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.strokeStyle = '#78716c';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(b.x - 2, b.y - 2, b.r * 0.55, 0, Math.PI * 1.5);
       ctx.stroke();
     });
 
+    // 8. Gran Altar y Santuario del Poporo Quimbaya
     this.drawPoporo(g.poporo.x, g.poporo.y);
 
+    // 9. Crhis y Made explorando el museo juntos
     if (this.gameState !== 'DYING') {
+      if (inSafeZone) {
+        const auraTime = Date.now() * 0.005;
+        const auraRadius = 24 + Math.sin(auraTime) * 2;
+        const centerX = g.player.x + 13;
+        const centerY = g.player.y + 12;
+
+        const auraGrad = ctx.createRadialGradient(centerX, centerY, 6, centerX, centerY, auraRadius);
+        auraGrad.addColorStop(0, 'rgba(250, 204, 21, 0.45)');
+        auraGrad.addColorStop(0.7, 'rgba(234, 179, 8, 0.20)');
+        auraGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, auraRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(254, 240, 138, 0.6)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, auraRadius - 2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
       PixelSprites.drawCrhis(ctx, g.player.x + 4, g.player.y + 6, g.player.facingDir, this.walkCycle);
       PixelSprites.drawMade(ctx, g.player.x + 18, g.player.y + 6, g.player.facingDir, this.walkCycle);
       ctx.fillStyle = '#fed7aa';
@@ -2458,58 +2564,124 @@ class MinijuegosManager {
 
   drawMuseumShowcase(x, y, type, cultureName) {
     const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(250, 204, 21, 0.08)';
+    const w = 28;
+    const h = 38;
+
+    // Haz de luz suave desde arriba iluminando la vitrina
+    const spotGrad = ctx.createLinearGradient(x + 14, y - 10, x + 14, y + h);
+    spotGrad.addColorStop(0, 'rgba(254, 240, 138, 0.25)');
+    spotGrad.addColorStop(0.6, 'rgba(250, 204, 21, 0.08)');
+    spotGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = spotGrad;
     ctx.beginPath();
     ctx.moveTo(x + 14, y - 10);
-    ctx.lineTo(x - 6, y + 36);
-    ctx.lineTo(x + 34, y + 36);
+    ctx.lineTo(x - 4, y + h);
+    ctx.lineTo(x + w + 4, y + h);
+    ctx.closePath();
     ctx.fill();
 
+    // Pedestal inferior de caoba oscura
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(x, y + 26, w, 12);
+    ctx.fillStyle = '#292524';
+    ctx.fillRect(x - 1, y + 26, w + 2, 2);
+    // Plaquita dorada con el nombre de la cultura
+    ctx.fillStyle = '#ca8a04';
+    ctx.fillRect(x + 3, y + 30, w - 6, 6);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(x + 4, y + 31, w - 8, 4);
+
+    // Caja de cristal de exhibición (vitrina blindada)
     ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-    ctx.fillRect(x, y, 28, 36);
+    ctx.fillRect(x, y, w, 26);
     ctx.strokeStyle = '#ca8a04';
     ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, 28, 36);
+    ctx.strokeRect(x, y, w, 26);
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    // Cojín de terciopelo negro interior para la joya
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(x + 2, y + 22, w - 4, 4);
+
+    // Reflejo diagonal de luz sobre el cristal
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(x + 4, y + 26);
-    ctx.lineTo(x + 24, y + 6);
+    ctx.moveTo(x + 4, y + 20);
+    ctx.lineTo(x + 20, y + 4);
     ctx.stroke();
 
-    ctx.fillStyle = '#fbbf24';
+    // Joya u objeto de orfebrería de oro puro (Colombia Precolombina)
+    ctx.fillStyle = '#facc15';
     if (type === 'balsa') {
-      ctx.fillRect(x + 5, y + 20, 18, 4);
-      ctx.fillRect(x + 12, y + 12, 4, 8);
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(x + 4, y + 17, 20, 4);
       ctx.fillStyle = '#facc15';
-      ctx.fillRect(x + 8, y + 15, 2, 5);
-      ctx.fillRect(x + 18, y + 15, 2, 5);
+      ctx.fillRect(x + 5, y + 18, 18, 2);
+      ctx.fillRect(x + 12, y + 8, 4, 9);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 11, y + 6, 6, 3);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(x + 7, y + 12, 2, 5);
+      ctx.fillRect(x + 19, y + 12, 2, 5);
     } else if (type === 'pectoral') {
+      ctx.fillStyle = '#facc15';
       ctx.beginPath();
-      ctx.arc(x + 14, y + 16, 7, 0, Math.PI * 2);
+      ctx.arc(x + 14, y + 13, 7, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#ca8a04';
-      ctx.fillRect(x + 11, y + 14, 6, 4);
+      ctx.fillRect(x + 11, y + 11, 6, 4);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 13, y + 9, 2, 2);
     } else if (type === 'mascara') {
-      ctx.fillRect(x + 7, y + 10, 14, 14);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x + 8, y + 8, 12, 12);
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(x + 9, y + 13, 3, 2);
-      ctx.fillRect(x + 16, y + 13, 3, 2);
-    } else if (type === 'nariguera') {
+      ctx.fillRect(x + 10, y + 11, 2, 2);
+      ctx.fillRect(x + 16, y + 11, 2, 2);
+      ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
-      ctx.arc(x + 14, y + 16, 8, 0, Math.PI);
+      ctx.arc(x + 6, y + 14, 3, 0, Math.PI * 2);
+      ctx.arc(x + 22, y + 14, 3, 0, Math.PI * 2);
       ctx.fill();
+    } else if (type === 'nariguera') {
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(x + 14, y + 13, 8, 0, Math.PI);
+      ctx.stroke();
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 12, y + 11, 4, 3);
+    } else if (type === 'figura') {
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x + 12, y + 7, 4, 13);
+      ctx.fillRect(x + 8, y + 10, 12, 3);
+      ctx.fillRect(x + 8, y + 17, 12, 3);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 13, y + 8, 2, 2);
+    } else if (type === 'corona') {
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x + 6, y + 13, 16, 5);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 8, y + 8, 2, 5);
+      ctx.fillRect(x + 11, y + 6, 2, 7);
+      ctx.fillRect(x + 15, y + 6, 2, 7);
+      ctx.fillRect(x + 18, y + 8, 2, 5);
     } else if (type === 'poporito') {
-      ctx.fillRect(x + 11, y + 14, 6, 10);
-      ctx.beginPath(); ctx.arc(x + 14, y + 11, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x + 11, y + 13, 6, 8);
+      ctx.beginPath();
+      ctx.arc(x + 14, y + 10, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 13.5, y + 5, 1, 6);
     } else {
-      ctx.fillRect(x + 8, y + 12, 12, 12);
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(x + 14, y + 14, 8, 0, Math.PI);
+      ctx.fill();
+      ctx.fillStyle = '#ca8a04';
+      ctx.fillRect(x + 6, y + 13, 16, 2);
     }
-
-    ctx.fillStyle = '#09090b';
-    ctx.fillRect(x + 2, y + 34, 24, 6);
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(x + 6, y + 36, 16, 2);
   }
 
   // ============================================================
@@ -2604,11 +2776,9 @@ class MinijuegosManager {
     const progress = (g.totalDistance - Math.max(0, g.distanceToStage)) / g.totalDistance;
     this.updateAudioVolume(progress);
 
-    if (!g.reachedFront) {
-      document.getElementById('hudParam').textContent = `🍺 ¡Lleva las BBC a Made!`;
-    } else {
-      document.getElementById('hudParam').textContent = `🍻 ¡Brindis con Made!`;
-    }
+    // En el concierto de Kraken se suprime el texto flotante para no obstruir el escenario
+    const hudEl = document.getElementById('hudParam');
+    if (hudEl) hudEl.textContent = '';
 
     g.stageLightsTimer += step;
     if (Math.floor(g.stageLightsTimer) % 25 === 0) {
@@ -2695,20 +2865,13 @@ class MinijuegosManager {
     PixelSprites.drawMelenudo(ctx, this.width - 55, 62, this.walkCycle, false);
     PixelSprites.drawPeloRojo(ctx, this.width / 2, 62, this.walkCycle, false);
 
-    // Valla
+    // Valla divisoria entre escenario y público
     ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, 112);
     ctx.lineTo(this.width, 112);
     ctx.stroke();
-
-    // Carpa BBC
-    ctx.fillStyle = '#b91c1c';
-    ctx.fillRect(8, 8, 62, 18);
-    ctx.fillStyle = '#fff';
-    ctx.font = '6px "Press Start 2P"';
-    ctx.fillText('🍺 BBC', 14, 21);
 
     // Metaleros
     g.drunkMetalheads.forEach(m => {
@@ -2740,12 +2903,9 @@ class MinijuegosManager {
       PixelSprites.drawMade(ctx, g.made.x, g.made.y, 'DOWN', 0);
 
       if (g.reachedFront) {
-        ctx.fillStyle = '#facc15';
-        ctx.font = '7px "Press Start 2P"';
-        ctx.fillText('👇 AQUÍ MADE', g.made.x - 30, g.made.y - 24);
         ctx.fillStyle = '#f43f5e';
-        ctx.font = '10px sans-serif';
-        ctx.fillText('❤️', g.made.x - 4, g.made.y - 12);
+        ctx.font = '12px sans-serif';
+        ctx.fillText('❤️', g.made.x + 3, g.made.y - 10);
       }
 
       PixelSprites.drawCrhis(ctx, g.player.x, g.player.y, g.player.facingDir, this.walkCycle, true);
@@ -3089,11 +3249,9 @@ class MinijuegosManager {
     const progress = 1.0 - (Math.max(0, g.distanceToStage) / g.totalDistance);
     this.updateAudioVolume(progress);
 
-    if (!g.kissing) {
-      document.getElementById('hudParam').textContent = `🌸 ¡Hacia la primera fila!`;
-    } else {
-      document.getElementById('hudParam').textContent = `👩‍❤️‍💋‍👨 ¡Margarita Siempre Viva!`;
-    }
+    // En el concierto de Margarita se suprime el texto flotante para no tapar el escenario
+    const hudEl = document.getElementById('hudParam');
+    if (hudEl) hudEl.textContent = '';
 
     // Rotación y verificación de paso a través de los círculos
     g.moshRings.forEach(ring => {
@@ -3376,30 +3534,135 @@ class MinijuegosManager {
 
   drawPoporo(x, y) {
     const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
+    const cx = x + 16;
+    const cy = y + 18;
+
+    // 1. Haz de luz dramático desde el techo hacia el Poporo
+    const spotGrad = ctx.createLinearGradient(cx, 0, cx, y + 46);
+    spotGrad.addColorStop(0, 'rgba(254, 240, 138, 0.40)');
+    spotGrad.addColorStop(0.45, 'rgba(250, 204, 21, 0.22)');
+    spotGrad.addColorStop(1, 'rgba(202, 138, 4, 0.04)');
+    ctx.fillStyle = spotGrad;
     ctx.beginPath();
-    ctx.arc(x + 16, y + 16, 24, 0, Math.PI * 2);
+    ctx.moveTo(cx - 24, 0);
+    ctx.lineTo(cx + 24, 0);
+    ctx.lineTo(cx + 44, y + 46);
+    ctx.lineTo(cx - 44, y + 46);
+    ctx.closePath();
     ctx.fill();
 
+    // 2. Halo radial dorado sagrado alrededor del Poporo
+    const halo = ctx.createRadialGradient(cx, cy, 3, cx, cy, 32);
+    halo.addColorStop(0, 'rgba(253, 224, 71, 0.48)');
+    halo.addColorStop(0.5, 'rgba(234, 179, 8, 0.22)');
+    halo.addColorStop(1, 'rgba(161, 98, 7, 0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 32, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 3. Partículas flotantes de polvo de oro titilando en tiempo real
+    const t = Date.now() * 0.003;
+    for (let i = 0; i < 14; i++) {
+      const spX = cx - 22 + ((i * 17 + Math.sin(t + i * 1.3) * 10 + 40) % 44);
+      const spY = y - 4 + ((i * 11 + Math.cos(t * 0.8 + i) * 8 + 36) % 36);
+      const alpha = 0.35 + 0.55 * Math.sin(t * 2.2 + i * 1.4);
+      ctx.fillStyle = `rgba(254, 240, 138, ${Math.max(0, alpha)})`;
+      ctx.fillRect(spX, spY, 1.5, 1.5);
+    }
+
+    // 4. Gran Pedestal de Exhibición del Museo
+    // Nivel 1: Base de granito negro y caoba
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(x - 10, y + 30, 52, 10);
+    ctx.fillRect(cx - 36, y + 32, 72, 12);
     ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x - 6, y + 26, 44, 4);
-
+    ctx.fillRect(cx - 38, y + 42, 76, 3);
+    // Moldura dorada de la base
     ctx.fillStyle = '#ca8a04';
-    ctx.fillRect(x - 4, y + 32, 40, 6);
-    ctx.fillStyle = '#fef08a';
-    ctx.fillRect(x + 2, y + 34, 28, 2);
+    ctx.fillRect(cx - 36, y + 32, 72, 2);
+    ctx.fillRect(cx - 36, y + 41, 72, 1);
 
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(x + 8, y + 10, 16, 16);
-    ctx.fillRect(x + 4, y + 14, 24, 8);
-    ctx.fillStyle = '#f59e0b';
+    // Placa de bronce dorada conmemorativa del Poporo Quimbaya
+    ctx.fillStyle = '#ca8a04';
+    ctx.fillRect(cx - 30, y + 35, 60, 6);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx - 28, y + 36, 56, 4);
+    ctx.fillStyle = '#78350f';
+    ctx.font = '4px "Press Start 2P", sans-serif';
+    ctx.fillText('🏛️ POPORO QUIMBAYA', cx - 27, y + 39.5);
+
+    // Nivel 2: Pedestal superior con almohadilla de terciopelo carmesí
+    ctx.fillStyle = '#271206';
+    ctx.fillRect(cx - 24, y + 26, 48, 6);
+    ctx.fillStyle = '#7f1d1d';
+    ctx.fillRect(cx - 22, y + 25, 44, 2);
+
+    // 5. Vitrina de cristal blindado de seguridad
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.fillRect(cx - 24, y, 48, 26);
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cx - 24, y, 48, 26);
+
+    // Reflejo diagonal brillante en el cristal
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.38)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(x + 8, y + 6, 4, 0, Math.PI * 2);
-    ctx.arc(x + 16, y + 4, 4, 0, Math.PI * 2);
-    ctx.arc(x + 24, y + 6, 4, 0, Math.PI * 2);
+    ctx.moveTo(cx - 20, y + 20);
+    ctx.lineTo(cx + 8, y + 4);
+    ctx.stroke();
+
+    // 6. El Poporo Quimbaya en Pixel Art Auténtico (Oro Legendario)
+    // Aguja / Alfiler ceremonial de orfebrería que sobresale arriba
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx - 0.5, y + 2, 1.5, 9);
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(cx + 0.25, y + 2, 1.5, 0, Math.PI * 2);
     ctx.fill();
+
+    // Las Cuatro Esferas Superiores características del Poporo Quimbaya
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath(); ctx.arc(cx - 6, y + 10, 3.8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 6, y + 10, 3.8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, y + 11.5, 4.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, y + 8, 3.5, 0, Math.PI * 2); ctx.fill();
+
+    // Brillos especulares en las esferas
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx - 7, y + 8, 2, 2);
+    ctx.fillRect(cx + 5, y + 8, 2, 2);
+    ctx.fillRect(cx - 1, y + 9.5, 2, 2);
+
+    // Cuello estilizado del Poporo
+    ctx.fillStyle = '#ca8a04';
+    ctx.fillRect(cx - 3.5, y + 14, 7, 3);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(cx - 2.5, y + 14, 5, 3);
+
+    // Cuerpo bulboso (Vasija globular de doble curvatura)
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(cx, y + 19, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.arc(cx, y + 23, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(cx, y + 22.5, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brillo dorado lustroso en el flanco izquierdo
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx - 6, y + 18, 3, 4);
+    ctx.fillRect(cx - 7, y + 21, 3, 3);
+    // Destello blanco puro en el punto de máxima luz
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 5, y + 19, 1.5, 1.5);
   }
 
   drawTrafficCar(x, y, w, h, type) {
