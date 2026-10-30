@@ -1623,8 +1623,8 @@ class MinijuegosManager {
         x: lanes[1],
         targetX: lanes[1],
         y: this.height - 75,
-        w: 26,
-        h: 46
+        w: 28,
+        h: 48
       },
       roadOffset: 0,
       roadSpeed: 5.4,
@@ -1634,12 +1634,15 @@ class MinijuegosManager {
       spawnTimer: 0,
       terminalBuildingY: -130,
       // Variables para la animación de encuentro en la terminal
-      crhisWaitingX: 185,
+      crhisWaitingX: 195,
       crhisWaitingY: 90,
       madeArrivalX: 110,
       madeArrivalY: 90,
       animTimer: 0,
-      busOffset: 0
+      busOffset: 0,
+      busSpeed: 0,
+      busShake: 0,
+      busExhaustParticles: []
     };
   }
 
@@ -1651,8 +1654,8 @@ class MinijuegosManager {
       g.animTimer += dt;
 
       // Made y Crhis caminan hacia el centro del andén para encontrarse
-      if (g.madeArrivalX < 145) g.madeArrivalX += 1.4 * step;
-      if (g.crhisWaitingX > 155) g.crhisWaitingX -= 1.4 * step;
+      if (g.madeArrivalX < 155) g.madeArrivalX += 1.3 * step;
+      if (g.crhisWaitingX > 168) g.crhisWaitingX -= 1.3 * step;
 
       document.getElementById('hudParam').textContent = `👩‍❤️‍💋‍👨 ¡Encuentro y beso en la Terminal!`;
 
@@ -1667,20 +1670,59 @@ class MinijuegosManager {
     if (g.subPhase === 'BUS_BOARDING') {
       g.animTimer += dt;
 
-      // Caminan juntos hacia la puerta del bus
-      if (g.madeArrivalX > 115) {
-        g.madeArrivalX -= 1.2 * step;
-        g.crhisWaitingX -= 1.2 * step;
+      // Caminan juntos hacia la puerta lateral del bus
+      if (g.animTimer < 1400) {
+        if (g.madeArrivalX > 118) g.madeArrivalX -= 1.3 * step;
+        if (g.crhisWaitingX > 124) g.crhisWaitingX -= 1.3 * step;
       }
 
       document.getElementById('hudParam').textContent = `🚌 ¡Abordando bus a Bogotá!`;
 
-      // A los 1.8 segundos, el bus cierra puertas y arranca
-      if (g.animTimer > 1800) {
-        g.busOffset += 3.4 * step;
+      // A los 1.7 segundos el bus cierra puertas y arranca hacia ARRIBA (hacia Bogotá)
+      if (g.animTimer >= 1700) {
+        g.busShake = Math.sin(g.animTimer * 0.08) * 1.5;
+        g.busSpeed = Math.min(6.2, (g.busSpeed || 0.8) + 0.085 * step);
+        g.busOffset += g.busSpeed * step;
+
+        // Generar partículas de humo del exosto (situado abajo a la izquierda del bus)
+        const busX = 70;
+        const termY = 40;
+        const busY = termY + 20 - g.busOffset;
+        const exostoX = busX + 8;
+        const exostoY = busY + 84;
+
+        if (Math.random() < 0.75) {
+          const colors = ['#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8'];
+          g.busExhaustParticles.push({
+            x: exostoX + (Math.random() - 0.5) * 4,
+            y: exostoY + Math.random() * 3,
+            vx: -0.7 + (Math.random() - 0.5) * 1.4,
+            vy: 2.2 + Math.random() * 2.4, // Humo impulsado hacia abajo/atrás
+            size: 4 + Math.random() * 3,
+            maxSize: 15 + Math.random() * 7,
+            alpha: 0.85,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            life: 0,
+            maxLife: 38 + Math.random() * 22
+          });
+        }
       }
 
-      if (g.animTimer >= 3600) {
+      // Actualizar partículas de humo del exosto
+      for (let i = g.busExhaustParticles.length - 1; i >= 0; i--) {
+        const p = g.busExhaustParticles[i];
+        p.life += step;
+        p.x += p.vx * step;
+        p.y += p.vy * step;
+        p.size = Math.min(p.maxSize, p.size + 0.38 * step);
+        p.alpha = Math.max(0, 0.85 * (1 - p.life / p.maxLife));
+        if (p.life >= p.maxLife) {
+          g.busExhaustParticles.splice(i, 1);
+        }
+      }
+
+      // Al salir el bus de la pantalla por arriba, superan el nivel
+      if (g.animTimer >= 4600 || g.busOffset > 240) {
         this.handleLevelVictory();
       }
       return;
@@ -1708,8 +1750,8 @@ class MinijuegosManager {
           g.player.currentLane = 1;
           g.player.x = g.lanes[1];
           g.player.targetX = g.lanes[1];
-          g.player.w = 20;
-          g.player.h = 42;
+          g.player.w = 22;
+          g.player.h = 44;
           this.showOverlay('intro', '🏍️ ¡TURNO DE MADE EN INDRIVE MOTO!', 
             '¡Crhis ya llegó a la Terminal de Pereira y te está esperando en el andén!<br><br>Ahora Made debe esquivar el tráfico en el inDrive Moto para llegar a tiempo y encontrarse con él.', 
             '¡ARRANCAR INDRIVE MOTO!');
@@ -1737,8 +1779,8 @@ class MinijuegosManager {
           lane: chosenLane,
           x: g.lanes[chosenLane],
           y: -65,
-          w: (type === 'bus') ? 34 : 26,
-          h: (type === 'bus') ? 64 : 44,
+          w: (type === 'bus') ? 34 : 28,
+          h: (type === 'bus') ? 66 : 48,
           speed: (type === 'bus') ? 2.4 : 3.2,
           type: type
         });
@@ -1769,16 +1811,20 @@ class MinijuegosManager {
     const g = this.game1;
     const ctx = this.ctx;
 
+    // Fondo de prado verde a los lados de la autopista
     ctx.fillStyle = '#15803d';
     ctx.fillRect(0, 0, this.width, this.height);
 
+    // Asfalto de la autopista
     ctx.fillStyle = '#334155';
     ctx.fillRect(40, 0, this.width - 80, this.height);
 
+    // Bermas laterales de seguridad
     ctx.fillStyle = '#ef4444';
     ctx.fillRect(36, 0, 4, this.height);
     ctx.fillRect(this.width - 40, 0, 4, this.height);
 
+    // Líneas discontinuas de carril
     ctx.fillStyle = '#f8fafc';
     const dividers = [120, 200];
     for (const dx of dividers) {
@@ -1790,96 +1836,231 @@ class MinijuegosManager {
     // Dibujar la Terminal de Pereira
     const termY = (g.subPhase === 'MEETING_ANIMATION' || g.subPhase === 'BUS_BOARDING') ? 40 : g.terminalBuildingY;
 
-    if (termY > -110) {
+    if (termY > -120) {
+      // Fachada superior del edificio de la Terminal
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(20, termY, this.width - 40, 75);
+      ctx.fillRect(15, termY - 24, this.width - 30, 44);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(18, termY - 21, this.width - 36, 6);
+
+      // Letrero luminoso de la Terminal
       ctx.fillStyle = '#facc15';
-      ctx.fillRect(30, termY + 8, this.width - 60, 18);
-      ctx.fillStyle = '#000';
+      ctx.fillRect(25, termY - 12, this.width - 50, 22);
+      ctx.strokeStyle = '#ca8a04';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(25, termY - 12, this.width - 50, 22);
+      ctx.fillStyle = '#000000';
       ctx.font = '7px "Press Start 2P"';
-      ctx.fillText('TERMINAL DE PEREIRA', 45, termY + 20);
+      ctx.textAlign = 'center';
+      ctx.fillText('TERMINAL DE PEREIRA', this.width / 2, termY + 3);
+      ctx.textAlign = 'left';
 
-      // Bus grande verde a Bogotá (se mueve al arrancar)
-      const busY = termY + 32 - g.busOffset;
-      ctx.fillStyle = '#16a34a';
-      ctx.fillRect(65, busY, 95, 36);
-      ctx.fillStyle = '#fff';
-      ctx.font = '6px "Press Start 2P"';
-      ctx.fillText('BUS BOGOTÁ', 74, busY + 16);
-
-      // Ventanillas del bus
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(70, busY + 22, 16, 8);
-      ctx.fillRect(92, busY + 22, 16, 8);
-      ctx.fillRect(114, busY + 22, 16, 8);
-      ctx.fillRect(136, busY + 22, 16, 8);
-
-      // Puerta del bus
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(148, busY + 18, 10, 16);
-
-      // Humo del bus si arranca
-      if (g.busOffset > 0) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      // Andén de pasajeros de la Terminal (a la derecha de la bahía del bus)
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(125, termY + 18, this.width - 150, 105);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      // Textura de adoquines en el andén
+      for (let py = termY + 28; py < termY + 120; py += 14) {
         ctx.beginPath();
-        ctx.arc(60, busY + 30, 6, 0, Math.PI * 2);
-        ctx.arc(52, busY + 34, 9, 0, Math.PI * 2);
+        ctx.moveTo(125, py);
+        ctx.lineTo(this.width - 25, py);
+        ctx.stroke();
+      }
+
+      // La moto de inDrive estacionada en el andén tras la llegada de Made
+      if (g.subPhase === 'MEETING_ANIMATION' || g.subPhase === 'BUS_BOARDING') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(205, termY + 36, 24, 12);
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(206, termY + 34, 22, 10);
+        ctx.fillStyle = '#000';
+        ctx.font = '5px "Press Start 2P"';
+        ctx.fillText('inD', 208, termY + 42);
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(203, termY + 37, 4, 5);
+        ctx.fillRect(227, termY + 37, 4, 5);
+      }
+
+      // ------------------------------------------------------------
+      // BUS INTERMUNICIPAL EN EL SENTIDO CORRECTO (ORIENTADO HACIA ARRIBA A BOGOTÁ)
+      // ------------------------------------------------------------
+      const busW = 42;
+      const busH = 92;
+      const busX = 66 + (g.busShake || 0);
+      const busY = termY + 22 - g.busOffset;
+
+      // Partículas de humo denso del exosto (salen impulsadas hacia atrás / abajo)
+      if (g.busExhaustParticles && g.busExhaustParticles.length > 0) {
+        g.busExhaustParticles.forEach(p => {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(p.x - p.size * 0.25, p.y - p.size * 0.25, p.size * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+      }
+
+      // Sombra del bus en el asfalto
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillRect(busX + 3, busY + 4, busW, busH);
+
+      // Llantas del bus (visibles a los lados)
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(busX - 3, busY + 14, 4, 14); // Llanta delantera izq
+      ctx.fillRect(busX + busW - 1, busY + 14, 4, 14); // Llanta delantera der
+      ctx.fillRect(busX - 3, busY + busH - 26, 4, 16); // Llantas traseras dobles izq
+      ctx.fillRect(busX + busW - 1, busY + busH - 26, 4, 16); // Llantas traseras dobles der
+
+      // Carrocería verde esmeralda con acabado de bus intermunicipal
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(busX, busY, busW, busH);
+      ctx.strokeStyle = '#052e16';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(busX, busY, busW, busH);
+
+      // Franjas decorativas aerodinámicas (blanca y amarilla en los costados)
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(busX + 2, busY + 32, busW - 4, 4);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(busX + 2, busY + 36, busW - 4, 3);
+
+      // Aire acondicionado y claraboyas en el techo
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(busX + 11, busY + 44, 20, 26);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(busX + 11, busY + 44, 20, 26);
+      for (let ry = busY + 48; ry < busY + 68; ry += 5) {
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(busX + 13, ry, 16, 2);
+      }
+
+      // Frente del bus: Parabrisas panorámico hacia ARRIBA
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(busX + 4, busY + 6, busW - 8, 20);
+      // Reflejo diagonal de cristal en el parabrisas
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.fillRect(busX + 7, busY + 8, 6, 16);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillRect(busX + 13, busY + 8, 2, 16);
+
+      // Letrero electrónico LED en la visera frontal del bus: "BOGOTÁ"
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(busX + 3, busY + 1, busW - 6, 8);
+      ctx.fillStyle = '#22c55e';
+      ctx.font = '5px "Press Start 2P"';
+      ctx.fillText('BOGOTÁ', busX + 6, busY + 7);
+
+      // Faros delanteros potentes en las esquinas superiores proyectando luz hacia arriba
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(busX + 2, busY, 6, 3);
+      ctx.fillRect(busX + busW - 8, busY, 6, 3);
+
+      // Haces de luz hacia arriba si el bus arranca
+      if (g.busOffset > 0) {
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.18)';
+        ctx.beginPath();
+        ctx.moveTo(busX + 3, busY);
+        ctx.lineTo(busX - 8, busY - 35);
+        ctx.lineTo(busX + 16, busY - 35);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(busX + busW - 5, busY);
+        ctx.lineTo(busX + busW - 16, busY - 35);
+        ctx.lineTo(busX + busW + 8, busY - 35);
+        ctx.closePath();
         ctx.fill();
       }
 
-      // Animación de Made llegando, beso y subida al bus
-      if (g.subPhase === 'MEETING_ANIMATION' || g.subPhase === 'BUS_BOARDING') {
-        // Andén de la terminal
-        ctx.fillStyle = '#64748b';
-        ctx.fillRect(30, termY + 70, this.width - 60, 48);
+      // Ventanillas laterales
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(busX + 2, busY + 28, 4, 46);
+      ctx.fillRect(busX + busW - 6, busY + 28, 4, 46);
 
-        // La moto de inDrive estacionada en el andén
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(60, termY + 85, 20, 10);
-        ctx.fillStyle = '#000';
-        ctx.font = '5px "Press Start 2P"';
-        ctx.fillText('inD', 62, termY + 93);
+      // Puerta lateral de abordaje (en el costado derecho hacia el andén)
+      if (g.animTimer < 1400 && g.subPhase === 'BUS_BOARDING') {
+        // Puerta abierta con luz interior
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(busX + busW - 4, busY + 30, 4, 16);
+      } else {
+        // Puerta cerrada
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(busX + busW - 3, busY + 30, 3, 16);
+      }
 
-        if (g.subPhase === 'MEETING_ANIMATION') {
-          // Si ya están cerca en el centro, se besan
-          if (Math.abs(g.madeArrivalX - g.crhisWaitingX) <= 12) {
-            PixelSprites.drawKissingCouple(ctx, (g.madeArrivalX + g.crhisWaitingX) / 2, termY + 95, this.walkCycle, false);
+      // Stops traseros dobles rojos en la parte inferior
+      ctx.fillStyle = (g.busOffset > 0) ? '#f43f5e' : '#dc2626';
+      ctx.fillRect(busX + 2, busY + busH - 4, 8, 4);
+      ctx.fillRect(busX + busW - 10, busY + busH - 4, 8, 4);
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-            ctx.fillRect(35, termY + 124, this.width - 70, 24);
-            ctx.fillStyle = '#facc15';
-            ctx.font = '6px "Press Start 2P"';
-            ctx.fillText('👩‍❤️‍💋‍👨 ¡AL FIN JUNTOS! ❤️', 50, termY + 138);
-          } else {
-            // Corriendo a encontrarse
-            PixelSprites.drawMade(ctx, g.madeArrivalX, termY + 95, 'RIGHT', this.walkCycle);
-            PixelSprites.drawCrhis(ctx, g.crhisWaitingX, termY + 95, 'LEFT', this.walkCycle);
-          }
-        } else if (g.subPhase === 'BUS_BOARDING') {
-          // Si el bus ya arrancó, van adentro
-          if (g.busOffset > 20) {
-            // Crhis y Made saludando desde la ventanilla del bus
-            ctx.fillStyle = '#fed7aa';
-            ctx.fillRect(94, busY + 23, 4, 4);
-            ctx.fillRect(116, busY + 23, 4, 4);
-            ctx.fillStyle = '#f43f5e';
-            ctx.font = '8px sans-serif';
-            ctx.fillText('❤️', 104, busY + 18);
-          } else {
-            // Caminando de la mano hacia la puerta del bus
-            PixelSprites.drawCrhis(ctx, g.crhisWaitingX - 6, termY + 80, 'UP', this.walkCycle);
-            PixelSprites.drawMade(ctx, g.madeArrivalX + 6, termY + 80, 'UP', this.walkCycle);
-          }
+      // Tubo de exosto / escape (esquina inferior izquierda)
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(busX + 5, busY + busH - 2, 5, 4);
+
+      // Si ya abordaron el bus, dibujar a Crhis y Made saludando desde la ventanilla
+      if (g.subPhase === 'BUS_BOARDING' && g.animTimer >= 1400) {
+        // Carita de Crhis (con gafitas)
+        ctx.fillStyle = '#fed7aa';
+        ctx.fillRect(busX + busW - 13, busY + 12, 5, 5);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(busX + busW - 13, busY + 11, 5, 2); // Cabello
+        ctx.fillRect(busX + busW - 12, busY + 13, 2, 2); // Gafitas
+
+        // Carita de Made (con moñito rosa)
+        ctx.fillStyle = '#fed7aa';
+        ctx.fillRect(busX + busW - 19, busY + 12, 5, 5);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(busX + busW - 19, busY + 11, 5, 2); // Cabello
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(busX + busW - 20, busY + 10, 3, 3); // Moñito rosa
+
+        // Corazoncito flotando sobre ambos
+        ctx.fillStyle = '#f43f5e';
+        ctx.font = '8px sans-serif';
+        ctx.fillText('❤️', busX + busW - 18, busY + 8);
+      }
+
+      // Animación en el andén
+      if (g.subPhase === 'MEETING_ANIMATION') {
+        if (Math.abs(g.madeArrivalX - g.crhisWaitingX) <= 14) {
+          // Beso romántico en la terminal
+          PixelSprites.drawKissingCouple(ctx, (g.madeArrivalX + g.crhisWaitingX) / 2, termY + 85, this.walkCycle, false);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
+          ctx.fillRect(130, termY + 110, this.width - 150, 22);
+          ctx.fillStyle = '#facc15';
+          ctx.font = '6px "Press Start 2P"';
+          ctx.fillText('👩‍❤️‍💋‍👨 ¡AL FIN JUNTOS! ❤️', 136, termY + 124);
+        } else {
+          // Corriendo a encontrarse
+          PixelSprites.drawMade(ctx, g.madeArrivalX, termY + 85, 'RIGHT', this.walkCycle);
+          PixelSprites.drawCrhis(ctx, g.crhisWaitingX, termY + 85, 'LEFT', this.walkCycle);
+        }
+      } else if (g.subPhase === 'BUS_BOARDING') {
+        if (g.animTimer < 1400) {
+          // Caminando de la mano hacia la puerta lateral del bus
+          PixelSprites.drawCrhis(ctx, g.crhisWaitingX, termY + 68, 'LEFT', this.walkCycle);
+          PixelSprites.drawMade(ctx, g.madeArrivalX, termY + 68, 'LEFT', this.walkCycle);
         }
       } else if (g.subPhase === 'MADE_MOTO') {
         // Crhis esperando en el andén con maleta
-        PixelSprites.drawCrhis(ctx, 185, termY + 50, 'DOWN', 0);
+        PixelSprites.drawCrhis(ctx, 195, termY + 60, 'DOWN', 0);
         ctx.fillStyle = '#78350f';
-        ctx.fillRect(195, termY + 52, 7, 9);
+        ctx.fillRect(205, termY + 62, 8, 10);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(207, termY + 60, 4, 3); // Manija de la maleta
       }
     }
 
-    // Si aún están en carretera, dibujar tráfico y vehículo activo
+    // Tráfico y jugador durante la conducción
     if (g.subPhase === 'CRHIS_INDRIVE' || g.subPhase === 'MADE_MOTO') {
       g.traffic.forEach(car => {
         this.drawTrafficCar(car.x - car.w / 2, car.y, car.w, car.h, car.type);
@@ -1897,87 +2078,169 @@ class MinijuegosManager {
 
   drawInDriveCar(cx, y) {
     const ctx = this.ctx;
-    const x = cx - 13;
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(x + 2, y + 4, 26, 44);
+    const w = 28;
+    const h = 48;
+    const x = cx - w / 2;
 
+    // Sombra proyectada en el asfalto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fillRect(x + 2, y + 4, w, h);
+
+    // Llantas deportivas oscuras en las 4 esquinas con rines
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(x - 2, y + 6, 3, 10);
+    ctx.fillRect(x + w - 1, y + 6, 3, 10);
+    ctx.fillRect(x - 2, y + h - 16, 3, 10);
+    ctx.fillRect(x + w - 1, y + h - 16, 3, 10);
     ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(x, y, 26, 44);
+    ctx.fillRect(x - 1, y + 9, 1, 4);
+    ctx.fillRect(x + w - 1, y + 9, 1, 4);
+    ctx.fillRect(x - 1, y + h - 13, 1, 4);
+    ctx.fillRect(x + w - 1, y + h - 13, 1, 4);
+
+    // Carrocería gris plateada / azul grafito
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(x, y, 26, 44);
+    ctx.strokeRect(x, y, w, h);
 
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x + 3, y + 6, 20, 7);
+    // Capó delantero con brillo
     ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(x + 2, y + 13, 22, 20);
+    ctx.fillRect(x + 4, y + 2, w - 8, 8);
 
+    // Parabrisas delantero aerodinámico
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x + 3, y + 10, w - 6, 9);
+    // Reflejo de cristal celeste
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(x + 6, y + 11, 4, 7);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + 11, y + 11, 2, 7);
+
+    // Techo del carro
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(x + 3, y + 19, w - 6, 17);
+
+    // Logo / letrero verde inDrive en el techo
     ctx.fillStyle = '#22c55e';
-    ctx.fillRect(x + 4, y + 16, 18, 7);
-    ctx.fillStyle = '#000';
+    ctx.fillRect(x + 4, y + 22, w - 8, 8);
+    ctx.strokeStyle = '#15803d';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 4, y + 22, w - 8, 8);
+    ctx.fillStyle = '#ffffff';
     ctx.font = '5px "Press Start 2P"';
-    ctx.fillText('inD', x + 5, y + 22);
+    ctx.fillText('inD', x + 6, y + 28);
 
-    ctx.fillStyle = '#18181b';
-    ctx.fillRect(x + 5, y + 7, 14, 3);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(x + 6, y + 8, 4, 3);
-    ctx.fillRect(x + 14, y + 8, 4, 3);
+    // Panorámica trasera
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x + 3, y + 36, w - 6, 6);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(x + 6, y + 37, 3, 4);
 
+    // Espejos retrovisores
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(x - 3, y + 12, 3, 4);
+    ctx.fillRect(x + w, y + 12, 3, 4);
+
+    // Faros delanteros LED iluminando hacia arriba
     ctx.fillStyle = '#fef08a';
-    ctx.fillRect(x + 2, y, 5, 3);
-    ctx.fillRect(x + 19, y, 5, 3);
+    ctx.fillRect(x + 2, y, 6, 3);
+    ctx.fillRect(x + w - 8, y, 6, 3);
+
+    // Stops traseros rojos con barra de freno
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(x + 2, y + h - 3, 6, 3);
+    ctx.fillRect(x + w - 8, y + h - 3, 6, 3);
+    ctx.fillStyle = '#f87171';
+    ctx.fillRect(x + 10, y + h - 2, w - 20, 2);
+
+    // Conductor y Crhis visibles adentro con gafitas
+    ctx.fillStyle = '#fed7aa';
+    ctx.fillRect(x + 6, y + 13, 4, 4);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x + 6, y + 12, 4, 2); // Cabello de Crhis
+    ctx.fillRect(x + 8, y + 14, 2, 2); // Gafitas
   }
 
   drawMadeInDriveMotorcycle(cx, y) {
     const ctx = this.ctx;
-    const x = cx - 10;
+    const w = 22;
+    const h = 44;
+    const x = cx - w / 2;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(x + 1, y + 3, 18, 40);
+    // Sombra de la moto en el asfalto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + h / 2 + 2, 8, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x + 6, y + 2, 8, 38);
+    // Ruedas delantera y trasera
     ctx.fillStyle = '#09090b';
-    ctx.fillRect(x + 7, y, 6, 8);
-    ctx.fillRect(x + 7, y + 34, 6, 8);
-
+    ctx.fillRect(cx - 3, y, 6, 10);
+    ctx.fillRect(cx - 3, y + h - 10, 6, 10);
     ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(x + 1, y + 6, 18, 2);
-    ctx.fillStyle = '#fef08a';
-    ctx.fillRect(x + 8, y, 4, 3);
+    ctx.fillRect(cx - 1, y + 2, 2, 6);
+    ctx.fillRect(cx - 1, y + h - 8, 2, 6);
 
-    // Conductor inDrive
-    ctx.fillStyle = '#22c55e';
-    ctx.fillRect(x + 4, y + 11, 12, 10);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(x + 7, y + 14, 6, 4);
-    ctx.fillStyle = '#15803d';
-    ctx.fillRect(x + 5, y + 5, 10, 8);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(x + 6, y + 6, 8, 3);
+    // Manillar / manetas con retrovisores
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(x + 1, y + 8, w - 2, 2);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(x, y + 7, 2, 2);
+    ctx.fillRect(x + w - 2, y + 7, 2, 2);
+
+    // Chasis de la moto
     ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x + 2, y + 8, 3, 6);
-    ctx.fillRect(x + 15, y + 8, 3, 6);
+    ctx.fillRect(cx - 5, y + 10, 10, 22);
 
-    // Made como pasajera
-    ctx.fillStyle = '#7dd3fc';
-    ctx.fillRect(x + 3, y + 21, 14, 9);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x + 4, y + 20, 12, 2);
+    // Conductor inDrive adelante
+    // Casco
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - 5, y + 7, 10, 8);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(cx - 4, y + 8, 8, 3);
+    // Chaleco reflectivo verde inDrive
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(cx - 6, y + 14, 12, 10);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(cx - 6, y + 18, 12, 2); // Franja reflectiva
+    ctx.fillStyle = '#000000';
+    ctx.font = '4px "Press Start 2P"';
+    ctx.fillText('inD', cx - 5, y + 17);
 
+    // Made como pasajera atrás
+    // Cabello de Made
     ctx.fillStyle = '#111827';
-    ctx.fillRect(x + 4, y + 15, 12, 7);
-    ctx.fillRect(x + 3, y + 21, 4, 10);
-    ctx.fillRect(x + 13, y + 21, 4, 10);
+    ctx.fillRect(cx - 5, y + 24, 10, 8);
+    // Moño / flor rosa icónico de Made
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(cx + 3, y + 23, 4, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx + 4, y + 24, 2, 2);
 
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(x + 2, y + 18, 2, 2);
-    ctx.fillRect(x + 16, y + 18, 2, 2);
-
+    // Buzo celeste de Made
+    ctx.fillStyle = '#7dd3fc';
+    ctx.fillRect(cx - 6, y + 28, 12, 8);
+    // Bracitos abrazando al conductor por la cintura
     ctx.fillStyle = '#fed7aa';
-    ctx.fillRect(x + 3, y + 18, 3, 3);
-    ctx.fillRect(x + 14, y + 18, 3, 3);
+    ctx.fillRect(cx - 7, y + 22, 2, 8);
+    ctx.fillRect(cx + 5, y + 22, 2, 8);
+
+    // Faro delantero LED brillante proyectando luz hacia arriba
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(cx - 3, y - 1, 6, 3);
+    ctx.fillStyle = 'rgba(254, 240, 138, 0.22)';
+    ctx.beginPath();
+    ctx.moveTo(cx - 3, y);
+    ctx.lineTo(cx - 14, y - 30);
+    ctx.lineTo(cx + 14, y - 30);
+    ctx.closePath();
+    ctx.fill();
+
+    // Stop trasero rojo
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(cx - 3, y + h - 2, 6, 3);
   }
 
   // ============================================================
@@ -3137,31 +3400,135 @@ class MinijuegosManager {
 
   drawTrafficCar(x, y, w, h, type) {
     const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
     ctx.fillRect(x + 2, y + 3, w, h);
 
     if (type === 'taxi') {
+      // 1. TAXI COLOMBIANO CLÁSICO (Amarillo con damero de cuadritos y letrero TAXI)
+      // Llantas
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(x - 2, y + 5, 3, 9);
+      ctx.fillRect(x + w - 1, y + 5, 3, 9);
+      ctx.fillRect(x - 2, y + h - 14, 3, 9);
+      ctx.fillRect(x + w - 1, y + h - 14, 3, 9);
+
+      // Carrocería amarilla
       ctx.fillStyle = '#facc15';
       ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = '#000';
+      ctx.strokeStyle = '#ca8a04';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x, y, w, h);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(x + w / 2 - 5, y + h / 2 - 3, 10, 6);
+
+      // Parabrisas frontal y trasero
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x + 3, y + 9, w - 6, 8);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x + 5, y + 10, 4, 6); // Reflejo
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x + 3, y + h - 13, w - 6, 6);
+
+      // Franja de cuadritos estilo damero (ajedrez blanco y negro) en los costados
+      for (let cy = y + 18; cy < y + h - 14; cy += 4) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 1, cy, 3, 2);
+        ctx.fillRect(x + w - 4, cy + 2, 3, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x + 1, cy + 2, 3, 2);
+        ctx.fillRect(x + w - 4, cy, 3, 2);
+      }
+
+      // Letrero luminoso "TAXI" en el techo
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x + 4, y + 20, w - 8, 7);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 4, y + 20, w - 8, 7);
+      ctx.fillStyle = '#dc2626';
+      ctx.font = '5px "Press Start 2P"';
+      ctx.fillText('TAXI', x + 5, y + 26);
+
+      // Faros y stops
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 2, y, 5, 2);
+      ctx.fillRect(x + w - 7, y, 5, 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(x + 2, y + h - 2, 5, 2);
+      ctx.fillRect(x + w - 7, y + h - 2, 5, 2);
+
     } else if (type === 'bus') {
+      // 2. BUS INTERMUNICIPAL DE TRÁFICO
+      // Llantas
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(x - 2, y + 10, 3, 12);
+      ctx.fillRect(x + w - 1, y + 10, 3, 12);
+      ctx.fillRect(x - 2, y + h - 20, 3, 14);
+      ctx.fillRect(x + w - 1, y + h - 20, 3, 14);
+
+      // Carrocería verde esmeralda con franja blanca
       ctx.fillStyle = '#16a34a';
       ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x, y, w, h);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(x + 4, y + 8, w - 8, 8);
-    } else {
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = '#000';
+      ctx.strokeStyle = '#14532d';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x, y, w, h);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(x + 2, y + 24, w - 4, 4);
+
+      // Claraboyas en el techo
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(x + 10, y + 32, w - 20, 16);
+
+      // Parabrisas frontal panorámico
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x + 3, y + 5, w - 6, 12);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x + 6, y + 6, 5, 10);
+
+      // Faros
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 2, y, 6, 3);
+      ctx.fillRect(x + w - 8, y, 6, 3);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(x + 2, y + h - 3, 6, 3);
+      ctx.fillRect(x + w - 8, y + h - 3, 6, 3);
+
+    } else {
+      // 3. SUV / CAMIONETA FAMILIAR PARTICULAR
+      // Llantas deportivas anchas
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(x - 2, y + 6, 3, 10);
+      ctx.fillRect(x + w - 1, y + 6, 3, 10);
+      ctx.fillRect(x - 2, y + h - 16, 3, 10);
+      ctx.fillRect(x + w - 1, y + h - 16, 3, 10);
+
+      // Carrocería roja cereza
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = '#7f1d1d';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Parabrisas delantero
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(x + 3, y + 10, w - 6, 8);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x + 6, y + 11, 4, 6);
+
+      // Sunroof oscuro en el techo
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(x + 6, y + 20, w - 12, 10);
+
+      // Barras de techo portaequipaje
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(x + 3, y + 19, 2, 14);
+      ctx.fillRect(x + w - 5, y + 19, 2, 14);
+
+      // Faros LED afilados y stops traseros
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(x + 2, y, 6, 3);
+      ctx.fillRect(x + w - 8, y, 6, 3);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(x + 2, y + h - 3, w - 4, 3);
     }
   }
 

@@ -634,12 +634,21 @@ function handleQuizAnswer(retoId, option, btnElement) {
       if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
         setTimeout(() => {
           const isGamesDone = localStorage.getItem('minijuegos_completed') === 'true';
+          const lockScreen = document.getElementById('minigamesLockScreen');
           const arcadeSec = document.getElementById('minigamesArcadeSection');
-          if (!isGamesDone && arcadeSec) {
-            audio.stopAll();
-            arcadeSec.style.display = 'block';
-            arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            triggerRomanticConfetti();
+          
+          if (!isGamesDone) {
+            // Mostrar la pantalla con candado para separar la experiencia del juego
+            if (lockScreen) {
+              lockScreen.style.display = 'block';
+              lockScreen.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              triggerRomanticConfetti();
+            } else if (arcadeSec) {
+              audio.stopAll();
+              arcadeSec.style.display = 'block';
+              arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              triggerRomanticConfetti();
+            }
           } else {
             const propSec = document.getElementById('finalProposalSection');
             if (propSec) {
@@ -699,10 +708,65 @@ function handleNoButtonDodge() {
 }
 
 // ============================================================
-// CLÍMAX FINAL: SÍ ACEPTO + CANCIÓN FINAL + CONFETI
+// DESBLOQUEO DEL RETO ARCADE DESDE LA PANTALLA CON CANDADO
+// ============================================================
+function unlockAndStartArcade() {
+  audio.stopAll();
+  sessionStorage.setItem('arcade_gate_unlocked', 'true');
+
+  const lockIcon = document.getElementById('minigamesGateLockIcon');
+  const badge = document.getElementById('minigamesGateBadge');
+  const btn = document.getElementById('btnUnlockArcade');
+  const lockScreen = document.getElementById('minigamesLockScreen');
+  const arcadeSec = document.getElementById('minigamesArcadeSection');
+
+  if (lockIcon) {
+    lockIcon.textContent = '🔓';
+    lockIcon.style.animation = 'none';
+  }
+  if (badge) {
+    badge.textContent = '¡DESBLOQUEADO!';
+    badge.style.background = '#22c55e';
+    badge.style.color = '#fff';
+  }
+  if (btn) {
+    btn.innerHTML = '✨ ¡ENTRANDO AL JUEGO! ✨';
+    btn.style.background = '#eab308';
+    btn.style.color = '#000';
+  }
+
+  // Jingle chiptune de apertura de candado
+  try {
+    audio.playJingle([
+      { f: 523.25, d: 0.08 }, // C5
+      { f: 659.25, d: 0.08 }, // E5
+      { f: 783.99, d: 0.10 }, // G5
+      { f: 1046.50, d: 0.28 } // C6
+    ]);
+  } catch(e) {}
+
+  triggerRomanticConfetti();
+
+  setTimeout(() => {
+    if (lockScreen) lockScreen.style.display = 'none';
+    if (arcadeSec) {
+      arcadeSec.style.display = 'block';
+      arcadeSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 700);
+}
+
+// ============================================================
+// CLÍMAX FINAL: SÍ ACEPTO + CANCIÓN DE MARGARITA EN BUCLE + CONFETI
 // ============================================================
 function acceptProposalFinal() {
-  playVignetteSong(3);
+  // Asegurar que la canción de Margarita Siempre Viva continúe sonando en bucle
+  if (window.gameInstance && typeof window.gameInstance.playMargaritaInLoop === 'function') {
+    window.gameInstance.playMargaritaInLoop();
+  } else {
+    ensureMargaritaInLoop();
+  }
+
   triggerRomanticConfetti();
 
   const proposalSec = document.getElementById('finalProposalSection');
@@ -719,6 +783,17 @@ function acceptProposalFinal() {
   }, 1200);
 
   setTimeout(() => clearInterval(heartInterval), 20000);
+}
+
+function ensureMargaritaInLoop() {
+  if (!window.globalAudioMargarita) {
+    window.globalAudioMargarita = new Audio('audio/margarita.mp3');
+    window.globalAudioMargarita.loop = true;
+    window.globalAudioMargarita.volume = 0.85;
+  }
+  if (window.globalAudioMargarita.paused) {
+    window.globalAudioMargarita.play().catch(e => console.log('Margarita play:', e));
+  }
 }
 
 // Confeti de corazones
@@ -847,23 +922,34 @@ function updatePanelsUI() {
 
   // Revelar sección Arcade de Minijuegos tras los 3 recuerdos y la propuesta al ganarlos
   const arcadeSection = document.getElementById('minigamesArcadeSection');
+  const lockScreen = document.getElementById('minigamesLockScreen');
   const proposalSection = document.getElementById('finalProposalSection');
   const isGamesDone = localStorage.getItem('minijuegos_completed') === 'true';
+  const isArcadeUnlocked = sessionStorage.getItem('arcade_gate_unlocked') === 'true';
 
   if (unlockedPanels[1] && unlockedPanels[2] && unlockedPanels[3]) {
-    if (arcadeSection) arcadeSection.style.display = 'block';
     if (isGamesDone) {
+      if (lockScreen) lockScreen.style.display = 'none';
+      if (arcadeSection) arcadeSection.style.display = 'none';
       if (proposalSection) {
         proposalSection.classList.add('revealed');
         proposalSection.style.display = 'block';
       }
     } else {
+      if (isArcadeUnlocked) {
+        if (lockScreen) lockScreen.style.display = 'none';
+        if (arcadeSection) arcadeSection.style.display = 'block';
+      } else {
+        if (lockScreen) lockScreen.style.display = 'block';
+        if (arcadeSection) arcadeSection.style.display = 'none';
+      }
       if (proposalSection) {
         proposalSection.classList.remove('revealed');
         proposalSection.style.display = 'none';
       }
     }
   } else {
+    if (lockScreen) lockScreen.style.display = 'none';
     if (arcadeSection) arcadeSection.style.display = 'none';
     if (proposalSection) {
       proposalSection.classList.remove('revealed');
@@ -1038,6 +1124,7 @@ function resetAllProgress() {
     localStorage.removeItem('propuesta_mystery_unlocked');
     localStorage.removeItem('propuesta_lockout_until');
     localStorage.removeItem('minijuegos_completed');
+    sessionStorage.removeItem('arcade_gate_unlocked');
     location.reload();
   }
 }
@@ -1061,6 +1148,9 @@ function unlockAllDirectPreview() {
 
 function testLaunchMinigames() {
   closeCreatorModal();
+  sessionStorage.setItem('arcade_gate_unlocked', 'true');
+  const lockScreen = document.getElementById('minigamesLockScreen');
+  if (lockScreen) lockScreen.style.display = 'none';
   const arcadeSec = document.getElementById('minigamesArcadeSection');
   if (arcadeSec) {
     arcadeSec.style.display = 'block';
@@ -1070,6 +1160,9 @@ function testLaunchMinigames() {
 
 function adminLaunchGame(level) {
   closeCreatorModal();
+  sessionStorage.setItem('arcade_gate_unlocked', 'true');
+  const lockScreen = document.getElementById('minigamesLockScreen');
+  if (lockScreen) lockScreen.style.display = 'none';
   const arcadeSec = document.getElementById('minigamesArcadeSection');
   if (arcadeSec) {
     arcadeSec.style.display = 'block';
