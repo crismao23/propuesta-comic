@@ -878,6 +878,12 @@ function updatePanelsUI() {
 window.onMinijuegosCompleted = function() {
   localStorage.setItem('minijuegos_completed', 'true');
   triggerHeartsConfetti();
+
+  // Asegurar que la canción de Margarita Siempre Viva siga sonando en bucle en la propuesta
+  if (window.gameInstance && typeof window.gameInstance.playMargaritaInLoop === 'function') {
+    window.gameInstance.playMargaritaInLoop();
+  }
+
   const proposalSec = document.getElementById('finalProposalSection');
   if (proposalSec) {
     proposalSec.classList.add('revealed');
@@ -1042,6 +1048,11 @@ function unlockAllDirectPreview() {
   saveProgressState();
   updatePanelsUI();
   closeCreatorModal();
+
+  if (window.gameInstance && typeof window.gameInstance.playMargaritaInLoop === 'function') {
+    window.gameInstance.playMargaritaInLoop();
+  }
+
   setTimeout(() => {
     const prop = document.getElementById('finalProposalSection');
     if (prop) prop.scrollIntoView({ behavior: 'smooth' });

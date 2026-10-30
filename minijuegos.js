@@ -741,6 +741,24 @@ class MinijuegosManager {
     this.currentActiveAudio.volume = Math.min(1.0, Math.max(0.1, vol));
   }
 
+  // Reproduce y mantiene la canción de Margarita Siempre Viva en bucle para la propuesta final
+  playMargaritaInLoop() {
+    if (!this.audioMargarita) return;
+    this.currentActiveAudio = this.audioMargarita;
+    this.audioMargarita.loop = true;
+    this.audioMargarita.volume = 0.85;
+
+    // Respaldo para repetir en bucle automáticamente en cualquier navegador
+    this.audioMargarita.onended = () => {
+      this.audioMargarita.currentTime = 0;
+      this.audioMargarita.play().catch(e => console.log('Loop margarita error:', e));
+    };
+
+    if (this.audioMargarita.paused) {
+      this.audioMargarita.play().catch(e => console.log('Play margarita error:', e));
+    }
+  }
+
   setupLevel(levelNumber) {
     this.currentLevel = levelNumber;
     this.stopAudio();
@@ -832,9 +850,9 @@ class MinijuegosManager {
 
   handleLevelVictory() {
     this.gameState = 'VICTORY_LEVEL';
-    this.stopAudio();
 
     if (this.currentLevel < 4) {
+      this.stopAudio();
       const nextLvl = this.currentLevel + 1;
       this.showOverlay('success', '🎉 ¡NIVEL SUPERADO!', 
         `¡Excelente trabajo en equipo! 👏<br>Siguiente capítulo de su historia: <strong>Nivel ${nextLvl}</strong>.`, 
@@ -847,6 +865,8 @@ class MinijuegosManager {
       };
     } else {
       this.gameState = 'VICTORY_ALL';
+      // En el nivel 4 (Margarita Siempre Viva), dejamos la música sonando en bucle para la propuesta final
+      this.playMargaritaInLoop();
       this.showVictoryAllModal();
     }
   }
@@ -867,7 +887,8 @@ class MinijuegosManager {
     btn.textContent = 'SIGUIENTE';
 
     btn.onclick = () => {
-      this.stopAudio();
+      // La canción de Margarita sigue sonando de fondo en bucle para la propuesta final
+      this.playMargaritaInLoop();
       this.hideOverlay();
       if (typeof window.onMinijuegosCompleted === 'function') {
         window.onMinijuegosCompleted();
