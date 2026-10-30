@@ -567,8 +567,13 @@ class MinijuegosManager {
     this.logoMargarita = new Image();
     this.logoMargarita.src = 'images/logo_margarita.png';
 
-    // Factor de aceleración / velocidad de juego (1.2 = +20% por defecto)
-    this.speedMultiplier = parseFloat(localStorage.getItem('arcade_speed_multiplier') || '1.2');
+    // Factor de aceleración / velocidad de juego (1.7 = 170% por defecto)
+    let initialSpeed = localStorage.getItem('arcade_speed_multiplier');
+    if (!initialSpeed || initialSpeed === '1.2' || initialSpeed === '1') {
+      initialSpeed = '1.7';
+      try { localStorage.setItem('arcade_speed_multiplier', '1.7'); } catch (e) {}
+    }
+    this.speedMultiplier = parseFloat(initialSpeed || '1.7');
 
     this.game1 = null;
     this.game2 = null;
@@ -581,7 +586,7 @@ class MinijuegosManager {
   }
 
   setSpeedMultiplier(multiplier) {
-    this.speedMultiplier = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.2));
+    this.speedMultiplier = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.7));
     try {
       localStorage.setItem('arcade_speed_multiplier', this.speedMultiplier.toString());
     } catch (e) {}

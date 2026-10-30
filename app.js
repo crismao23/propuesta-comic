@@ -1071,7 +1071,7 @@ function adminLaunchGame(level) {
 
 // CONTROL DE VELOCIDAD / ACELERACIÓN DE MINIJUEGOS (ADMIN)
 function setAdminGameSpeed(multiplier) {
-  const mult = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.2));
+  const mult = Math.max(0.6, Math.min(2.5, parseFloat(multiplier) || 1.7));
   localStorage.setItem('arcade_speed_multiplier', mult.toString());
   syncSpeedUI(mult);
 
@@ -1086,7 +1086,7 @@ function onSpeedSliderChange(val) {
 }
 
 function syncSpeedUI(multiplier) {
-  const mult = parseFloat(multiplier) || 1.2;
+  const mult = parseFloat(multiplier) || 1.7;
   const percent = Math.round(mult * 100);
 
   const slider1 = document.getElementById('adminSpeedSlider');
@@ -1099,7 +1099,7 @@ function syncSpeedUI(multiplier) {
   if (slider2) slider2.value = percent;
   if (label2) label2.textContent = `${percent}%`;
 
-  ['100', '120', '135', '150'].forEach(val => {
+  ['100', '135', '150', '170', '200'].forEach(val => {
     const btn = document.getElementById(`speedBtn${val}`);
     if (btn) {
       if (Math.round(parseFloat(val)) === percent) {
@@ -1117,7 +1117,13 @@ document.addEventListener('DOMContentLoaded', () => {
   checkActiveLockout();
   checkCreatorAccess();
   updatePanelsUI();
-  syncSpeedUI(parseFloat(localStorage.getItem('arcade_speed_multiplier') || '1.2'));
+
+  let initialSpeed = localStorage.getItem('arcade_speed_multiplier');
+  if (!initialSpeed || initialSpeed === '1.2' || initialSpeed === '1') {
+    initialSpeed = '1.7';
+    try { localStorage.setItem('arcade_speed_multiplier', '1.7'); } catch (e) {}
+  }
+  syncSpeedUI(parseFloat(initialSpeed || '1.7'));
 
   // Listener para el gesto secreto de 5 toques en el badge
   const secretBadge = document.getElementById('secretTriggerBadge');
