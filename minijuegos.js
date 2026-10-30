@@ -1060,22 +1060,22 @@ class MinijuegosManager {
     if (levelNumber === 1) {
       this.initGame1();
       this.showOverlay('intro', '🚗 NIVEL 1: RUMBO A LA TERMINAL', 
-        '¡Hora de viajar a Bogotá!<br><br>Primero Crhis viaja en inDrive hacia la Terminal de Pereira, y luego Made esquiva el tráfico en el inDrive Moto para encontrarse en la estación antes de abordar el bus.<br><br>👉 <strong>Toca izquierda o derecha</strong> para esquivar los vehículos.', 
+        '¡Hora de viajar a Bogotá!<br><br>Primero conduce el inDrive de Crhis hacia la Terminal de Pereira, y luego esquiva el tráfico en el inDrive Moto de Made para encontrarse en la estación antes de abordar el bus.<br><br>👉 <strong>Toca izquierda o derecha</strong> para esquivar los vehículos.', 
         '¡ARRANCAR!');
     } else if (levelNumber === 2) {
       this.initGame2();
       this.showOverlay('intro', '🏺 NIVEL 2: EL POPORO DEL MUSEO DEL ORO', 
-        'El par de enamorados quieren llegar a ver el <strong>Poporo Quimbaya</strong>.<br><br>🛡️ <strong>El truco:</strong> Deténganse en las <em>alfombras rojas protegidas</em> para que las flechas y rocas pasen de largo sin tocarlos.<br>¡Caminen juntos de la mano!', 
+        'Guía a los dos enamorados para llegar a ver el <strong>Poporo Quimbaya</strong>.<br><br>🛡️ <strong>El truco:</strong> Detente en las <em>alfombras rojas protegidas</em> para que las flechas y rocas pasen de largo sin tocarlos.<br>¡Avanza con cuidado hasta la meta!', 
         '¡EXPLORAR EL MUSEO!');
     } else if (levelNumber === 3) {
       this.initGame3();
       this.showOverlay('intro', '🍺 NIVEL 3: MISIÓN BBC & KRAKEN', 
-        'Crhis lleva dos cervezas BBC bien frías hacia la valla de la tarima donde Made lo está esperando.<br><br>Avanza esquivando a los rockeros para que no se riegue la pola y llega directo hasta Made para brindar juntos.', 
+        'Lleva las dos cervezas BBC bien frías esquivando a los rockeros para que no se riegue la pola y llega directo hasta la primera fila donde está Made para brindar.', 
         '¡A LLEVAR LA POLA!');
     } else if (levelNumber === 4) {
       this.initGame4();
       this.showOverlay('intro', '🌸 NIVEL 4: EL CONCIERTO DE MARGARITA', 
-        '¡Margarita Siempre Viva está tocando en vivo en la tarima!<br><br>Crhis y Made van juntos hacia la primera fila. Pasen a través de las aperturas de las ruedas de slam y esquiven el pogo hasta llegar al escenario.', 
+        '¡Margarita Siempre Viva está tocando en vivo!<br><br>Guía el camino hacia la primera fila pasando a través de las aperturas de las ruedas de slam y esquiva el pogo hasta llegar al frente.', 
         '¡IR A PRIMERA FILA!');
     }
   }
@@ -1121,7 +1121,7 @@ class MinijuegosManager {
 
     titleEl.className = 'game-msg-title fail';
     titleEl.innerHTML = '💥 ¡FALLÓ EL RETO!';
-    descEl.innerHTML = `${reasonText}<br><br>Para superar esta historia juntos, <strong>toca reiniciar desde el Nivel 1</strong>. ¡Ánimo Made, tú puedes! ❤️`;
+    descEl.innerHTML = `${reasonText}<br><br>Para superar el reto completo, <strong>toca reiniciar desde el Nivel 1</strong>. ¡Ánimo Made, tú puedes! ❤️`;
     btn.textContent = '🔄 REINTENTAR DESDE NIVEL 1';
 
     btn.onclick = () => {
@@ -1567,7 +1567,7 @@ class MinijuegosManager {
       this.stopAudio();
       const nextLvl = this.currentLevel + 1;
       this.showOverlay('success', '🎉 ¡NIVEL SUPERADO!', 
-        `¡Excelente trabajo en equipo! 👏<br>Siguiente capítulo de su historia: <strong>Nivel ${nextLvl}</strong>.`, 
+        `¡Excelente trabajo Made, nivel superado! 👏<br>Siguiente capítulo de la historia: <strong>Nivel ${nextLvl}</strong>.`, 
         `CONTINUAR A NIVEL ${nextLvl} ➡️`);
       
       const btn = document.getElementById('overlayStartBtn');
@@ -1593,8 +1593,8 @@ class MinijuegosManager {
     titleEl.className = 'game-msg-title success';
     titleEl.innerHTML = '💖 ¡TODOS LOS NIVELES COMPLETADOS!';
     descEl.innerHTML = `
-      Superaron llegar a tiempo a la terminal, disfrutaron de un parche cultural en el Museo del Oro, brindis con polas en frente de la tarima de Kraken y momento de besos y abrazos en Margarita Siempre Viva. 🥰❤️<br><br>
-      <strong>¡Ahora están juntos y listos para lo que sigue!</strong> ✨❤️
+      ¡Superaste todos los niveles! Llegaste a tiempo a la terminal, disfrutaste del parche cultural en el Museo del Oro, brindis con polas en el concierto de Kraken y momento de besos y abrazos en Margarita Siempre Viva. 🥰❤️<br><br>
+      <strong>¡Ahora estás lista para lo que sigue!</strong> ✨❤️
     `;
     btn.textContent = 'SIGUIENTE';
 
@@ -2605,9 +2605,9 @@ class MinijuegosManager {
     this.updateAudioVolume(progress);
 
     if (!g.reachedFront) {
-      document.getElementById('hudParam').textContent = `🍺 Tarima: ${Math.max(0, Math.round(g.distanceToStage))}m`;
+      document.getElementById('hudParam').textContent = `🍺 ¡Lleva las BBC a Made!`;
     } else {
-      document.getElementById('hudParam').textContent = `🍻 ¡Llévale la pola a Made!`;
+      document.getElementById('hudParam').textContent = `🍻 ¡Brindis con Made!`;
     }
 
     g.stageLightsTimer += step;
@@ -3089,7 +3089,11 @@ class MinijuegosManager {
     const progress = 1.0 - (Math.max(0, g.distanceToStage) / g.totalDistance);
     this.updateAudioVolume(progress);
 
-    document.getElementById('hudParam').textContent = `🌸 Tarima: ${Math.max(0, Math.round(g.distanceToStage))}m`;
+    if (!g.kissing) {
+      document.getElementById('hudParam').textContent = `🌸 ¡Hacia la primera fila!`;
+    } else {
+      document.getElementById('hudParam').textContent = `👩‍❤️‍💋‍👨 ¡Margarita Siempre Viva!`;
+    }
 
     // Rotación y verificación de paso a través de los círculos
     g.moshRings.forEach(ring => {

@@ -178,7 +178,7 @@
               ¡EL RETO DE NUESTRA HISTORIA EN 8-BIT!
             </div>
             <p class="mystery-lock-desc" id="minigamesGateDesc" style="color: #cbd5e1; font-size: 0.92rem; max-width: 460px; margin-bottom: 1.35rem; line-height: 1.55;">
-              ¡Completaron los 3 recuerdos más hermosos de su historia! Para llegar al momento más decisivo, Made y Crhis deben superar juntos este reto especial de 4 niveles retro en pixel art. 🕹️❤️
+              ¡Has desbloqueado los 3 recuerdos de nuestra historia! Para llegar al momento más decisivo, Made debe superar este reto especial de 4 niveles retro en pixel art. ¡Demuestra tu habilidad y llega hasta el final! 🕹️❤️
             </p>
             <button class="comic-btn" id="btnUnlockArcade" onclick="unlockAndStartArcade()" style="background: #22c55e; color: #fff; font-size: 0.88rem; padding: 0.95rem 1.75rem; border: 3px solid #000; box-shadow: 4px 4px 0 #000; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;">
               🎮 ¡DESBLOQUEAR Y ENTRAR AL JUEGO! 🔓
@@ -191,32 +191,11 @@
     <!-- SECCIÓN RETO ARCADE: MINIJUEGOS 2D PIXEL ART (Se desbloquea al completar los 3 recuerdos) -->
     <section class="minigames-arcade-section" id="minigamesArcadeSection" style="display: none;">
       <div class="arcade-intro-card">
-        <div class="pixel-badge" style="background: var(--accent-yellow); color: var(--dark);">🎮 RETO ESPECIAL EN PAREJA</div>
+        <div class="pixel-badge" style="background: var(--accent-yellow); color: var(--dark);">🎮 EL RETO DE MADE</div>
         <h2 style="font-family: var(--font-comic); font-size: 2.2rem; color: #1e1b4b; margin: 0.5rem 0;">¡NUESTRAS AVENTURAS EN 8-BIT!</h2>
         <p style="font-size: 0.95rem; line-height: 1.5; color: #334155; max-width: 600px; margin: 0 auto 0.75rem auto; font-weight: 500;">
-          Para llegar al momento más decisivo de nuestra historia, Made debe superar estos 4 desafíos retro en secuencia. ¡Demuestra que juntos superan cualquier obstáculo! 🕹️❤️
+          Para llegar al momento más decisivo de nuestra historia, Made debe superar estos 4 desafíos retro en secuencia. ¡Demuestra tu destreza en cada aventura para descubrir la sorpresa final! 🕹️❤️
         </p>
-      </div>
-
-      <!-- Barra Admin para probar los 4 juegos y ajustar velocidad -->
-      <div id="arcadeAdminBar" style="display: none; flex-direction: column; align-items: center; gap: 0.45rem; margin-bottom: 0.75rem;">
-        <div style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
-          <span style="font-family: var(--font-retro); font-size: 0.6rem; color: #000; align-self: center; font-weight: 700;">TEST NIVELES:</span>
-          <button class="pixel-badge" onclick="adminLaunchGame(1)" style="cursor: pointer; background: #3b82f6;">N1: inDrive</button>
-          <button class="pixel-badge" onclick="adminLaunchGame(2)" style="cursor: pointer; background: #eab308; color: #000;">N2: Museo</button>
-          <button class="pixel-badge" onclick="adminLaunchGame(3)" style="cursor: pointer; background: #ef4444;">N3: Kraken</button>
-          <button class="pixel-badge" onclick="adminLaunchGame(4)" style="cursor: pointer; background: #ec4899;">N4: Margarita</button>
-        </div>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 0.4rem; flex-wrap: wrap; background: #f8fafc; padding: 0.35rem 0.65rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
-          <span style="font-family: var(--font-retro); font-size: 0.58rem; color: #1e293b; font-weight: 700;">⚡ VELOCIDAD:</span>
-          <button class="pixel-badge speed-btn" id="speedBtn100" onclick="setAdminGameSpeed(1.0)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">100%</button>
-          <button class="pixel-badge speed-btn" id="speedBtn135" onclick="setAdminGameSpeed(1.35)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">135%</button>
-          <button class="pixel-badge speed-btn" id="speedBtn150" onclick="setAdminGameSpeed(1.5)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">150%</button>
-          <button class="pixel-badge speed-btn" id="speedBtn170" onclick="setAdminGameSpeed(1.7)" style="cursor: pointer; background: #10b981; font-size: 0.55rem;">170% ⭐</button>
-          <button class="pixel-badge speed-btn" id="speedBtn200" onclick="setAdminGameSpeed(2.0)" style="cursor: pointer; background: #94a3b8; font-size: 0.55rem;">200%</button>
-          <input type="range" id="adminSpeedSlider" min="80" max="220" step="5" value="170" oninput="onSpeedSliderChange(this.value)" style="width: 80px; cursor: pointer; accent-color: #3b82f6;">
-          <span id="adminSpeedLabel" style="font-family: var(--font-retro); font-size: 0.62rem; color: #2563eb; font-weight: 700; min-width: 44px;">170%</span>
-        </div>
       </div>
 
       <!-- Contenedor Arcade -->
