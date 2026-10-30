@@ -1133,7 +1133,7 @@ class MinijuegosManager {
   }
 
   // ============================================================
-  // EFECTO DE MUERTE CON SANGRE Y SONIDO RETRO ESTILO MARIO (NES)
+  // EFECTO DE DERROTA TIERNO: DOS FANTASMITAS JUNTITOS CON CORAZÓN
   // ============================================================
   playMarioDeathSound() {
     this.initAudioContext();
@@ -1143,7 +1143,7 @@ class MinijuegosManager {
       const ctx = this.audioCtx;
       const now = ctx.currentTime;
 
-      // Jingle de muerte icónico de Super Mario Bros (NES APU Square Wave)
+      // Jingle retro clásico estilo Mario (NES APU Square Wave)
       // B4 -> pausa breve -> F5 -> F5 -> F5 -> E5 -> D5 -> C5
       const notes = [
         { freq: 493.88, start: 0.00, dur: 0.09 }, // B4
@@ -1152,7 +1152,7 @@ class MinijuegosManager {
         { freq: 698.46, start: 0.43, dur: 0.11 }, // F5
         { freq: 659.25, start: 0.57, dur: 0.12 }, // E5
         { freq: 587.33, start: 0.72, dur: 0.12 }, // D5
-        { freq: 523.25, start: 0.87, dur: 0.38 }  // C5 (trágico final)
+        { freq: 523.25, start: 0.87, dur: 0.38 }  // C5
       ];
 
       notes.forEach(n => {
@@ -1163,8 +1163,8 @@ class MinijuegosManager {
         osc.frequency.setValueAtTime(n.freq, now + n.start);
 
         gain.gain.setValueAtTime(0.001, now + n.start);
-        gain.gain.linearRampToValueAtTime(0.09, now + n.start + 0.015);
-        gain.gain.setValueAtTime(0.08, now + n.start + n.dur - 0.02);
+        gain.gain.linearRampToValueAtTime(0.08, now + n.start + 0.015);
+        gain.gain.setValueAtTime(0.07, now + n.start + n.dur - 0.02);
         gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
 
         osc.connect(gain);
@@ -1173,8 +1173,35 @@ class MinijuegosManager {
         osc.start(now + n.start);
         osc.stop(now + n.start + n.dur + 0.02);
       });
+
+      // Arpegio dulce de campana/arpa a medida que los fantasmitas ascienden al cielo
+      const chimeNotes = [
+        { freq: 523.25, start: 0.95, dur: 0.18 }, // C5
+        { freq: 659.25, start: 1.10, dur: 0.18 }, // E5
+        { freq: 783.99, start: 1.25, dur: 0.18 }, // G5
+        { freq: 987.77, start: 1.40, dur: 0.20 }, // B5
+        { freq: 1046.50, start: 1.55, dur: 0.45 } // C6
+      ];
+
+      chimeNotes.forEach(cn => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(cn.freq, now + cn.start);
+
+        gain.gain.setValueAtTime(0.001, now + cn.start);
+        gain.gain.linearRampToValueAtTime(0.045, now + cn.start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + cn.start + cn.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + cn.start);
+        osc.stop(now + cn.start + cn.dur + 0.02);
+      });
     } catch (e) {
-      console.log('Error playing Mario death sound:', e);
+      console.log('Error playing death sounds:', e);
     }
   }
 
@@ -1183,36 +1210,24 @@ class MinijuegosManager {
     this.stopAudio();
     this.playMarioDeathSound();
 
-    // Gotas y salpicaduras de sangre pixel art
-    const particles = [];
-    const bloodColors = ['#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#ef4444', '#f87171'];
+    // Crear partículas tiernas de estrellas, brillitos y corazoncitos
+    const sparkles = [];
+    const colors = ['#f472b6', '#fb7185', '#fde047', '#38bdf8', '#ffffff', '#c084fc'];
     
-    // 38 partículas de sangre expulsadas en arco
-    for (let i = 0; i < 38; i++) {
-      const angle = (Math.PI * 2 * i) / 38 + (Math.random() - 0.5) * 0.4;
-      const speed = 1.4 + Math.random() * 4.6;
-      particles.push({
-        x: deathX,
-        y: deathY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - (2.4 + Math.random() * 3.8), // Salto hacia arriba
-        gravity: 0.28,
-        size: Math.random() < 0.65 ? 3 : 5,
-        color: bloodColors[Math.floor(Math.random() * bloodColors.length)],
-        groundY: deathY + 6 + Math.random() * 26,
-        isGrounded: false
-      });
-    }
-
-    // Charcos de sangre en el suelo
-    const pools = [];
-    for (let i = 0; i < 6; i++) {
-      pools.push({
-        x: deathX + (Math.random() - 0.5) * 32,
-        y: deathY + 12 + (Math.random() - 0.5) * 14,
-        r: 0,
-        maxR: 5 + Math.random() * 9,
-        color: bloodColors[Math.floor(Math.random() * bloodColors.length)]
+    for (let i = 0; i < 32; i++) {
+      const angle = (Math.PI * 2 * i) / 32 + (Math.random() - 0.5) * 0.4;
+      const speed = 0.5 + Math.random() * 1.8;
+      sparkles.push({
+        x: deathX + (Math.random() - 0.5) * 22,
+        y: deathY + (Math.random() - 0.5) * 12,
+        vx: Math.cos(angle) * speed * 0.5,
+        vy: -0.7 - Math.random() * 1.5, // Flotan hacia arriba
+        size: Math.random() < 0.4 ? 3 : (Math.random() < 0.7 ? 2 : 4),
+        type: Math.random() < 0.38 ? 'heart' : 'sparkle',
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 0.95,
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.03 + Math.random() * 0.04
       });
     }
 
@@ -1220,12 +1235,9 @@ class MinijuegosManager {
       x: deathX,
       y: deathY,
       timer: 0,
-      duration: 2000, // 2 segundos completos
+      duration: 2300, // 2.3 segundos completos de animación tierna
       reasonText: reasonText,
-      characterHopY: 0,
-      characterHopVy: -5.8, // Salto hacia arriba clásico de Mario al morir
-      particles: particles,
-      pools: pools,
+      sparkles: sparkles,
       level: this.currentLevel,
       subPhase: this.game1 ? this.game1.subPhase : null
     };
@@ -1235,31 +1247,17 @@ class MinijuegosManager {
     if (!this.deathData) return;
     this.deathData.timer += dt;
 
-    // Física del salto y caída de Mario
-    this.deathData.characterHopY += this.deathData.characterHopVy;
-    this.deathData.characterHopVy += 0.32;
-
-    // Actualizar partículas de sangre
-    this.deathData.particles.forEach(p => {
-      if (!p.isGrounded) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += p.gravity;
-        if (p.y >= p.groundY) {
-          p.y = p.groundY;
-          p.isGrounded = true;
-        }
+    // Actualizar partículas tiernas ascendentes
+    this.deathData.sparkles.forEach(p => {
+      p.x += p.vx + Math.sin(p.wobble) * 0.45;
+      p.y += p.vy;
+      p.wobble += p.wobbleSpeed;
+      if (this.deathData.timer > 1500) {
+        p.alpha = Math.max(0, 1 - (this.deathData.timer - 1500) / 800);
       }
     });
 
-    // Expandir charcos de sangre
-    this.deathData.pools.forEach(pool => {
-      if (pool.r < pool.maxR) {
-        pool.r += 0.35;
-      }
-    });
-
-    // Al terminar los 2 segundos, desplegar Game Over
+    // Al terminar la animación, mostrar pantalla de reintentar
     if (this.deathData.timer >= this.deathData.duration) {
       const reason = this.deathData.reasonText;
       this.deathData = null;
@@ -1272,66 +1270,294 @@ class MinijuegosManager {
     const ctx = this.ctx;
     const d = this.deathData;
 
-    // 1. Dibujar charcos de sangre en el suelo
-    d.pools.forEach(pool => {
-      ctx.fillStyle = pool.color;
-      ctx.beginPath();
-      ctx.ellipse(pool.x, pool.y, pool.r * 1.4, pool.r * 0.7, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // 2. Dibujar gotas y salpicaduras de sangre (cuadraditos de píxeles)
-    d.particles.forEach(p => {
-      ctx.fillStyle = p.color;
-      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
-      // Brillo en sangre fresca
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-      ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
-    });
-
-    // 3. Dibujar al personaje muriendo con salto de Mario, giro y parpadeo rojo
-    ctx.save();
-    const charX = d.x;
-    const charY = d.y + d.characterHopY;
-    ctx.translate(charX, charY);
-
-    const rot = Math.min(Math.PI, (d.timer / 1000) * Math.PI);
-    ctx.rotate(rot);
-
-    // Parpadeo de impacto
-    const isFlashingRed = Math.floor(d.timer / 75) % 2 === 0;
-
+    // 1. Dibujar el cuerpo/vehículo en el suelo con efecto de mareo tierno
     if (d.level === 1) {
       if (d.subPhase === 'CRHIS_INDRIVE') {
-        PixelSprites.drawCrhis(ctx, 0, 0, 'DOWN', 0, false);
+        this.drawInDriveCar(d.x, d.y);
       } else {
-        PixelSprites.drawMade(ctx, 0, 0, 'DOWN', 0);
+        this.drawMadeInDriveMotorcycle(d.x, d.y);
+      }
+      // Estrellitas de mareo estilo caricatura sobre el vehículo
+      const starTimer = d.timer * 0.008;
+      for (let i = 0; i < 3; i++) {
+        const ang = starTimer + (i * Math.PI * 2 / 3);
+        const sx = d.x + Math.cos(ang) * 14;
+        const sy = d.y - 10 + Math.sin(ang) * 5;
+        this.drawMiniPixelStar(ctx, sx, sy, '#fde047');
       }
     } else {
-      PixelSprites.drawCrhis(ctx, -8, 0, 'DOWN', 0, false);
-      PixelSprites.drawMade(ctx, 8, 0, 'DOWN', 0);
+      // Nivel 2 (Museo del Oro): Crhis y Made sentaditos dócilmente en el suelo
+      PixelSprites.drawCrhis(ctx, d.x - 8, d.y + 4, 'DOWN', 0, false);
+      PixelSprites.drawMade(ctx, d.x + 8, d.y + 4, 'DOWN', 0);
+      
+      // Estrellitas de mareo estilo caricatura girando sobre sus cabezas
+      const starTimer = d.timer * 0.008;
+      for (let i = 0; i < 3; i++) {
+        const ang = starTimer + (i * Math.PI * 2 / 3);
+        const sx = d.x + Math.cos(ang) * 16;
+        const sy = d.y - 14 + Math.sin(ang) * 5;
+        this.drawMiniPixelStar(ctx, sx, sy, '#fde047');
+      }
     }
 
-    if (isFlashingRed) {
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.6)';
-      ctx.fillRect(-16, -18, 32, 36);
+    // 2. Partículas tiernas flotando (corazones y destellos)
+    d.sparkles.forEach(p => {
+      if (p.alpha <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      if (p.type === 'heart') {
+        this.drawMiniPixelHeart(ctx, p.x, p.y, p.color);
+      } else {
+        this.drawMiniPixelStar(ctx, p.x, p.y, p.color);
+      }
+      ctx.restore();
+    });
+
+    // 3. Dos fantasmitas tiernos ascendiendo juntitos de la mano
+    const progress = Math.min(1.0, d.timer / d.duration);
+    const riseY = d.y - Math.pow(progress, 0.82) * 115;
+    const sway = Math.sin(d.timer * 0.005) * 6;
+    const ghostX = d.x + sway;
+    const ghostY = riseY;
+    const wave = d.timer * 0.009;
+
+    let ghostAlpha = 1.0;
+    if (d.timer < 300) {
+      ghostAlpha = d.timer / 300; // Desvanecimiento suave al salir del cuerpo
+    } else if (d.timer > 1900) {
+      ghostAlpha = Math.max(0, 1 - (d.timer - 1900) / 400); // Se elevan hacia las nubes
     }
+
+    ctx.save();
+    ctx.globalAlpha = ghostAlpha;
+
+    // Halo celestial cálido alrededor de la pareja
+    const grad = ctx.createRadialGradient(ghostX, ghostY, 4, ghostX, ghostY, 32);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+    grad.addColorStop(0.6, 'rgba(244, 114, 182, 0.18)');
+    grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(ghostX, ghostY, 32, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fantasmita Crhis (a la izquierda)
+    this.drawTenderGhostCrhis(ctx, ghostX - 9, ghostY, wave);
+
+    // Fantasmita Made (a la derecha)
+    this.drawTenderGhostMade(ctx, ghostX + 9, ghostY, wave);
+
+    // Destellito de luz dorada donde sus manitas se tocan en el centro
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(Math.round(ghostX - 1), Math.round(ghostY), 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(Math.round(ghostX), Math.round(ghostY), 1, 1);
+
+    // Corazón pixel art tierno latiendo y flotando arriba de sus cabezas
+    const heartBeat = 1.0 + Math.sin(d.timer * 0.011) * 0.18;
+    const heartFloat = Math.sin(d.timer * 0.007) * 2;
+    this.drawTenderPixelHeart(ctx, ghostX, ghostY - 20 + heartFloat, heartBeat);
 
     ctx.restore();
 
-    // 4. Letrero pixel art de impacto
-    const bannerAlpha = Math.min(1.0, d.timer / 350);
-    ctx.fillStyle = `rgba(127, 29, 29, ${bannerAlpha * 0.9})`;
-    ctx.fillRect(this.width / 2 - 65, 38, 130, 25);
-    ctx.strokeStyle = '#fca5a5';
+    // 4. Letrero arcade tierno y romántico
+    const bannerAlpha = Math.min(1.0, d.timer / 300);
+    ctx.save();
+    ctx.globalAlpha = bannerAlpha;
+
+    const bw = 210;
+    const bh = 26;
+    const bx = (this.width - bw) / 2;
+    const by = 34;
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillRect(bx, by, bw, bh);
+
+    ctx.strokeStyle = '#f472b6';
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(this.width / 2 - 65, 38, 130, 25);
+    ctx.strokeRect(bx, by, bw, bh);
+
+    // Esquinas decorativas
+    ctx.fillStyle = '#fb7185';
+    ctx.fillRect(bx - 1, by - 1, 3, 3);
+    ctx.fillRect(bx + bw - 2, by - 1, 3, 3);
+    ctx.fillRect(bx - 1, by + bh - 2, 3, 3);
+    ctx.fillRect(bx + bw - 2, by + bh - 2, 3, 3);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '8px "Press Start 2P"';
+    ctx.font = '7px "Press Start 2P"';
     ctx.textAlign = 'center';
-    ctx.fillText('💀 ¡DEAD! 💀', this.width / 2, 54);
+    ctx.fillText('💖 ¡JUNTITOS HASTA EL CIELO! 👻', this.width / 2, by + 16);
     ctx.textAlign = 'left';
+
+    ctx.restore();
+  }
+
+  drawTenderGhostCrhis(ctx, x, y, wave) {
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+
+    // Sombra suave en el aire
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo de fantasmita (blanco con tinte celeste suave)
+    ctx.fillStyle = '#f0f9ff';
+    ctx.beginPath();
+    ctx.arc(0, -3, 7, Math.PI, 0);
+    ctx.lineTo(7, 6 + Math.sin(wave) * 1.5);
+    ctx.quadraticCurveTo(3.5, 3 - Math.sin(wave) * 1.5, 0, 6 + Math.sin(wave + 1) * 1.5);
+    ctx.quadraticCurveTo(-3.5, 3 - Math.sin(wave) * 1.5, -7, 6 + Math.sin(wave) * 1.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Mechoncito de cabello negro de Crhis en la coronilla
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-3, -11, 6, 2);
+    ctx.fillRect(-1, -13, 3, 2);
+
+    // Gafitas cuadradas negras de Crhis
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-5, -5, 4, 3);
+    ctx.fillRect(1, -5, 4, 3);
+    ctx.fillRect(-1, -4, 2, 1);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-4, -4, 1, 1);
+    ctx.fillRect(2, -4, 1, 1);
+
+    // Sonrisa tierna
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(-1, 0, 2, 1);
+
+    // Manita extendida hacia la derecha tomando la mano de Made
+    ctx.fillStyle = '#f0f9ff';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.fillRect(5, -1, 5, 3);
+    ctx.strokeRect(5, -1, 5, 3);
+
+    ctx.restore();
+  }
+
+  drawTenderGhostMade(ctx, x, y, wave) {
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+
+    // Sombra suave en el aire
+    ctx.fillStyle = 'rgba(244, 114, 182, 0.25)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo de fantasmita (blanco con tinte rosa pastel)
+    ctx.fillStyle = '#fff1f2';
+    ctx.beginPath();
+    ctx.arc(0, -3, 7, Math.PI, 0);
+    ctx.lineTo(7, 6 + Math.sin(wave + 0.5) * 1.5);
+    ctx.quadraticCurveTo(3.5, 3 - Math.sin(wave + 0.5) * 1.5, 0, 6 + Math.sin(wave + 1.5) * 1.5);
+    ctx.quadraticCurveTo(-3.5, 3 - Math.sin(wave + 0.5) * 1.5, -7, 6 + Math.sin(wave + 0.5) * 1.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#fb7185';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Moñito / flor rosa en el cabello de Made
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(2, -12, 4, 3);
+    ctx.fillRect(0, -11, 2, 2);
+    ctx.fillRect(6, -11, 2, 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(2, -11, 2, 2);
+
+    // Ojos tiernos curvados felices (^ ^)
+    ctx.fillStyle = '#4c0519';
+    ctx.fillRect(-5, -4, 3, 1);
+    ctx.fillRect(-4, -5, 1, 1);
+    ctx.fillRect(2, -4, 3, 1);
+    ctx.fillRect(3, -5, 1, 1);
+
+    // Mejillas sonrojadas rosas
+    ctx.fillStyle = '#fb7185';
+    ctx.fillRect(-6, -2, 2, 2);
+    ctx.fillRect(4, -2, 2, 2);
+
+    // Sonrisa tierna
+    ctx.fillStyle = '#e11d48';
+    ctx.fillRect(-1, 0, 2, 1);
+
+    // Manita extendida hacia la izquierda tomando la mano de Crhis
+    ctx.fillStyle = '#fff1f2';
+    ctx.strokeStyle = '#fb7185';
+    ctx.fillRect(-10, -1, 5, 3);
+    ctx.strokeRect(-10, -1, 5, 3);
+
+    ctx.restore();
+  }
+
+  drawTenderPixelHeart(ctx, x, y, scale = 1) {
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+    ctx.scale(scale, scale);
+
+    // Halo cálido y brillante del corazón
+    ctx.fillStyle = 'rgba(244, 63, 94, 0.3)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 11, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Matriz de corazón (7x6)
+    const heartGrid = [
+      [0, 1, 1, 0, 1, 1, 0],
+      [1, 2, 1, 1, 1, 1, 1],
+      [1, 2, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 0, 0, 1, 0, 0, 0]
+    ];
+
+    const px = 2;
+    const offX = -7;
+    const offY = -6;
+
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 7; c++) {
+        const val = heartGrid[r][c];
+        if (val === 1) {
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(offX + c * px, offY + r * px, px, px);
+        } else if (val === 2) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(offX + c * px, offY + r * px, px, px);
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+
+  drawMiniPixelStar(ctx, x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(x) - 1, Math.round(y), 3, 1);
+    ctx.fillRect(Math.round(x), Math.round(y) - 1, 1, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+  }
+
+  drawMiniPixelHeart(ctx, x, y, color) {
+    ctx.fillStyle = color;
+    const rx = Math.round(x);
+    const ry = Math.round(y);
+    ctx.fillRect(rx - 1, ry - 1, 1, 1);
+    ctx.fillRect(rx + 1, ry - 1, 1, 1);
+    ctx.fillRect(rx - 1, ry, 3, 1);
+    ctx.fillRect(rx, ry + 1, 1, 1);
   }
 
   handleLevelVictory() {
