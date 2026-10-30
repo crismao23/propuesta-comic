@@ -9,7 +9,8 @@
   --accent-pink: #f43f5e;
   --accent-green: #10b981;
   --font-pixel: 'Press Start 2P', monospace, sans-serif;
-  --font-retro: 'Fredoka', cursive, sans-serif;
+  --font-retro: 'Press Start 2P', monospace, sans-serif;
+  --font-pixel-text: 'VT323', monospace, sans-serif;
 }
 
 .arcade-wrapper,
@@ -32,9 +33,9 @@
 
 .arcade-intro-card {
   background: #ffffff;
-  border: 3.5px solid var(--dark, #0f172a);
-  border-radius: 18px;
-  box-shadow: 6px 6px 0px var(--dark, #0f172a);
+  border: 4px solid var(--dark, #0f172a);
+  border-radius: 4px;
+  box-shadow: 6px 6px 0px var(--dark, #0f172a), inset 0 0 0 2px #fff;
   padding: 1.5rem 1rem;
   text-align: center;
   margin-bottom: 1.25rem;
@@ -64,8 +65,8 @@ body.game-page-body {
   max-width: 440px;
   background: #1e293b;
   border: 4px solid #000;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 6px 6px 0px #000;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 8px 8px 0px #000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -76,7 +77,7 @@ body.game-page-body {
 .arcade-header {
   background: #0f172a;
   padding: 0.75rem 1rem;
-  border-bottom: 3px solid #000;
+  border-bottom: 3.5px solid #000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -84,9 +85,9 @@ body.game-page-body {
 
 .arcade-brand {
   font-family: var(--font-pixel);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--accent-yellow);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -98,8 +99,9 @@ body.game-page-body {
   font-family: var(--font-pixel);
   font-size: 0.55rem;
   padding: 0.25rem 0.6rem;
-  border-radius: 6px;
+  border-radius: 2px;
   border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
 }
 
 /* Pantalla del Juego (Canvas) */
@@ -139,10 +141,10 @@ body.game-page-body {
 }
 
 .hud-item {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.88);
   border: 2px solid #000;
-  border-radius: 6px;
-  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
   font-family: var(--font-pixel);
   font-size: 0.58rem;
   color: #fff;
@@ -164,7 +166,7 @@ body.game-page-body {
 .game-msg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.94);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,7 +174,7 @@ body.game-page-body {
   text-align: center;
   padding: 1.5rem;
   z-index: 20;
-  backdrop-filter: blur(4px);
+  border: 4px solid #000;
 }
 
 .game-msg-overlay.hidden {
@@ -181,10 +183,11 @@ body.game-page-body {
 
 .game-msg-title {
   font-family: var(--font-pixel);
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-bottom: 0.75rem;
   line-height: 1.4;
   text-shadow: 2px 2px 0 #000;
+  letter-spacing: 0.5px;
 }
 
 .game-msg-title.success {
@@ -200,8 +203,10 @@ body.game-page-body {
 }
 
 .game-msg-desc {
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-family: var(--font-pixel-text);
+  font-size: 1.35rem;
+  line-height: 1.35;
+  letter-spacing: 0.5px;
   color: #e2e8f0;
   margin-bottom: 1.25rem;
   max-width: 320px;
@@ -211,10 +216,11 @@ body.game-page-body {
   background: var(--accent-yellow);
   color: #0f172a;
   border: 3px solid #000;
-  border-radius: 12px;
-  padding: 0.75rem 1.5rem;
+  border-radius: 3px;
+  padding: 0.85rem 1.6rem;
   font-family: var(--font-pixel);
   font-size: 0.75rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
   box-shadow: 4px 4px 0 #000;
   transition: transform 0.1s, box-shadow 0.1s;
@@ -232,7 +238,7 @@ body.game-page-body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-top: 3px solid #000;
+  border-top: 3.5px solid #000;
 }
 
 .controls-row {
@@ -254,9 +260,9 @@ body.game-page-body {
 .dpad-btn {
   background: #334155;
   border: 3.5px solid #000;
-  border-radius: 10px;
+  border-radius: 3px;
   color: #fff;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,7 +294,7 @@ body.game-page-body {
   background: #ffffff;
   color: #0f172a;
   border: 3px solid #000;
-  border-radius: 14px;
+  border-radius: 4px;
   padding: 0.85rem;
   margin-top: 0.75rem;
   box-shadow: 4px 4px 0 #000;
@@ -315,11 +321,11 @@ body.game-page-body {
 .dev-btn {
   background: #f1f5f9;
   border: 2px solid #000;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 0.5rem;
-  font-family: var(--font-retro);
-  font-weight: 700;
-  font-size: 0.75rem;
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
   text-align: center;
   box-shadow: 2px 2px 0 #000;
@@ -337,9 +343,10 @@ body.game-page-body {
 .audio-debug-info {
   background: #f8fafc;
   border: 1.5px dashed #cbd5e1;
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 0.4rem 0.6rem;
-  font-size: 0.72rem;
+  font-family: var(--font-pixel-text);
+  font-size: 1.15rem;
   color: #475569;
   line-height: 1.35;
 }
