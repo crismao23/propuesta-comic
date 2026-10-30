@@ -561,6 +561,12 @@ class MinijuegosManager {
     this.audioMargarita = new Audio('audio/margarita.mp3');
     this.currentActiveAudio = null;
 
+    // Web Audio Context y sintetizadores 8-bit para Nivel 1 (Tráfico/Carros) y Nivel 2 (Museo del Oro)
+    this.audioCtx = null;
+    this.trafficAudioNodes = null;
+    this.trafficHornTimer = null;
+    this.museumAudioTimer = null;
+
     // Logos oficiales precargados para los escenarios de concierto
     this.logoKraken = new Image();
     this.logoKraken.src = 'images/logo_kraken.png';
@@ -689,11 +695,284 @@ class MinijuegosManager {
     if (this.currentLevel !== 1 || !this.game1) return;
     const g = this.game1;
     const nextLane = Math.max(0, Math.min(2, g.player.currentLane + dir));
+    if (nextLane !== g.player.currentLane) {
+      this.play8BitSwerveScreech();
+    }
     g.player.currentLane = nextLane;
     g.player.targetX = g.lanes[nextLane];
   }
 
+  initAudioContext() {
+    if (!this.audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.audioCtx = new AudioCtx();
+      }
+    }
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
+  }
+
+  // ============================================================
+  // SONIDO 8-BIT NIVEL 1: MOTORES, TRÁFICO Y BOCINAS DE CARROS
+  // ============================================================
+  startTrafficAudio() {
+    this.stopTrafficAudio();
+    this.initAudioContext();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+
+      // 1. Motor retro 8-bit con zumbido continuo modulado (vroom vroom)
+      const engineOsc = ctx.createOscillator();
+      const engineGain = ctx.createGain();
+      const engineFilter = ctx.createBiquadFilter();
+
+      engineOsc.type = 'sawtooth';
+      engineOsc.frequency.setValueAtTime(56, ctx.currentTime);
+
+      engineFilter.type = 'lowpass';
+      engineFilter.frequency.setValueAtTime(220, ctx.currentTime);
+
+      // LFO para modular la aceleración del motor
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.frequency.setValueAtTime(4.2, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(12, ctx.currentTime);
+      lfo.connect(engineOsc.frequency);
+      lfo.start();
+
+      engineGain.gain.setValueAtTime(0.045, ctx.currentTime);
+
+      engineOsc.connect(engineFilter);
+      engineFilter.connect(engineGain);
+      engineGain.connect(ctx.destination);
+      engineOsc.start();
+
+      // 2. Ruido de asfalto / viento de alta velocidad (ruido blanco filtrado)
+      const bufferSize = ctx.sampleRate * 2;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(320, ctx.currentTime);
+      noiseFilter.Q.setValueAtTime(2.2, ctx.currentTime);
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.022, ctx.currentTime);
+
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      whiteNoise.start();
+
+      this.trafficAudioNodes = {
+        engineOsc,
+        engineGain,
+        lfo,
+        whiteNoise,
+        noiseGain
+      };
+
+      // 3. Bocinas / pitos de carros lejanos cada 3 a 5.5 segundos
+      const scheduleHorn = () => {
+        const nextTime = 2800 + Math.random() * 3200;
+        this.trafficHornTimer = setTimeout(() => {
+          if (this.trafficAudioNodes && this.gameState === 'PLAYING' && this.currentLevel === 1) {
+            this.play8BitCarHorn();
+            scheduleHorn();
+          }
+        }, nextTime);
+      };
+      scheduleHorn();
+    } catch (e) {
+      console.log('Error starting traffic audio:', e);
+    }
+  }
+
+  play8BitCarHorn() {
+    if (!this.audioCtx) return;
+    try {
+      const ctx = this.audioCtx;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'square';
+      osc2.type = 'square';
+      // Tono dual de bocina vehicular retro 8-bit (La y Do#)
+      osc1.frequency.setValueAtTime(440, ctx.currentTime);
+      osc2.frequency.setValueAtTime(554.37, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + 0.19);
+      osc2.stop(ctx.currentTime + 0.19);
+    } catch (e) {}
+  }
+
+  play8BitSwerveScreech() {
+    if (!this.audioCtx) return;
+    try {
+      const ctx = this.audioCtx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(750, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(240, ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.025, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.09);
+    } catch (e) {}
+  }
+
+  stopTrafficAudio() {
+    if (this.trafficHornTimer) {
+      clearTimeout(this.trafficHornTimer);
+      this.trafficHornTimer = null;
+    }
+    if (this.trafficAudioNodes) {
+      try {
+        if (this.trafficAudioNodes.engineOsc) this.trafficAudioNodes.engineOsc.stop();
+        if (this.trafficAudioNodes.lfo) this.trafficAudioNodes.lfo.stop();
+        if (this.trafficAudioNodes.whiteNoise) this.trafficAudioNodes.whiteNoise.stop();
+      } catch (e) {}
+      this.trafficAudioNodes = null;
+    }
+  }
+
+  // ============================================================
+  // SONIDO 8-BIT NIVEL 2: AMBIENTE MÍSTICO DEL MUSEO DEL ORO
+  // ============================================================
+  startMuseumAudio() {
+    this.stopMuseumAudio();
+    this.initAudioContext();
+    if (!this.audioCtx) return;
+
+    try {
+      const ctx = this.audioCtx;
+
+      // Melodía mística y atmosférica de campanas de oro en escala pentatónica menor
+      // Tonos solemnes y pacíficos 8-bit con eco suave
+      const notes = [
+        220.00, // A3 (solemne)
+        0,
+        329.63, // E4
+        0,
+        440.00, // A4
+        0,
+        523.25, // C5 (brillo de oro)
+        392.00, // G4
+        329.63, // E4
+        0,
+        293.66, // D4
+        329.63, // E4
+        440.00, // A4
+        0,
+        659.25, // E5 (destello)
+        0
+      ];
+
+      let noteIndex = 0;
+      const stepDuration = 380; // ms por nota
+
+      const playMuseumStep = () => {
+        if (this.gameState !== 'PLAYING' || this.currentLevel !== 2) return;
+
+        const freq = notes[noteIndex];
+        noteIndex = (noteIndex + 1) % notes.length;
+
+        if (freq > 0) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'triangle'; // Tono suave tipo campana o flauta ancestral
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+          // Ataque suave y decaimiento largo tipo eco en salón de museo
+          gain.gain.setValueAtTime(0.001, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.045, ctx.currentTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.85);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start();
+          osc.stop(ctx.currentTime + 0.90);
+        }
+
+        // Cada vuelta completa, añadir un destello cristalino del Poporo
+        if (noteIndex === 0) {
+          this.playPoporoGoldChime();
+        }
+
+        this.museumAudioTimer = setTimeout(playMuseumStep, stepDuration);
+      };
+
+      playMuseumStep();
+    } catch (e) {
+      console.log('Error starting museum audio:', e);
+    }
+  }
+
+  playPoporoGoldChime() {
+    if (!this.audioCtx) return;
+    try {
+      const ctx = this.audioCtx;
+      const chimes = [1318.51, 1760.00]; // Mi6 y La6 cristalinos
+      chimes.forEach((f, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.12);
+
+        gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.12);
+        gain.gain.linearRampToValueAtTime(0.025, ctx.currentTime + idx * 0.12 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.7);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + idx * 0.12);
+        osc.stop(ctx.currentTime + idx * 0.12 + 0.75);
+      });
+    } catch (e) {}
+  }
+
+  stopMuseumAudio() {
+    if (this.museumAudioTimer) {
+      clearTimeout(this.museumAudioTimer);
+      this.museumAudioTimer = null;
+    }
+  }
+
   stopAudio() {
+    this.stopTrafficAudio();
+    this.stopMuseumAudio();
     if (this.currentActiveAudio) {
       try {
         this.currentActiveAudio.pause();
@@ -721,7 +1000,11 @@ class MinijuegosManager {
   playLevelAudio(level) {
     this.stopAudio();
     this.stopAllExternalMusic();
-    if (level === 3) {
+    if (level === 1) {
+      this.startTrafficAudio();
+    } else if (level === 2) {
+      this.startMuseumAudio();
+    } else if (level === 3) {
       this.currentActiveAudio = this.audioKraken;
       this.audioKraken.currentTime = 120; // Minuto 2:00
       this.audioKraken.volume = 0.15;
@@ -821,9 +1104,7 @@ class MinijuegosManager {
   startGameplay() {
     this.gameState = 'PLAYING';
     this.stopAllExternalMusic();
-    if (this.currentLevel === 3 || this.currentLevel === 4) {
-      this.playLevelAudio(this.currentLevel);
-    }
+    this.playLevelAudio(this.currentLevel);
   }
 
   handleFail(reasonText) {
